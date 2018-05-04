@@ -15,3 +15,22 @@ This web based application is designed to provide three things into a slack work
 Slash commands must point to a specific URL that corresponds to a Firebase Function. These functions are written inside the functions/index.js file.
 Here is an example of the steps to create and deploy a new slash command. (without auth)
 
+1. Inside the index.js file we create our function that just sends a simple text response back.
+```javascript
+exports.myFunction = functions.https.onRequest((request, response) => {
+res.send(" "text" : "Invoked myFunction"");
+});
+```
+2. Deploy the project to have the functions available.
+
+```bash
+firebase deploy
+```
+
+3. Get the appropriate trigger URL for that function
+
+```
+
+```
+
+4. In the Slack Application Console go to **Slash Commands** and create a new command using the URL we found above as the Request URL and fill in any other information.
