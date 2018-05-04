@@ -18,7 +18,7 @@ Here is an example of the steps to create and deploy a new slash command. (witho
 1. Inside the index.js file we create our function that just sends a simple text response back.
 ```javascript
 exports.myFunction = functions.https.onRequest((request, response) => {
-res.send(" "text" : "Invoked myFunction"");
+res.send(' "text" : "Invoked myFunction" ');
 });
 ```
 2. Deploy the project to have the functions available.
@@ -27,10 +27,12 @@ res.send(" "text" : "Invoked myFunction"");
 firebase deploy
 ```
 
-3. Get the appropriate trigger URL for that function
+3. Get the appropriate trigger URL for that function. This will be in the Functions tab in the Firebase Console
 
 ```
-
+https://us-central1-xpertz-178c0.cloudfunctions.net/myFunction
 ```
 
 4. In the Slack Application Console go to **Slash Commands** and create a new command using the URL we found above as the Request URL and fill in any other information.
+
+5. Use the command in any of the channels the application has access to adn watch the magic!
