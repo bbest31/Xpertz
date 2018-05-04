@@ -13,6 +13,9 @@ This web based application is designed to provide three things into a slack work
 ## HTTPS Slash commands
 
 Slash commands must point to a specific URL that corresponds to a Firebase Function. These functions are written inside the functions/index.js file.
+
+### Simple Example
+
 Here is an example of the steps to create and deploy a new slash command. (without auth)
 
 1. Inside the index.js file we create our function that just sends a simple text response back.
