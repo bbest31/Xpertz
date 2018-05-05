@@ -1,3 +1,4 @@
+
 const functions = require('firebase-functions');
 //var request = require("request");
 
@@ -15,13 +16,26 @@ This file contains all the functions called from Slack using HTTPS.
 //     );
 // });
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
+//==========ACTION BUTTON FUNCTION==========
 
+exports.actions = functions.https.onRequest((req, res) => {
+    //Get the JSON payload object
+    const payload = JSON.parse(req.body.payload);
+    //Grab the attributes we want
+    const callback_id = payload.callback_id;
+    const response_url = payload.response_url;
+
+    //Send the response
+    res.contentType("json").status(200).send({
+         "text":"Callback ID retrieved ${callback_id}"
+     });
+});
+
+//==========MENU OPTIONS FUNCTION===========
+
+exports.menu_options = functions.https.onRequest((req, res) =>{
+    res.sendStatus(200);
+});
 //==========SLASH COMMAND FUNCTIONS==========
 
 // Add Tag Command
@@ -30,6 +44,8 @@ exports.addTag = functions.https.onRequest((req, res) => {
 
 
     res.contentType("json").status(200).send({
+        "fallback": "Add expertise tag inertactive message",
+        "callback_id": "add_tag",
         "response_type": "ephemeral",
         "replace_original": true,
         "text": "*Add an expertise tag* :brain:",
@@ -138,7 +154,13 @@ exports.removeTag = functions.https.onRequest((req, res) => {
                         "text": "Remove",
                         "type": "button",
                         "value": "remove_tag",
-                        "style": "danger"
+                        "style": "danger",
+                        "confirm": {
+                            "title": "Are you sure?",
+                            "text": "Removing this tag will remove all of its hi-fives. Do you still want to?",
+                            "ok_text": "Yes",
+                            "dismiss_text": "No"
+                        }
                     },
                     {
                         "name": "cancel_remove",
@@ -150,4 +172,46 @@ exports.removeTag = functions.https.onRequest((req, res) => {
             }
         ]
     });
+});
+
+// View Profile Command
+exports.profile = functions.https.onRequest((req, res) => {
+    res.contentType('json').status(200).send({
+        "text" : "Invoked the profile command"
+        });
+});
+
+// Hi-Five Command
+exports.hi_five = functions.https.onRequest((req, res) => {
+    res.contentType('json').status(200).send({
+        "text" : "Invoked the hi-five command"
+        });
+});
+
+// Search Command
+exports.search = functions.https.onRequest((req, res) => {
+    res.contentType('json').status(200).send({
+        "text" : "Invoked the search command"
+        });
+});
+
+// View Tags Command
+exports.tags = functions.https.onRequest((req, res) => {
+res.contentType('json').status(200).send({
+"text" : "Invoked the tag list command"
+});
+});
+
+// Xpertz Command List
+exports.commands = functions.https.onRequest((req, res) => {
+res.contentType('json').status(200).send({
+    "text" : "*Xpertz Command List* :scroll:",
+    "attachments" : [
+        {"text" : "View your expertise tags or provide a username to view theirs:\n`/profile` _@username (optional)_"},
+        {"text" : "Add an expertise tag:\n`/add`"},
+        {"text" : "Remove an expertise tag:\n`/removetag`"},
+        {"text" : "View all tags used in current workspace:\n`/tags`"},
+        {"text" : "Search for experts by tag:\n`/search`"}
+    ]
+});
 });

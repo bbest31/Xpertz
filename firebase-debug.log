@@ -1,0 +1,614 @@
+[debug] [2018-05-05T03:34:41.234Z] ----------------------------------------------------------------------
+[debug] [2018-05-05T03:34:41.236Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\brand\AppData\Roaming\npm\node_modules\firebase-tools\bin\firebase deploy
+[debug] [2018-05-05T03:34:41.236Z] CLI Version:   3.18.4
+[debug] [2018-05-05T03:34:41.236Z] Platform:      win32
+[debug] [2018-05-05T03:34:41.236Z] Node Version:  v8.11.1
+[debug] [2018-05-05T03:34:41.237Z] Time:          Fri May 04 2018 21:34:41 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:41.237Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-05-05T03:34:41.246Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-05-05T03:34:41.247Z] > authorizing via signed-in user
+[debug] [2018-05-05T03:34:41.249Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2018-05-05T03:34:41.249Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ { refresh_token: '1/GsyX_gNaAa2uXA8RH4TywM6tA-WHncfdZF36xi7CEWsJ7ZHtwSaxn2rUD9vk-E3C',
+  client_id: '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com',
+  client_secret: 'j9iVZfS8kkCEFUPaAeJV0sAi',
+  grant_type: 'refresh_token',
+  scope: 'email https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/cloudplatformprojects.readonly https://www.googleapis.com/auth/firebase openid' } 
+ Fri May 04 2018 21:34:41 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:41.487Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:41.494Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/xpertz-178c0  
+  
+ Fri May 04 2018 21:34:41 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:42.365Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:42.365Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/xpertz-178c0/tokens  
+  
+ Fri May 04 2018 21:34:42 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:42.726Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Deploying to 'xpertz-178c0'...
+[info] 
+[info] i  deploying database, functions, hosting
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] +  functions: Finished running predeploy script.
+[info] i  database: checking rules syntax...
+[debug] [2018-05-05T03:34:46.548Z] >>> HTTP REQUEST PUT https://xpertz-178c0.firebaseio.com/.settings/rules.json?dryRun=true  
+ {
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}
+ 
+ Fri May 04 2018 21:34:46 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:46.937Z] <<< HTTP RESPONSE 200
+[info] +  database: rules syntax for database xpertz-178c0 is valid
+[debug] [2018-05-05T03:34:46.943Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase serve --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "firebase-admin": "~5.12.0",
+    "firebase-functions": "^1.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.12.0",
+    "eslint-plugin-promise": "^3.6.0"
+  },
+  "private": true
+}
+[info] i  functions: ensuring necessary APIs are enabled...
+[debug] [2018-05-05T03:34:46.946Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/cloudfunctions.googleapis.com/projectSettings/xpertz-178c0?view=CONSUMER_VIEW  
+  
+ Fri May 04 2018 21:34:46 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:46.947Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/xpertz-178c0?view=CONSUMER_VIEW  
+  
+ Fri May 04 2018 21:34:46 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:47.711Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:47.750Z] <<< HTTP RESPONSE 200
+[info] +  functions: all necessary APIs are enabled
+[debug] [2018-05-05T03:34:47.753Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/xpertz-178c0  
+  
+ Fri May 04 2018 21:34:47 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:48.148Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:48.149Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/1015370527223:getServerAppConfig  
+  
+ Fri May 04 2018 21:34:48 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:48.684Z] <<< HTTP RESPONSE 200
+[info] i  functions: preparing functions directory for uploading...
+[debug] [2018-05-05T03:34:48.690Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/xpertz-178c0/configs  
+  
+ Fri May 04 2018 21:34:48 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:48.994Z] <<< HTTP RESPONSE 200
+[info] i  functions: packaged functions (51.72 KB) for uploading
+[debug] [2018-05-05T03:34:49.257Z] >>> HTTP REQUEST POST https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions:generateUploadUrl  
+  
+ Fri May 04 2018 21:34:49 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:49.566Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:49.567Z] >>> HTTP REQUEST PUT https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D  
+ ReadStream {
+  _readableState: 
+   ReadableState {
+     objectMode: false,
+     highWaterMark: 65536,
+     buffer: BufferList { head: [Object], tail: [Object], length: 1 },
+     length: 52964,
+     pipes: null,
+     pipesCount: 0,
+     flowing: null,
+     ended: true,
+     endEmitted: false,
+     reading: false,
+     sync: false,
+     needReadable: false,
+     emittedReadable: true,
+     readableListening: false,
+     resumeScheduled: false,
+     destroyed: false,
+     defaultEncoding: 'utf8',
+     awaitDrain: 0,
+     readingMore: false,
+     decoder: null,
+     encoding: null },
+  readable: true,
+  domain: null,
+  _events: { end: [Function] },
+  _eventsCount: 1,
+  _maxListeners: undefined,
+  path: 'C:\\Users\\brand\\AppData\\Local\\Temp\\firebase-functions-133208FEXJEW35cGy.zip',
+  fd: 5,
+  flags: 'r',
+  mode: 438,
+  start: 0,
+  end: Infinity,
+  autoClose: true,
+  pos: 131072,
+  bytesRead: 52964 } 
+ Fri May 04 2018 21:34:49 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:50.138Z] <<< HTTP RESPONSE 200
+[info] +  functions: functions folder uploaded successfully
+[info] i  hosting: preparing public directory for upload...
+[debug] [2018-05-05T03:34:50.176Z] >>> HTTP REQUEST PUT https://deploy.firebase.com/v1/hosting/xpertz-178c0/uploads/-LBiMRKoV2eTMCwBGZEe?fileCount=1&message=  
+  
+ Fri May 04 2018 21:34:50 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:50.689Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:50.690Z] [hosting] .tgz uploaded successfully, waiting for extraction
+[info] +  hosting: 1 files uploaded successfully
+[debug] [2018-05-05T03:34:51.449Z] [hosting] deploy completed after 1307ms
+[info] i  database: releasing rules...
+[debug] [2018-05-05T03:34:51.732Z] >>> HTTP REQUEST PUT https://xpertz-178c0.firebaseio.com/.settings/rules.json  
+ {
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}
+ 
+ Fri May 04 2018 21:34:51 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.427Z] <<< HTTP RESPONSE 200
+[info] +  database: rules for database xpertz-178c0 released successfully
+[debug] [2018-05-05T03:34:52.428Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions  
+  
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.667Z] <<< HTTP RESPONSE 200
+[info] i  functions: updating function actions...
+[debug] [2018-05-05T03:34:52.672Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating function menu_options...
+[debug] [2018-05-05T03:34:52.673Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating function addTag...
+[debug] [2018-05-05T03:34:52.673Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating function removeTag...
+[debug] [2018-05-05T03:34:52.674Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating function profile...
+[debug] [2018-05-05T03:34:52.675Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating function hi_five...
+[debug] [2018-05-05T03:34:52.676Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating function search...
+[debug] [2018-05-05T03:34:52.676Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating function tags...
+[debug] [2018-05-05T03:34:52.677Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating function commands...
+[debug] [2018-05-05T03:34:52.678Z] Trigger is:  {"httpsTrigger":{}}
+[debug] [2018-05-05T03:34:52.680Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions/actions 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D',
+  name: 'projects/xpertz-178c0/locations/us-central1/functions/actions',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.682Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions/menu_options 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D',
+  name: 'projects/xpertz-178c0/locations/us-central1/functions/menu_options',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.682Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions/addTag 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D',
+  name: 'projects/xpertz-178c0/locations/us-central1/functions/addTag',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.683Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions/removeTag 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D',
+  name: 'projects/xpertz-178c0/locations/us-central1/functions/removeTag',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.684Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions/profile 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D',
+  name: 'projects/xpertz-178c0/locations/us-central1/functions/profile',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.684Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions/hi_five 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D',
+  name: 'projects/xpertz-178c0/locations/us-central1/functions/hi_five',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.684Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions/search 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D',
+  name: 'projects/xpertz-178c0/locations/us-central1/functions/search',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.685Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions/tags 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D',
+  name: 'projects/xpertz-178c0/locations/us-central1/functions/tags',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:52.686Z] >>> HTTP REQUEST PATCH https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions/commands 
+query params: {"updateMask":"sourceUploadUrl,name,labels,httpsTrigger"} 
+ { sourceUploadUrl: 'https://storage.googleapis.com/gcf-upload-us-central1-b68868ae-bc33-4d3d-8c9b-a401a481d556/0f0ec6af-de49-4f56-820b-1ac3a9460079.zip?GoogleAccessId=1015370527223@cloudservices.gserviceaccount.com&Expires=1525493088&Signature=n4y6gkvtuW69DRuhXCD22LA%2FsUyuxadshMxoOIj7sJAVXYm728A%2FDaP4xDTBashWg6QVh%2BL2H6aOkTN404EA%2BzV6kFLfMn%2BoQBGrAwJIuplcgUXc2AkS8IiD1JJBbo2AH3ChViGvOZBe%2FWEgV22Vi%2B9jnoSksBg4Ot26xQAK8Y0cM7OnN3CGFXRmE%2Bi%2BdkSlzPybZRO8rPj%2FSiL7NXrg2MDxWYBciKvY2p%2B4xdFMqDCt1sRpJnO5p4aDajLmLN3bzbhxgGqwyqa8rxwGY9za67iic%2FW9JbImJNXhow0%2BY8jHfObnkShOSIfgtKSLosz4UvwbHkG6Ee2TH4idlEHl2g%3D%3D',
+  name: 'projects/xpertz-178c0/locations/us-central1/functions/commands',
+  labels: { 'deployment-tool': 'cli-firebase' },
+  httpsTrigger: {} } 
+ Fri May 04 2018 21:34:52 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.143Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.192Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.196Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.198Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.204Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.208Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.209Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.216Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.245Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.246Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/projects/xpertz-178c0/locations/us-central1/functions  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.741Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.745Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FjdGlvbnMvR1BJSENFUTdkMEE  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.746Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.746Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FkZFRhZy85TVQ2ZDhtaXlGWQ  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.747Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.748Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3Byb2ZpbGUvNXdUdFBhQ3dwc1U  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.748Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2hpX2ZpdmUvaGkzQk5BWDhLbkk  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.749Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3NlYXJjaC9XdUt3ZlpzVExWdw  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.749Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.750Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:34:53 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:53.958Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.965Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.976Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:53.984Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:54.170Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:54.176Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:54.177Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:54.181Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:54.187Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:55.958Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:34:55 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:55.965Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3NlYXJjaC9XdUt3ZlpzVExWdw  
+  
+ Fri May 04 2018 21:34:55 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:55.977Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2hpX2ZpdmUvaGkzQk5BWDhLbkk  
+  
+ Fri May 04 2018 21:34:55 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:55.984Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FjdGlvbnMvR1BJSENFUTdkMEE  
+  
+ Fri May 04 2018 21:34:55 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:56.171Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:34:56 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:56.178Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:34:56 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:56.179Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:34:56 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:56.184Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3Byb2ZpbGUvNXdUdFBhQ3dwc1U  
+  
+ Fri May 04 2018 21:34:56 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:56.188Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FkZFRhZy85TVQ2ZDhtaXlGWQ  
+  
+ Fri May 04 2018 21:34:56 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:56.366Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:56.375Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:56.387Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:56.404Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:56.583Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:56.584Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:56.586Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:56.601Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:56.602Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:58.368Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:34:58 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:58.376Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3NlYXJjaC9XdUt3ZlpzVExWdw  
+  
+ Fri May 04 2018 21:34:58 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:58.388Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2hpX2ZpdmUvaGkzQk5BWDhLbkk  
+  
+ Fri May 04 2018 21:34:58 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:58.404Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FjdGlvbnMvR1BJSENFUTdkMEE  
+  
+ Fri May 04 2018 21:34:58 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:58.558Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:58.583Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:34:58 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:58.584Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3Byb2ZpbGUvNXdUdFBhQ3dwc1U  
+  
+ Fri May 04 2018 21:34:58 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:58.585Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:34:58 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:58.603Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FkZFRhZy85TVQ2ZDhtaXlGWQ  
+  
+ Fri May 04 2018 21:34:58 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:58.603Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:34:58 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:34:58.780Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:58.787Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:58.789Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:58.813Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:58.995Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:58.996Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:59.001Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:34:59.010Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:00.559Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:35:00 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:00.781Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3NlYXJjaC9XdUt3ZlpzVExWdw  
+  
+ Fri May 04 2018 21:35:00 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:00.788Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2hpX2ZpdmUvaGkzQk5BWDhLbkk  
+  
+ Fri May 04 2018 21:35:00 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:00.791Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:35:00 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:00.815Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FjdGlvbnMvR1BJSENFUTdkMEE  
+  
+ Fri May 04 2018 21:35:00 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:00.963Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:00.993Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:00.995Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3Byb2ZpbGUvNXdUdFBhQ3dwc1U  
+  
+ Fri May 04 2018 21:35:00 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:00.998Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FkZFRhZy85TVQ2ZDhtaXlGWQ  
+  
+ Fri May 04 2018 21:35:00 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:01.001Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:35:01 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:01.010Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:35:01 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:01.197Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:01.198Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:01.228Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:01.399Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:01.406Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:01.410Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:01.415Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:02.964Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:35:02 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:02.994Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3NlYXJjaC9XdUt3ZlpzVExWdw  
+  
+ Fri May 04 2018 21:35:02 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:03.194Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:03.197Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2hpX2ZpdmUvaGkzQk5BWDhLbkk  
+  
+ Fri May 04 2018 21:35:03 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:03.200Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:35:03 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:03.229Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FjdGlvbnMvR1BJSENFUTdkMEE  
+  
+ Fri May 04 2018 21:35:03 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:03.377Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:03.402Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FkZFRhZy85TVQ2ZDhtaXlGWQ  
+  
+ Fri May 04 2018 21:35:03 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:03.407Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3Byb2ZpbGUvNXdUdFBhQ3dwc1U  
+  
+ Fri May 04 2018 21:35:03 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:03.412Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:35:03 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:03.416Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:35:03 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:03.588Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:03.598Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:03.616Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:03.638Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:03.809Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:03.810Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:03.832Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:05.195Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3NlYXJjaC9XdUt3ZlpzVExWdw  
+  
+ Fri May 04 2018 21:35:05 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:05.377Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:35:05 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:05.572Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:05.590Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2hpX2ZpdmUvaGkzQk5BWDhLbkk  
+  
+ Fri May 04 2018 21:35:05 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:05.600Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:35:05 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:05.606Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:05.616Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:35:05 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:05.639Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FjdGlvbnMvR1BJSENFUTdkMEE  
+  
+ Fri May 04 2018 21:35:05 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:05.809Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3Byb2ZpbGUvNXdUdFBhQ3dwc1U  
+  
+ Fri May 04 2018 21:35:05 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:05.810Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FkZFRhZy85TVQ2ZDhtaXlGWQ  
+  
+ Fri May 04 2018 21:35:05 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:05.833Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:35:05 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:05.835Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:05.978Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:06.012Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:06.028Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:06.206Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:06.212Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:06.241Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:07.572Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:35:07 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:07.606Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3NlYXJjaC9XdUt3ZlpzVExWdw  
+  
+ Fri May 04 2018 21:35:07 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:07.837Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FjdGlvbnMvR1BJSENFUTdkMEE  
+  
+ Fri May 04 2018 21:35:07 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:07.978Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2hpX2ZpdmUvaGkzQk5BWDhLbkk  
+  
+ Fri May 04 2018 21:35:07 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:07.993Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:08.013Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:35:08 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:08.029Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:08.029Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:35:08 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:08.207Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3Byb2ZpbGUvNXdUdFBhQ3dwc1U  
+  
+ Fri May 04 2018 21:35:08 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:08.213Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FkZFRhZy85TVQ2ZDhtaXlGWQ  
+  
+ Fri May 04 2018 21:35:08 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:08.236Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:08.242Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:35:08 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:08.359Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:08.423Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:08.440Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:08.621Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:08.624Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:08.657Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:09.995Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:35:09 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:10.030Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3NlYXJjaC9XdUt3ZlpzVExWdw  
+  
+ Fri May 04 2018 21:35:10 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:10.237Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FjdGlvbnMvR1BJSENFUTdkMEE  
+  
+ Fri May 04 2018 21:35:10 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:10.361Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2hpX2ZpdmUvaGkzQk5BWDhLbkk  
+  
+ Fri May 04 2018 21:35:10 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:10.397Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:10.426Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:35:10 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:10.430Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:10.440Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:35:10 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:10.622Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FkZFRhZy85TVQ2ZDhtaXlGWQ  
+  
+ Fri May 04 2018 21:35:10 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:10.625Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3Byb2ZpbGUvNXdUdFBhQ3dwc1U  
+  
+ Fri May 04 2018 21:35:10 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:10.658Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:35:10 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:10.662Z] <<< HTTP RESPONSE 200
+[info] +  functions[actions]: Successful update operation. 
+[debug] [2018-05-05T03:35:10.773Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:10.819Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:10.848Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:11.028Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:11.063Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:11.075Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:12.397Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:35:12 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:12.430Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3NlYXJjaC9XdUt3ZlpzVExWdw  
+  
+ Fri May 04 2018 21:35:12 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:12.773Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2hpX2ZpdmUvaGkzQk5BWDhLbkk  
+  
+ Fri May 04 2018 21:35:12 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:12.813Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:12.820Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:35:12 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:12.840Z] <<< HTTP RESPONSE 200
+[info] +  functions[search]: Successful update operation. 
+[debug] [2018-05-05T03:35:12.848Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:35:12 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:13.027Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:13.029Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3Byb2ZpbGUvNXdUdFBhQ3dwc1U  
+  
+ Fri May 04 2018 21:35:13 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:13.063Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:35:13 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:13.075Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2FkZFRhZy85TVQ2ZDhtaXlGWQ  
+  
+ Fri May 04 2018 21:35:13 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:13.188Z] <<< HTTP RESPONSE 200
+[info] +  functions[hi_five]: Successful update operation. 
+[debug] [2018-05-05T03:35:13.254Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:13.475Z] <<< HTTP RESPONSE 200
+[info] +  functions[profile]: Successful update operation. 
+[debug] [2018-05-05T03:35:13.486Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:13.501Z] <<< HTTP RESPONSE 200
+[info] +  functions[addTag]: Successful update operation. 
+[debug] [2018-05-05T03:35:14.819Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:35:14 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:15.027Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3RhZ3MvQ2l1TlVCWGJlMW8  
+  
+ Fri May 04 2018 21:35:15 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:15.216Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:15.254Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:35:15 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:15.441Z] <<< HTTP RESPONSE 200
+[info] +  functions[tags]: Successful update operation. 
+[debug] [2018-05-05T03:35:15.488Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL3JlbW92ZVRhZy95RU56cXRBTkQ3NA  
+  
+ Fri May 04 2018 21:35:15 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:15.656Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:15.914Z] <<< HTTP RESPONSE 200
+[info] +  functions[removeTag]: Successful update operation. 
+[debug] [2018-05-05T03:35:17.217Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:35:17 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:17.622Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:17.657Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:35:17 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:18.068Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:19.623Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL2NvbW1hbmRzLzhYYlhTU2F2dmY0  
+  
+ Fri May 04 2018 21:35:19 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:20.012Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-05T03:35:20.069Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/operations/eHBlcnR6LTE3OGMwL3VzLWNlbnRyYWwxL21lbnVfb3B0aW9ucy8ydUg3cDdHRG1ETQ  
+  
+ Fri May 04 2018 21:35:20 GMT-0600 (Mountain Daylight Time)
+[debug] [2018-05-05T03:35:20.476Z] <<< HTTP RESPONSE 200
+[info] +  functions[menu_options]: Successful update operation. 
