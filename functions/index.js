@@ -1,5 +1,11 @@
 
+const admin = require('firebase-admin');
 const functions = require('firebase-functions');
+var rp = require('request-promise');
+
+admin.initializeApp(functions.config().firebase);
+var db = admin.firestore();
+
 //var request = require("request");
 
 //=========XPERTZ FUNCTIONS===========
@@ -42,6 +48,7 @@ exports.menu_options = functions.https.onRequest((req, res) =>{
 exports.addTag = functions.https.onRequest((req, res) => {
     //Any validation of user origin
 
+    console.log("body: ", req.body);
 
     res.contentType("json").status(200).send({
         "fallback": "Add expertise tag inertactive message",
@@ -214,4 +221,92 @@ res.contentType('json').status(200).send({
         {"text" : "Search for experts by tag:\n`/search`"}
     ]
 });
+});
+
+
+//Function to handle oauth redirect
+
+/*Response example:
+{
+  "access_token": "xoxp-XXXXXXXX-XXXXXXXX-XXXXX",
+  "scope": "incoming-webhook,commands,bot",
+  "team_name": "Team Installing Your Hook",
+  "team_id": "XXXXXXXXXX",
+  "incoming_webhook": {
+      "url": "https://hooks.slack.com/TXXXXX/BXXXXX/XXXXXXXXXX",
+      "channel": "#channel-it-will-post-to",
+      "configuration_url": "https://teamname.slack.com/services/BXXXXX"
+  },
+  "bot":{
+      "bot_user_id":"UTTTTTTTTTTR",
+      "bot_access_token":"xoxb-XXXXXXXXXXXX-TTTTTTTTTTTTTT"
+  }
+}
+*/
+exports.oauth_redirect = functions.https.onRequest((request, response) => {
+
+  //Check if this is the GET request
+  if (request.method !== "GET") {
+      console.error(`Got unsupported ${request.method} request. Expected GET.`);
+      response.contentType('json').status(405).send({
+        "Status": "Failure - Only GET requests are accepted"
+      });
+      return;
+  }
+
+  //Check if we have code in the request query
+  if (!request.query && !request.query.code) {
+    response.contentType('json').status(401).send({
+      "Status": "Failure - Missing query attribute 'code'"
+    });
+    return;
+  }
+
+  //Create the oauth.success request to Slack API
+  const options = {
+      uri: "https://slack.com/api/oauth.access",
+      method: "GET",
+      json: true,
+      qs: {
+          code: request.query.code,
+          client_id: functions.config().slack.id,
+          client_secret: functions.config().slack.secret
+      }
+  };
+
+  //Execute request to Slack API
+  rp(options)
+    .then(function (slackResponse) {
+      //Check the response value
+      console.log("Repos: ", slackResponse);
+      if (!slackResponse.ok) {
+          console.error("The request was not ok: " + JSON.stringify(slackResponse));
+          response.contentType('json').status(401).send({
+            "Status": "Failure - No response from Slack API"
+          });
+          return;
+      }
+
+      //Add the entry to the database
+      db.collection('installations').doc(slackResponse.team_id).set({
+        token: slackResponse.access_token,
+        team: slackResponse.team_id,
+        webhook: {
+            url: slackResponse.incoming_webhook.url,
+            channel: slackResponse.incoming_webhook.channel_id
+        }
+      }).then(ref => {
+        //Success!!!
+        response.contentType('json').status(200).send({
+          "Status": "Success"
+        });
+      });
+    })
+    .catch(function (err) {
+      //Handle the error
+      console.log("Error: ", err);
+      response.contentType('json').status(401).send({
+        "Status": "Failure - request to Slack API has failed"
+      });
+    });
 });
