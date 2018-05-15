@@ -60,13 +60,18 @@ ex. firebase deploy --only functions:func1,functions:func2
 
 //==========ACTION BUTTON FUNCTION==========
 
+
 exports.actions = functions.https.onRequest((req, res) => {
     //Get the JSON payload object
     const payload = JSON.parse(req.body.payload);
+    console.log("PAYLOAD: ", payload);
     //Grab the attributes we want
     const callback_id = payload.callback_id;
     const response_url = payload.response_url;
     const token = payload.token;
+    const trigger_id = payload.trigger_id;
+
+    console.log("ACTION");
 
     // Validations
     if (!validateToken(token)) {
@@ -74,9 +79,10 @@ exports.actions = functions.https.onRequest((req, res) => {
     } else {
         // Proceed
         if (new String(payload.actions[0]["value"]).valueOf() === new String("cancel").valueOf()) {
-          cancelButtonIsPressed(payload.response_url, success => {
-             console.log("SUCCESS: ", success);
-             res.sendStatus(204);
+          cancelButtonIsPressed(response_url, success => {
+            if (success) {
+              res.sendStatus(OK);
+            }
              return;
           });
         } else if (callback_id === "add_tag") {
@@ -84,13 +90,21 @@ exports.actions = functions.https.onRequest((req, res) => {
             //Handle button response from add tag workflow
             switch (payload.actions[0]["value"]) {
                 case "create":
-                    res.sendStatus(OK);
+                console.log("CREATING DIALOG");
+                    openDialogToAdNewTag(response_url, token, trigger_id, success => {
+                       console.log("SUCCESS: ", success);
+                       // res.sendStatus(OK);
+                       return;
+                    });
                     break;
-
                 case "add":
-                    res.sendStatus(OK);
-                    break;
+                  res.sendStatus(OK);
+                  break;
             }
+        } else if (callback_id === "add_new_tag_dialog") {
+          const submission = payload.submission;
+          console.log("SUBMISSION: ", submission);
+          res.sendStatus(OK);
         }
     }
 });
@@ -116,6 +130,46 @@ function cancelButtonIsPressed(response_url, success) {
 
   rp(options).
   then(response => {
+      if (success) success(true);
+      return;
+  }).
+  catch(err => {
+      if (err) console.log(err);
+      if (success) success(false);
+      return;
+  });
+}
+
+function openDialogToAdNewTag(response_url, token, trigger_id, success) {
+  let options = {
+      method: "POST",
+      uri: "https://slack.com/api/dialog.open",
+      body: {
+        "token": token,
+        "trigger_id": trigger_id,
+        "dialog": {
+          "callback_id": "add_new_tag_dialog",
+          "title": "Create New Tag",
+          "submit_label": "Create",
+          "notify_on_cancel": true,
+          "elements": [
+              {
+                  "type": "text",
+                  "label": "Tag Title",
+                  "name": "tag_title",
+                  "placeholder": "Enter tag title"
+              }
+          ]
+        }
+      },
+      json: true
+  }
+
+  console.log("REQUEST: ", options);
+
+  rp(options).
+  then(response => {
+    console.log("RESPONSE: ", response);
       if (success) success(true);
       return;
   }).
