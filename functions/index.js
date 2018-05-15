@@ -328,6 +328,7 @@ exports.removeTag = functions.https.onRequest((req, res) => {
                 {
                     "fallback": "Interactive menu to remove a tag from user profile",
                     "text": "Choose a tag to remove",
+                    "callback_id" : "remove_tag",
                     "color": "#F21111",
                     "actions": [
                         {
