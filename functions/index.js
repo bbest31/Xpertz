@@ -64,14 +64,12 @@ ex. firebase deploy --only functions:func1,functions:func2
 exports.actions = functions.https.onRequest((req, res) => {
     //Get the JSON payload object
     const payload = JSON.parse(req.body.payload);
-    console.log("PAYLOAD: ", payload);
     //Grab the attributes we want
     const callback_id = payload.callback_id;
     const response_url = payload.response_url;
     const token = payload.token;
     const trigger_id = payload.trigger_id;
-
-    console.log("ACTION");
+    const team_id = payload.team.id;
 
     // Validations
     if (!validateToken(token)) {
@@ -86,13 +84,10 @@ exports.actions = functions.https.onRequest((req, res) => {
              return;
           });
         } else if (callback_id === "add_tag") {
-          console.log("add_tag action");
             //Handle button response from add tag workflow
             switch (payload.actions[0]["value"]) {
                 case "create":
-                console.log("CREATING DIALOG");
-                    openDialogToAdNewTag(response_url, token, trigger_id, success => {
-                       console.log("SUCCESS: ", success);
+                    openDialogToAdNewTag(team_id, trigger_id, success => {
                        // res.sendStatus(OK);
                        return;
                     });
@@ -140,44 +135,50 @@ function cancelButtonIsPressed(response_url, success) {
   });
 }
 
-function openDialogToAdNewTag(response_url, token, trigger_id, success) {
-  let options = {
-      method: "POST",
-      uri: "https://slack.com/api/dialog.open",
-      body: {
-        "token": token,
-        "trigger_id": trigger_id,
-        "dialog": {
-          "callback_id": "add_new_tag_dialog",
-          "title": "Create New Tag",
-          "submit_label": "Create",
-          "notify_on_cancel": true,
-          "elements": [
-              {
-                  "type": "text",
-                  "label": "Tag Title",
-                  "name": "tag_title",
-                  "placeholder": "Enter tag title"
-              }
-          ]
+function openDialogToAdNewTag(team_id, trigger_id, success) {
+    retrieveAccessToken(team_id, token => {
+        if (!token) {
+          success(false);
+        } else {
+          let options = {
+              method: "POST",
+              uri: "https://slack.com/api/dialog.open",
+              headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                'Authorization': 'Bearer ' + token
+              },
+              body: {
+                "trigger_id": trigger_id,
+                "dialog": {
+                  "callback_id": "add_new_tag_dialog",
+                  "title": "Create New Tag",
+                  "submit_label": "Create",
+                  "notify_on_cancel": true,
+                  "elements": [
+                      {
+                          "type": "text",
+                          "label": "Tag Title",
+                          "name": "tag_title",
+                          "placeholder": "Enter tag title"
+                      }
+                  ]
+                }
+              },
+              json: true
+          }
+
+          rp(options).
+          then(response => {
+              if (success) success(true);
+              return;
+          }).
+          catch(err => {
+              if (err) console.log(err);
+              if (success) success(false);
+              return;
+          });
         }
-      },
-      json: true
-  }
-
-  console.log("REQUEST: ", options);
-
-  rp(options).
-  then(response => {
-    console.log("RESPONSE: ", response);
-      if (success) success(true);
-      return;
-  }).
-  catch(err => {
-      if (err) console.log(err);
-      if (success) success(false);
-      return;
-  });
+    });
 }
 
 //==========MENU OPTIONS FUNCTION===========
@@ -644,6 +645,44 @@ function retrieveTeamDoc(team_id, res) {
         } else {
             // Existing document with that team id
             res(true);
+        }
+        return;
+    }).catch(err => {
+        console.log('Error getting document', err);
+        res(false);
+        return;
+    });
+}
+
+/**
+ * Returns the team document of the requesting workspace by querying the installations document in the database.
+ * @param {string} team_id
+ */
+function retrieveAccessToken(team_id, res) {
+    // var teamDoc = db.collection('installations').doc(team_id).get()
+    // .then(doc => {
+    //     console.log('doc in validateTeam', doc);
+    //     if (!doc.exists) {
+    //         //No team with that id found
+    //         res(doc.);
+    //     } else {
+    //         // Existing document with that team id
+    //         res(true);
+    //     }
+    //     return;
+    // })
+    // .catch(err => {
+    //     console.log('Error getting document', err);
+    //     res(false);
+    //     return;
+    // });
+    database.ref('installations/' + team_id).once('value').then(snapshot => {
+        if (!snapshot.val()) {
+            //No team with that id found
+            res(false);
+        } else {
+            // Existing document with that team id
+            res(snapshot.val().token);
         }
         return;
     }).catch(err => {
