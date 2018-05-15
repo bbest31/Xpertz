@@ -76,22 +76,10 @@ exports.actions = functions.https.onRequest((req, res) => {
         res.sendStatus(204);
         if (new String(payload.actions[0]["value"]).valueOf() === new String("cancel").valueOf()) {
 
-            // Cancel Button pressed.
-            console.log("Strings matched");
-            
-            //This isn't working
-            let options = {
-                method: "POST",
-                uri: payload.response_url,
-                body: { "delete_original": true },
-                json: true
-            }
-            request(options, err => {
-                if (err) console.log(err);
-            });
-
+          cancelButtonIsPressed(payload.response_url);
 
         } else if (callback_id === "add_tag") {
+          console.log("add_tag action");
             //Handle button response from add tag workflow
             switch (payload.actions[0]["value"]) {
                 case "create":
@@ -105,6 +93,25 @@ exports.actions = functions.https.onRequest((req, res) => {
         }
     }
 });
+
+function cancelButtonIsPressed(response_url) {
+  
+  let options = {
+      method: "POST",
+      uri: response_url,
+      body: { "delete_original": true },
+      json: true
+  }
+
+  rp(options).
+  then(response => {
+    return;
+  }).
+  catch(err => {
+      if (err) console.log(err);
+      return;
+  });
+}
 
 //==========MENU OPTIONS FUNCTION===========
 
