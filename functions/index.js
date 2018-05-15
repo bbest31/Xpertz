@@ -65,6 +65,7 @@ exports.actions = functions.https.onRequest((req, res) => {
     //Get the JSON payload object
     const payload = JSON.parse(req.body.payload);
     //Grab the attributes we want
+    const type = payload.type;
     const callback_id = payload.callback_id;
     const response_url = payload.response_url;
     const token = payload.token;
@@ -75,32 +76,205 @@ exports.actions = functions.https.onRequest((req, res) => {
     if (!validateToken(token)) {
         res.sendStatus(UNAUTHORIZED);
     } else {
-        // Proceed
-        if (new String(payload.actions[0]["value"]).valueOf() === new String("cancel").valueOf()) {
-          cancelButtonIsPressed(response_url, success => {
-            if (success) {
-              res.sendStatus(OK);
-            }
-             return;
-          });
-        } else if (callback_id === "add_tag") {
-            //Handle button response from add tag workflow
-            switch (payload.actions[0]["value"]) {
-                case "create":
-                    openDialogToAdNewTag(team_id, trigger_id, success => {
-                       // res.sendStatus(OK);
-                       return;
+      if (type === "dialog_submission") {
+          if (callback_id === "add_new_tag_dialog") {
+            const tag_title = payload.submission.tag_title;
+
+            database.ref('tags/' + team_id + '/' + tag_title).once('value').then(snapshot => {
+                if (!snapshot.val()) {
+                  database.ref('tags/' + team_id + "/" + tag_title).set({
+                    tag_title
+                  }).then(ref => {
+                      //Success!!!
+                      res.status(200).send();
+
+                      retrieveAccessToken(team_id, token => {
+                          if (token) {
+                              let options = {
+                                  method: "POST",
+                                  uri: "https://slack.com/api/chat.postEphemeral",
+                                  headers: {
+                                    'Content-Type': 'application/json; charset=utf-8',
+                                    'Authorization': 'Bearer ' + token
+                                  },
+                                  body: {
+                                    "response_type": "ephemeral",
+                                    "replace_original": true,
+                                    "text": "*Expertise tag was successfully added* :raised_hands:",
+                                    "channel": payload.channel.id,
+                                    "user": payload.user.id,
+                                    "as_user": false,
+                                    "attachments": [
+                                      {
+                                        "fallback": "Confirmation of successful tag addition",
+                                        "callback_id": "create_new_tag_success",
+                                        "text": "Tag has been created successfully",
+                                        "color": "#00D68F",
+                                        "attachment_type": "default",
+                                      },
+                                      {
+                                        "fallback": "Interactive menu to add a workspace tag or create a new one",
+                                        "callback_id": "add_tag",
+                                        "text": "Select a tag to add or create a new one!",
+                                        "color": "#3AA3E3",
+                                        "attachment_type": "default",
+                                        "actions": [
+                                            {
+                                                "name": "team_tags_short_listing",
+                                                "text": "Pick a tag...",
+                                                "type": "select",
+                                                "data_source": "external",
+                                                "min_query_length": 3
+                                            },
+                                            {
+                                                "name": "add_tag_btn",
+                                                "text": "Add",
+                                                "type": "button",
+                                                "value": "add",
+                                                "style": "primary"
+                                            },
+                                            {
+                                                "name": "create_tag_btn",
+                                                "text": "Create New",
+                                                "type": "button",
+                                                "value": "create"
+                                            },
+                                            {
+                                                "name": "cancel_add_btn",
+                                                "text": "Cancel",
+                                                "type": "button",
+                                                "value": "cancel"
+                                            }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  json: true
+                              }
+
+                              makeRequestWithOptions(options);
+                            }
+                          });
+                      return;
+                  }).catch(err => {
+                    if (err) console.log(err);
+                    res.status(200).send();
+                    retrieveAccessToken(team_id, token => {
+                        if (token) {
+                          failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
+                        }
                     });
-                    break;
-                case "add":
-                  res.sendStatus(OK);
-                  break;
+                    return;
+                  });
+                } else {
+                  res.status(200).send();
+                  retrieveAccessToken(team_id, token => {
+                      if (token) {
+                        failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag already exists");
+                      }
+                  });
+                }
+                return;
+            }).catch(err => {
+              if (err) console.log(err);
+              res.status(200).send();
+              retrieveAccessToken(team_id, token => {
+                  if (token) {
+                    failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
+                  }
+              });
+              return;
+            });
+          }
+      } else if (type === "dialog_cancellation") {
+        res.status(200).send();
+        retrieveAccessToken(team_id, token => {
+            if (token) {
+              let options = {
+                  method: "POST",
+                  uri: "https://slack.com/api/chat.postEphemeral",
+                  headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Authorization': 'Bearer ' + token
+                  },
+                  body: {
+                    "response_type": "ephemeral",
+                    "replace_original": true,
+                    "text": "*Expertise tag was successfully added* :raised_hands:",
+                    "channel": payload.channel.id,
+                    "user": payload.user.id,
+                    "as_user": false,
+                    "attachments": [
+                        {
+                          "fallback": "Interactive menu to add a workspace tag or create a new one",
+                          "callback_id": "add_tag",
+                          "text": "Select a tag to add or create a new one!",
+                          "color": "#3AA3E3",
+                          "attachment_type": "default",
+                          "actions": [
+                              {
+                                  "name": "team_tags_short_listing",
+                                  "text": "Pick a tag...",
+                                  "type": "select",
+                                  "data_source": "external",
+                                  "min_query_length": 3
+                              },
+                              {
+                                  "name": "add_tag_btn",
+                                  "text": "Add",
+                                  "type": "button",
+                                  "value": "add",
+                                  "style": "primary"
+                              },
+                              {
+                                  "name": "create_tag_btn",
+                                  "text": "Create New",
+                                  "type": "button",
+                                  "value": "create"
+                              },
+                              {
+                                  "name": "cancel_add_btn",
+                                  "text": "Cancel",
+                                  "type": "button",
+                                  "value": "cancel"
+                              }
+                          ]
+                      }
+                    ]
+                  },
+                  json: true
+              }
+
+              makeRequestWithOptions(options);
             }
-        } else if (callback_id === "add_new_tag_dialog") {
-          const submission = payload.submission;
-          console.log("SUBMISSION: ", submission);
-          res.sendStatus(OK);
-        }
+          });
+      } else {
+          // Proceed
+          if (new String(payload.actions[0]["value"]).valueOf() === new String("cancel").valueOf()) {
+            cancelButtonIsPressed(response_url, success => {
+              if (success) {
+                res.sendStatus(OK);
+              }
+               return;
+            });
+          } else if (callback_id === "add_tag") {
+              //Handle button response from add tag workflow
+              switch (payload.actions[0]["value"]) {
+                  case "create":
+                      cancelButtonIsPressed(response_url, success => {
+                        openDialogToAddNewTag(team_id, trigger_id, success => {
+                           res.status(200).send();
+                           return;
+                        });
+                        return;
+                      });
+                      break;
+                  case "add":
+                    res.sendStatus(OK);
+                    break;
+              }
+          }
+      }
     }
 });
 
@@ -135,7 +309,7 @@ function cancelButtonIsPressed(response_url, success) {
   });
 }
 
-function openDialogToAdNewTag(team_id, trigger_id, success) {
+function openDialogToAddNewTag(team_id, trigger_id, success) {
     retrieveAccessToken(team_id, token => {
         if (!token) {
           success(false);
@@ -702,4 +876,84 @@ function validateToken(token) {
     } else {
         return false;
     }
+}
+
+function makeRequestWithOptions(options, success, failure) {
+    rp(options).
+    then(response => {
+        if (response) console.log(response);
+        if (success) success(response);
+        return;
+    }).
+    catch(err => {
+        if (err) console.log(err);
+        if (failure) failure(err);
+        return;
+    });
+}
+
+function failedToCreateTag(token, channel_id, user_id, reason) {
+  let options = {
+      method: "POST",
+      uri: "https://slack.com/api/chat.postEphemeral",
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ' + token
+      },
+      body: {
+        "response_type": "ephemeral",
+        "replace_original": true,
+        "text": "*Expertise tag was successfully added* :raised_hands:",
+        "channel": channel_id,
+        "user": user_id,
+        "as_user": false,
+        "attachments": [
+          {
+            "fallback": "Confirmation of failed tag addition",
+            "callback_id": "create_new_tag_success",
+            "text": reason,
+            "color": "#C44236",
+            "attachment_type": "default",
+          },
+          {
+              "fallback": "Interactive menu to add a workspace tag or create a new one",
+              "callback_id": "add_tag",
+              "text": "Select a tag to add or create a new one!",
+              "color": "#3AA3E3",
+              "attachment_type": "default",
+              "actions": [
+                  {
+                      "name": "team_tags_short_listing",
+                      "text": "Pick a tag...",
+                      "type": "select",
+                      "data_source": "external",
+                      "min_query_length": 3
+                  },
+                  {
+                      "name": "add_tag_btn",
+                      "text": "Add",
+                      "type": "button",
+                      "value": "add",
+                      "style": "primary"
+                  },
+                  {
+                      "name": "create_tag_btn",
+                      "text": "Create New",
+                      "type": "button",
+                      "value": "create"
+                  },
+                  {
+                      "name": "cancel_add_btn",
+                      "text": "Cancel",
+                      "type": "button",
+                      "value": "cancel"
+                  }
+              ]
+            }
+          ]
+        },
+        json: true
+    }
+
+    makeRequestWithOptions(options);
 }
