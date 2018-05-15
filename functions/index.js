@@ -255,7 +255,7 @@ exports.actions = functions.https.onRequest((req, res) => {
               if (success) {
                 res.sendStatus(OK);
               }
-               return;
+              return;
             });
           } else if (callback_id === "add_tag") {
               //Handle button response from add tag workflow
