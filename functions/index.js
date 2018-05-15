@@ -10,7 +10,7 @@ var config = {
     apiKey: "AIzaSyDm6i6hnoJbFO-cPb_6gTV9EmE1g5WqexA",
     authDomain: "xpertz-178c0.firebaseapp.com",
     databaseURL: "https://xpertz-178c0.firebaseio.com/"
-  };
+};
 firebase.initializeApp(config);
 
 // Get a reference to the database service
@@ -66,11 +66,44 @@ exports.actions = functions.https.onRequest((req, res) => {
     //Grab the attributes we want
     const callback_id = payload.callback_id;
     const response_url = payload.response_url;
+    const token = payload.token;
 
-    //Send the response
-    res.contentType("json").status(200).send({
-        "text": "Callback ID retrieved " + callback_id
-    });
+    // Validations
+    if (!validateToken(token)) {
+        res.sendStatus(UNAUTHORIZED);
+    } else {
+        // Proceed
+        res.sendStatus(204);
+        if (new String(payload.actions[0]["value"]).valueOf() === new String("cancel").valueOf()) {
+
+            // Cancel Button pressed.
+            console.log("Strings matched");
+            
+            //This isn't working
+            let options = {
+                method: "POST",
+                uri: payload.response_url,
+                body: { "delete_original": true },
+                json: true
+            }
+            request(options, err => {
+                if (err) console.log(err);
+            });
+
+
+        } else if (callback_id === "add_tag") {
+            //Handle button response from add tag workflow
+            switch (payload.actions[0]["value"]) {
+                case "create":
+                    res.sendStatus(OK);
+                    break;
+
+                case "add":
+                    res.sendStatus(OK);
+                    break;
+            }
+        }
+    }
 });
 
 //==========MENU OPTIONS FUNCTION===========
@@ -140,7 +173,7 @@ exports.menu_options = functions.https.onRequest((req, res) => {
                 var value = slackRequest.value;
                 var team_id = slackRequest.team.id;
                 // dummy response
-                res.contentType('json').status(OK).send({
+                res.contentType('application/json').status(OK).send({
                     "options": [
                         {
                             "text": "Java",
@@ -227,7 +260,7 @@ exports.addTag = functions.https.onRequest((req, res) => {
                             "name": "add_tag_btn",
                             "text": "Add",
                             "type": "button",
-                            "value": "add_tag",
+                            "value": "add",
                             "style": "primary"
 
                         },
@@ -235,14 +268,14 @@ exports.addTag = functions.https.onRequest((req, res) => {
                             "name": "create_tag_btn",
                             "text": "Create New",
                             "type": "button",
-                            "value": "create_tag"
+                            "value": "create"
 
                         },
                         {
                             "name": "cancel_add_btn",
                             "text": "Cancel",
                             "type": "button",
-                            "value": "cancel_add"
+                            "value": "cancel"
 
                         }
 
@@ -329,7 +362,7 @@ exports.removeTag = functions.https.onRequest((req, res) => {
                             "name": "cancel_remove",
                             "text": "Cancel",
                             "type": "button",
-                            "value": "cancel_remove",
+                            "value": "cancel",
                         }
                     ]
                 }
@@ -541,14 +574,14 @@ function retrieveTeamDoc(team_id, res) {
     //     return;
     // });
     database.ref('installations/' + team_id).once('value').then(snapshot => {
-      if (!snapshot.val()) {
-          //No team with that id found
-          res(false);
-      } else {
-          // Existing document with that team id
-          res(true);
-      }
-      return;
+        if (!snapshot.val()) {
+            //No team with that id found
+            res(false);
+        } else {
+            // Existing document with that team id
+            res(true);
+        }
+        return;
     }).catch(err => {
         console.log('Error getting document', err);
         res(false);
