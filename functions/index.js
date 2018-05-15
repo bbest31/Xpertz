@@ -73,9 +73,12 @@ exports.actions = functions.https.onRequest((req, res) => {
         res.sendStatus(UNAUTHORIZED);
     } else {
         // Proceed
-        res.sendStatus(204);
         if (new String(payload.actions[0]["value"]).valueOf() === new String("cancel").valueOf()) {
-          cancelButtonIsPressed(payload.response_url);
+          cancelButtonIsPressed(payload.response_url, success => {
+             console.log("SUCCESS: ", success);
+             res.sendStatus(204);
+             return;
+          });
         } else if (callback_id === "add_tag") {
           console.log("add_tag action");
             //Handle button response from add tag workflow
@@ -606,5 +609,4 @@ function validateToken(token) {
     } else {
         return false;
     }
-
 }
