@@ -75,9 +75,7 @@ exports.actions = functions.https.onRequest((req, res) => {
         // Proceed
         res.sendStatus(204);
         if (new String(payload.actions[0]["value"]).valueOf() === new String("cancel").valueOf()) {
-
           cancelButtonIsPressed(payload.response_url);
-
         } else if (callback_id === "add_tag") {
           console.log("add_tag action");
             //Handle button response from add tag workflow
@@ -94,8 +92,18 @@ exports.actions = functions.https.onRequest((req, res) => {
     }
 });
 
-function cancelButtonIsPressed(response_url) {
-  
+//POSSIBLE USAGE OF cancelButtonIsPressed FUNCTION:
+//
+//   1. This is one way to use the cancel function with the callback block, if something needs to be cleaned up in the database let's say.
+//      cancelButtonIsPressed(payload.response_url, success => {
+//        console.log("SUCCESS: ", success);
+//        return;
+//      });
+//
+//   2. This is simpler way to use cancel function, if callback is unnecessary
+//      cancelButtonIsPressed(payload.response_url);
+function cancelButtonIsPressed(response_url, success) {
+
   let options = {
       method: "POST",
       uri: response_url,
@@ -105,10 +113,12 @@ function cancelButtonIsPressed(response_url) {
 
   rp(options).
   then(response => {
-    return;
+      if (success) success(true);
+      return;
   }).
   catch(err => {
       if (err) console.log(err);
+      if (success) success(false);
       return;
   });
 }
@@ -235,10 +245,8 @@ exports.addTag = functions.https.onRequest((req, res) => {
         res.contentType('json').status(200).send({
             "text": "_Incorrect request!_"
         });
-
     } else if (!validateToken(token)) {
         res.sendStatus(UNAUTHORIZED);
-
     } else {
         // Valid request so we proceed...
 
@@ -261,7 +269,6 @@ exports.addTag = functions.https.onRequest((req, res) => {
                             "type": "select",
                             "data_source": "external",
                             "min_query_length": 3
-
                         },
                         {
                             "name": "add_tag_btn",
@@ -269,31 +276,24 @@ exports.addTag = functions.https.onRequest((req, res) => {
                             "type": "button",
                             "value": "add",
                             "style": "primary"
-
                         },
                         {
                             "name": "create_tag_btn",
                             "text": "Create New",
                             "type": "button",
                             "value": "create"
-
                         },
                         {
                             "name": "cancel_add_btn",
                             "text": "Cancel",
                             "type": "button",
                             "value": "cancel"
-
                         }
-
                     ]
                 }
-
             ]
         });
-
     }
-
 });
 
 /**
