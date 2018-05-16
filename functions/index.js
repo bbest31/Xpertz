@@ -61,12 +61,13 @@ exports.actions = functions.https.onRequest((req, res) => {
         if (type === "dialog_submission") {
             if (callback_id === "add_new_tag_dialog") {
                 const tag_title = payload.submission.tag_title;
-                
+                const description = payload.submission.description;
+
                 database.ref('tags/' + team_id + '/' + tag_title).once('value').then(snapshot => {
                     if (!snapshot.val()) {
                         database.ref('tags/' + team_id + "/" + tag_title).set({
                             tag_title,
-                            value : tag_title.toLowerCase(),
+                            description,
                             count: 0
                         }).then(ref => {
                             //Success!!!
@@ -318,6 +319,13 @@ function openDialogToAddNewTag(team_id, trigger_id, success) {
                                 "label": "Tag Title",
                                 "name": "tag_title",
                                 "placeholder": "Enter tag title"
+                            },
+                            {
+                                "type": "textarea",
+                                "label": "Description",
+                                "name" : "description",
+                                "hint" : "max 140 chars.",
+                                "max_length" : 140
                             }
                         ]
                     }
@@ -407,10 +415,11 @@ exports.menu_options = functions.https.onRequest((req, res) => {
 
             // read workspace tags and add to response
             var teamTagsRef = database.ref('tags/' + team_id).once('value').then(function (snapshot) {
+                // Loop through tag child nodes and add each tag_title as text and value as value for option items in the response.
                 return;
             });
-            var tags = {};
-            res.contentType('json').status(OK).send({
+
+            return res.contentType('json').status(OK).send({
                 "options": [
                     {
                         "text": "Microservices",
@@ -425,8 +434,6 @@ exports.menu_options = functions.https.onRequest((req, res) => {
 
             // Get collection of tags from team
 
-            // Create JSON response.
-            return;
         }
 
     }
