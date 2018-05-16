@@ -61,11 +61,13 @@ exports.actions = functions.https.onRequest((req, res) => {
         if (type === "dialog_submission") {
             if (callback_id === "add_new_tag_dialog") {
                 const tag_title = payload.submission.tag_title;
-
+                
                 database.ref('tags/' + team_id + '/' + tag_title).once('value').then(snapshot => {
                     if (!snapshot.val()) {
                         database.ref('tags/' + team_id + "/" + tag_title).set({
-                            tag_title
+                            tag_title,
+                            value : tag_title.toLowerCase(),
+                            count: 0
                         }).then(ref => {
                             //Success!!!
                             res.status(200).send();
@@ -402,27 +404,30 @@ exports.menu_options = functions.https.onRequest((req, res) => {
         if (menuName === 'team_tags_short_listing') {
             var value = payload.value;
             var team_id = payload.team.id;
-            // dummy response
-            return res.contentType('json').sendStatus(OK).send({
-                "options" : [
+
+            // read workspace tags and add to response
+            var teamTagsRef = database.ref('tags/' + team_id).once('value').then(function (snapshot) {
+                return;
+            });
+            var tags = {};
+            res.contentType('json').status(OK).send({
+                "options": [
                     {
-                        "text" : "Microservices",
-                        "value" : "microservices"
+                        "text": "Microservices",
+                        "value": "microservices"
                     },
                     {
-                        "text" : "Python",
-                        "value" : "python"
+                        "text": "Python",
+                        "value": "python"
                     }
                 ]
             });
 
-    // Get collection of tags from team
+            // Get collection of tags from team
 
-    // Create JSON response.
-
-    // send response
-    // makeRequestWithOptions(options);
-}
+            // Create JSON response.
+            return;
+        }
 
     }
 });
