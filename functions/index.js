@@ -324,8 +324,8 @@ function openDialogToAddNewTag(team_id, trigger_id, success) {
                                 "type": "textarea",
                                 "label": "Description",
                                 "name" : "description",
-                                "hint" : "max 140 chars.",
-                                "max_length" : 140
+                                "max_length" : 140,
+                                "min_length" : 10
                             }
                         ]
                     }
