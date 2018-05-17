@@ -105,7 +105,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                                                     "attachment_type": "default",
                                                     "actions": [
                                                         {
-                                                            "name": "team_tags_short_listing",
+                                                            "name": "team_tags_menu_button",
                                                             "text": "Pick a tag...",
                                                             "type": "select",
                                                             "data_source": "external",
@@ -119,13 +119,13 @@ exports.actions = functions.https.onRequest((req, res) => {
                                                             "style": "primary"
                                                         },
                                                         {
-                                                            "name": "create_tag_btn",
+                                                            "name": "create_tag_button",
                                                             "text": "Create New",
                                                             "type": "button",
                                                             "value": "create"
                                                         },
                                                         {
-                                                            "name": "cancel_add_btn",
+                                                            "name": "cancel_add_button",
                                                             "text": "Cancel",
                                                             "type": "button",
                                                             "value": "cancel"
@@ -198,7 +198,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                                     "attachment_type": "default",
                                     "actions": [
                                         {
-                                            "name": "team_tags_short_listing",
+                                            "name": "team_tags_menu_button",
                                             "text": "Pick a tag...",
                                             "type": "select",
                                             "data_source": "external",
@@ -212,13 +212,13 @@ exports.actions = functions.https.onRequest((req, res) => {
                                             "style": "primary"
                                         },
                                         {
-                                            "name": "create_tag_btn",
+                                            "name": "create_tag_button",
                                             "text": "Create New",
                                             "type": "button",
                                             "value": "create"
                                         },
                                         {
-                                            "name": "cancel_add_btn",
+                                            "name": "cancel_add_button",
                                             "text": "Cancel",
                                             "type": "button",
                                             "value": "cancel"
@@ -243,9 +243,10 @@ exports.actions = functions.https.onRequest((req, res) => {
                     return;
                 });
             } else if (callback_id === "add_tag") {
+
                 //Handle button response from add tag workflow
-                switch (payload.actions[0]["value"]) {
-                    case "create":
+                switch (payload.actions[0]["name"]) {
+                    case "create_tag_button":
                         cancelButtonIsPressed(response_url, success => {
                             openDialogToAddNewTag(team_id, trigger_id, success => {
                                 res.status(200).send();
@@ -254,7 +255,13 @@ exports.actions = functions.https.onRequest((req, res) => {
                             return;
                         });
                         break;
-                    case "add":
+                    case "team_tags_menu_button":
+                    // This was a menu selection for adding a tag
+                    cancelButtonIsPressed(response_url, success => {
+                        var selection = payload.actions[0].selected_options[0].value;
+                        // Add tag to user index and update the message
+                        return;
+                    });
                         res.sendStatus(OK);
                         break;
                 }
@@ -323,9 +330,9 @@ function openDialogToAddNewTag(team_id, trigger_id, success) {
                             {
                                 "type": "textarea",
                                 "label": "Description",
-                                "name" : "description",
-                                "max_length" : 140,
-                                "min_length" : 10
+                                "name": "description",
+                                "max_length": 140,
+                                "min_length": 10
                             }
                         ]
                     }
@@ -409,31 +416,27 @@ exports.menu_options = functions.https.onRequest((req, res) => {
     } else {
         const menuName = payload.name;
 
-        if (menuName === 'team_tags_short_listing') {
+        if (menuName === 'team_tags_menu_button') {
             var value = payload.value;
             var team_id = payload.team.id;
 
             // read workspace tags and add to response
             var teamTagsRef = database.ref('tags/' + team_id).once('value').then(function (snapshot) {
-                // Loop through tag child nodes and add each tag_title as text and value as value for option items in the response.
-                return;
+                var options = {
+                    options: []
+                };
+                // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
+                snapshot.forEach(function (childSnapshot) {
+                    options.options.push({
+                        "text": childSnapshot.key,
+                        "value": childSnapshot.key
+                    });
+                });
+                return res.contentType('json').status(OK).send(options);
             });
 
-            return res.contentType('json').status(OK).send({
-                "options": [
-                    {
-                        "text": "Microservices",
-                        "value": "microservices"
-                    },
-                    {
-                        "text": "Python",
-                        "value": "python"
-                    }
-                ]
-            });
-
-            // Get collection of tags from team
-
+        } else if (menuName === "user_tags_menu_button") {
+            return;
         }
 
     }
@@ -486,27 +489,21 @@ exports.addTag = functions.https.onRequest((req, res) => {
                     "attachment_type": "default",
                     "actions": [
                         {
-                            "name": "team_tags_short_listing",
+                            "name": "team_tags_menu_button",
                             "text": "Pick a tag...",
                             "type": "select",
                             "data_source": "external",
-                            "min_query_length": 3
+                            "min_query_length": 3,
                         },
                         {
-                            "name": "add_tag_btn",
-                            "text": "Add",
+                            "name": "create_tag_button",
+                            "text": "Create New",
                             "type": "button",
-                            "value": "add",
+                            "value": "create",
                             "style": "primary"
                         },
                         {
-                            "name": "create_tag_btn",
-                            "text": "Create New",
-                            "type": "button",
-                            "value": "create"
-                        },
-                        {
-                            "name": "cancel_add_btn",
+                            "name": "cancel_add_button",
                             "text": "Cancel",
                             "type": "button",
                             "value": "cancel"
@@ -588,9 +585,8 @@ exports.removeTag = functions.https.onRequest((req, res) => {
 
 // View Profile Command
 exports.profile = functions.https.onRequest((req, res) => {
-
     res.contentType('json').status(200).send({
-        "text": "Invoked the profile command"
+        "text": "The profile command was invoked."
     });
 });
 
@@ -887,7 +883,7 @@ function failedToCreateTag(token, channel_id, user_id, reason) {
                     "attachment_type": "default",
                     "actions": [
                         {
-                            "name": "team_tags_short_listing",
+                            "name": "team_tags_menu_button",
                             "text": "Pick a tag...",
                             "type": "select",
                             "data_source": "external",
@@ -901,13 +897,13 @@ function failedToCreateTag(token, channel_id, user_id, reason) {
                             "style": "primary"
                         },
                         {
-                            "name": "create_tag_btn",
+                            "name": "create_tag_button",
                             "text": "Create New",
                             "type": "button",
                             "value": "create"
                         },
                         {
-                            "name": "cancel_add_btn",
+                            "name": "cancel_add_button",
                             "text": "Cancel",
                             "type": "button",
                             "value": "cancel"
