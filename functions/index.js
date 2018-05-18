@@ -359,47 +359,7 @@ function openDialogToAddNewTag(team_id, trigger_id, success) {
 /**
  *
  *
- * Example Request
  *
- * {
-    "name": "bugs_list",
-    "value": "bot",
-    "callback_id": "select_remote_1234",
-    "type": "interactive_message",
-    "team": {
-        "id": "T012AB0A1",
-        "domain": "pocket-calculator"
-    },
-    "channel": {
-        "id": "C012AB3CD",
-        "name": "general"
-    },
-    "user": {
-        "id": "U012A1BCJ",
-        "name": "bugcatcher"
-    },
-    "action_ts": "1481670445.010908",
-    "message_ts": "1481670439.000007",
-    "attachment_id": "1",
-    "token": "verification_token_string"
-}
- Example Response
- {
-      "options": [
-        {
-            "text": "Unexpected sentience",
-            "value": "AI-2323"
-        },
-        {
-            "text": "Bot biased toward other bots",
-            "value": "SUPPORT-42"
-        },
-        {
-            "text": "Bot broke my toaster",
-            "value": "IOT-75"
-        }
-    ]
- }
  */
 exports.menu_options = functions.https.onRequest((req, res) => {
     const payload = JSON.parse(req.body.payload);
