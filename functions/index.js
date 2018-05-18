@@ -447,6 +447,9 @@ exports.actions = functions.https.onRequest((req, res) => {
 exports.menu_options = functions.https.onRequest((req, res) => {
     const payload = JSON.parse(req.body.payload);
     var token = payload.token;
+    var user_id = payload.user.id;
+    var team_id = payload.team.id;
+    
     // Validations
     if (!token) {
         res.contentType('json').status(200).send({
@@ -460,16 +463,13 @@ exports.menu_options = functions.https.onRequest((req, res) => {
         const menuName = payload.name;
 
         if (menuName === 'team_tags_menu_button') {
-            var queryText = payload.value;
-            var team_id = payload.team.id;
+            var queryTextToAddTag = payload.value;
 
             // read workspace tags and add to response
-            var teamTagsRef = database.ref('tags/' + team_id).orderByChild('tag_code')
-                 .startAt(queryText.toLowerCase())
-                 .endAt(queryText.toLowerCase()+"\uf8ff")
+            database.ref('tags/' + team_id).orderByChild('tag_code')
+                 .startAt(queryTextToAddTag.toLowerCase())
+                 .endAt(queryTextToAddTag.toLowerCase()+"\uf8ff")
                  .once("value").then(snapshot => {
-
-                   console.log("SNAPSHOT:", snapshot);
 
                 var options = {
                     options: []
@@ -482,29 +482,36 @@ exports.menu_options = functions.https.onRequest((req, res) => {
                     });
                 });
                 return res.contentType('json').status(OK).send(options);
+            })
+            .catch(err => {
+              if (err) console.log(err);
+              return;
             });
 
         } else if (menuName === "user_tags_menu_button") {
-            var value = payload.value;
-            var user_id = payload.user.id;
+            var queryTextToRemoveTag = payload.value;
 
-            var userTagsRef = database.ref('users/' + user_id + '/tags').once('value').then(snapshot => {
+            database.ref('users/' + team_id + '/' + user_id + '/tags')
+                 .once("value").then(snapshot => {
+
                 var options = {
                     options: []
-                }
-                // Loop through tag nodes and add to menu options
+                };
+                // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
                 snapshot.forEach(childSnapshot => {
                     options.options.push({
                         "text": childSnapshot.key,
                         "value": childSnapshot.key
                     });
                 });
-                return;
+
+                return res.contentType('json').status(OK).send(options);
+            })
+            .catch(err => {
+              if (err) console.log(err);
+              return;
             });
-
-            return res.contentType('json').status(OK).send(options);
         }
-
     }
 });
 //==========SLASH COMMAND FUNCTIONS==========
@@ -562,7 +569,6 @@ exports.removeTag = functions.https.onRequest((req, res) => {
     } else {
 
         // Validated
-
 
         res.contentType("json").status(200).send({
             "response_type": "ephemeral",
