@@ -53,6 +53,7 @@ exports.actions = functions.https.onRequest((req, res) => {
     const token = payload.token;
     const trigger_id = payload.trigger_id;
     const team_id = payload.team.id;
+    const user_id = payload.user.id;
 
     // Validations
     if (!validateToken(token)) {
@@ -62,11 +63,13 @@ exports.actions = functions.https.onRequest((req, res) => {
             if (callback_id === "add_new_tag_dialog") {
                 const tag_title = payload.submission.tag_title;
                 const description = payload.submission.description;
+                const tag_code = tag_title.toLowerCase();
 
                 database.ref('tags/' + team_id + '/' + tag_title).once('value').then(snapshot => {
                     if (!snapshot.val()) {
                         database.ref('tags/' + team_id + "/" + tag_title).set({
                             tag_title,
+                            tag_code,
                             description,
                             count: 0
                         }).then(ref => {
@@ -297,6 +300,38 @@ exports.actions = functions.https.onRequest((req, res) => {
                       break;
                   case "add_tag_confirm_button":
                       var tag = payload.actions[0]["value"];
+
+                      database.ref('users/' + team_id + '/' + user_id + '/tags/' + tag).once('value')
+                      .then(snapshot => {
+                          if (!snapshot.val()) {
+                            database.ref('users/' + team_id + '/' + user_id + '/tags/' + tag).set({
+                              tag
+                            }).then(snap => {
+                              database.ref('tags/' + team_id + '/' + tag).transaction(tagValue => {
+                                console.log("BEFORE:", tagValue);
+                                if (tagValue) {
+                                  tagValue.count++;
+                                } else {
+                                  tagValue = {"tag_title": tag,
+                                              "tag_code": tag.toLowerCase(),
+                                              "count": 1 };
+                                }
+                                console.log("AFTER:", tagValue);
+                                return tagValue;
+                              });
+                              return;
+                            }).catch(err => {
+                              if (err) console.log(err);
+                              return;
+                            });
+                          }
+                          return;
+                      })
+                      .catch(err => {
+                          if (err) console.log(err);
+                          return;
+                      });
+
                       res.contentType('json').status(200).send({
                           "response_type": "ephemeral",
                           "replace_original": true,
@@ -405,11 +440,17 @@ exports.menu_options = functions.https.onRequest((req, res) => {
         const menuName = payload.name;
 
         if (menuName === 'team_tags_menu_button') {
-            var value = payload.value;
+            var queryText = payload.value;
             var team_id = payload.team.id;
 
             // read workspace tags and add to response
-            var teamTagsRef = database.ref('tags/' + team_id).once('value').then(snapshot => {
+            var teamTagsRef = database.ref('tags/' + team_id).orderByChild('tag_code')
+                 .startAt(queryText.toLowerCase())
+                 .endAt(queryText.toLowerCase()+"\uf8ff")
+                 .once("value").then(snapshot => {
+
+                   console.log("SNAPSHOT:", snapshot);
+
                 var options = {
                     options: []
                 };
@@ -752,7 +793,7 @@ function retrieveAccessToken(team_id, res) {
         }
         return;
     }).catch(err => {
-        console.log('Error getting document', err);
+      if (err) console.log(err);
         res(false);
         return;
     });
