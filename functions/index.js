@@ -308,7 +308,6 @@ exports.actions = functions.https.onRequest((req, res) => {
                               tag
                             }).then(snap => {
                               database.ref('tags/' + team_id + '/' + tagToAddConfirm).transaction(tagValue => {
-                                console.log("BEFORE:", tagValue);
                                 if (tagValue) {
                                   tagValue.count++;
                                 } else {
@@ -316,7 +315,6 @@ exports.actions = functions.https.onRequest((req, res) => {
                                               "tag_code": tagToAddConfirm.toLowerCase(),
                                               "count": 1 };
                                 }
-                                console.log("AFTER:", tagValue);
                                 return tagValue;
                               });
                               return;
@@ -501,6 +499,7 @@ exports.menu_options = functions.https.onRequest((req, res) => {
                         "value": childSnapshot.key
                     });
                 });
+                return;
             });
 
             return res.contentType('json').status(OK).send(options);
@@ -1021,13 +1020,6 @@ function failedToCreateTag(token, channel_id, user_id, reason) {
                             "type": "select",
                             "data_source": "external",
                             "min_query_length": 3
-                        },
-                        {
-                            "name": "add_tag_btn",
-                            "text": "Add",
-                            "type": "button",
-                            "value": "add",
-                            "style": "primary"
                         },
                         {
                             "name": "create_tag_button",
