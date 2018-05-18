@@ -175,62 +175,62 @@ exports.actions = functions.https.onRequest((req, res) => {
                 });
             }
         } else if (type === "dialog_cancellation") {
-          res.status(200).send();
-          retrieveAccessToken(team_id, token => {
-              if (token) {
-                  let options = {
-                      method: "POST",
-                      uri: "https://slack.com/api/chat.postEphemeral",
-                      headers: {
-                          'Content-Type': 'application/json; charset=utf-8',
-                          'Authorization': 'Bearer ' + token
-                      },
-                      body: {
-                          "response_type": "ephemeral",
-                          "replace_original": true,
-                          "text": "*Add an expertise tag* :brain:",
-                          "channel": payload.channel.id,
-                          "user": payload.user.id,
-                          "as_user": false,
-                          "attachments": [
-                              {
-                                  "fallback": "Interactive menu to add a workspace tag or create a new one",
-                                  "callback_id": "add_tag",
-                                  "text": "Select a tag to add or create a new one!",
-                                  "color": "#3AA3E3",
-                                  "attachment_type": "default",
-                                  "actions": [
-                                      {
-                                          "name": "team_tags_menu_button",
-                                          "text": "Pick a tag...",
-                                          "type": "select",
-                                          "data_source": "external",
-                                          "min_query_length": 3
-                                      },
-                                      {
-                                          "name": "create_tag_button",
-                                          "text": "Create New",
-                                          "type": "button",
-                                          "value": "create"
-                                      },
-                                      {
-                                          "name": "cancel_add_button",
-                                          "text": "Cancel",
-                                          "type": "button",
-                                          "value": "cancel"
-                                      }
-                                  ]
-                              }
-                          ]
-                      },
-                      json: true
-                  }
+            res.status(200).send();
+            retrieveAccessToken(team_id, token => {
+                if (token) {
+                    let options = {
+                        method: "POST",
+                        uri: "https://slack.com/api/chat.postEphemeral",
+                        headers: {
+                            'Content-Type': 'application/json; charset=utf-8',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: {
+                            "response_type": "ephemeral",
+                            "replace_original": true,
+                            "text": "*Add an expertise tag* :brain:",
+                            "channel": payload.channel.id,
+                            "user": payload.user.id,
+                            "as_user": false,
+                            "attachments": [
+                                {
+                                    "fallback": "Interactive menu to add a workspace tag or create a new one",
+                                    "callback_id": "add_tag",
+                                    "text": "Select a tag to add or create a new one!",
+                                    "color": "#3AA3E3",
+                                    "attachment_type": "default",
+                                    "actions": [
+                                        {
+                                            "name": "team_tags_menu_button",
+                                            "text": "Pick a tag...",
+                                            "type": "select",
+                                            "data_source": "external",
+                                            "min_query_length": 3
+                                        },
+                                        {
+                                            "name": "create_tag_button",
+                                            "text": "Create New",
+                                            "type": "button",
+                                            "value": "create"
+                                        },
+                                        {
+                                            "name": "cancel_add_button",
+                                            "text": "Cancel",
+                                            "type": "button",
+                                            "value": "cancel"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        json: true
+                    }
 
-                  makeRequestWithOptions(options);
-              }
-          });
+                    makeRequestWithOptions(options);
+                }
+            });
         } else {
-            // Proceed
+            // Interactive Message
             if (new String(payload.actions[0]["value"]).valueOf() === new String("cancel").valueOf()) {
                 res.status(200).send();
                 cancelButtonIsPressed(response_url);
@@ -248,7 +248,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                         break;
                     case "team_tags_menu_button":
                       // This was a menu selection for adding a tag
-                      var selection = payload.actions[0].selected_options[0].value;
+                      var tagToAdd = payload.actions[0].selected_options[0].value;
                       res.contentType('json').status(200).send({
                           "response_type": "ephemeral",
                           "replace_original": true,
@@ -269,8 +269,8 @@ exports.actions = functions.https.onRequest((req, res) => {
                                           "min_query_length": 3,
                                           "selected_options": [
                                               {
-                                                  "text": selection,
-                                                  "value": selection
+                                                  "text": tagToAdd,
+                                                  "value": tagToAdd
                                               }
                                           ]
                                       },
@@ -278,7 +278,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                                           "name": "add_tag_confirm_button",
                                           "text": "Add",
                                           "type": "button",
-                                          "value": selection,
+                                          "value": tagToAdd,
                                           "style": "primary"
                                       },
                                       {
@@ -299,21 +299,21 @@ exports.actions = functions.https.onRequest((req, res) => {
                       });
                       break;
                   case "add_tag_confirm_button":
-                      var tag = payload.actions[0]["value"];
+                      var tagToAddConfirm = payload.actions[0]["value"];
 
-                      database.ref('users/' + team_id + '/' + user_id + '/tags/' + tag).once('value')
+                      database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).once('value')
                       .then(snapshot => {
                           if (!snapshot.val()) {
-                            database.ref('users/' + team_id + '/' + user_id + '/tags/' + tag).set({
+                            database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).set({
                               tag
                             }).then(snap => {
-                              database.ref('tags/' + team_id + '/' + tag).transaction(tagValue => {
+                              database.ref('tags/' + team_id + '/' + tagToAddConfirm).transaction(tagValue => {
                                 console.log("BEFORE:", tagValue);
                                 if (tagValue) {
                                   tagValue.count++;
                                 } else {
-                                  tagValue = {"tag_title": tag,
-                                              "tag_code": tag.toLowerCase(),
+                                  tagValue = {"tag_title": tagToAddConfirm,
+                                              "tag_code": tagToAddConfirm.toLowerCase(),
                                               "count": 1 };
                                 }
                                 console.log("AFTER:", tagValue);
@@ -340,7 +340,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                               {
                                   "fallback": "Interactive menu to add a workspace tag or create a new one",
                                   "callback_id": "add_more_tags",
-                                  "text": "Tag: " + tag + " has been successfully added to your profile",
+                                  "text": "Tag: " + tagToAddConfirm + " has been successfully added to your profile",
                                   "color": "#00D68F",
                                   "attachment_type": "default",
                                   "actions": [
@@ -372,6 +372,68 @@ exports.actions = functions.https.onRequest((req, res) => {
                   cancelButtonIsPressed(response_url);
                   break;
               }
+            } else if (callback_id === "remove_tag") {
+                switch (payload.actions[0]["name"]) {
+                    case "user_tags_menu_button":
+                        // Update menu button to have selection as the selected item.
+                        var tagToRemove = payload.actions[0].selected_options[0].value;
+                        res.contentType('json').status(OK).send({
+                            "response_type": "ephemeral",
+                            "replace_original": true,
+                            "text": "*Remove a tag* :x:",
+                            "attachments": [
+                                {
+                                    "fallback": "Interactive menu to remove a tag from user profile",
+                                    "text": "Choose a tag to remove",
+                                    "callback_id": "remove_tag",
+                                    "color": "#F21111",
+                                    "actions": [
+                                        {
+                                            "name": "user_tags_menu_button",
+                                            "text": "Pick a tag...",
+                                            "type": "select",
+                                            "min_query_length": 3,
+                                            "data_source": "external",
+                                            "selected_options": [
+                                                {
+                                                    "text": tagToRemove,
+                                                    "value": tagToRemove
+                                                }
+                                            ]
+
+                                        },
+                                        {
+                                            "name": "remove_tag_btn",
+                                            "text": "Remove",
+                                            "type": "button",
+                                            "value": tagToRemove,
+                                            "style": "danger",
+                                            "confirm": {
+                                                "title": "Are you sure?",
+                                                "text": "Removing this tag will remove all of its hi-fives. Do you still want to?",
+                                                "ok_text": "Yes",
+                                                "dismiss_text": "No"
+                                            }
+                                        },
+                                        {
+                                            "name": "cancel_remove",
+                                            "text": "Cancel",
+                                            "type": "button",
+                                            "value": "cancel",
+                                        }
+                                    ]
+                                }
+                            ]
+                        });
+                        break;
+                    case "remove_tag_btn":
+                        //Remove the tag node from the user and decrement workplace count of that tag.
+                        var tagToRemoveConfrim = payload.actions[0]["value"];
+                        var id = payload.user.id;
+                        var userTagRef = database.ref('users/' + id + '/tags/' + tagToRemoveConfrim);
+
+                        break;
+                }
             }
         }
     }
@@ -382,47 +444,7 @@ exports.actions = functions.https.onRequest((req, res) => {
 /**
  *
  *
- * Example Request
  *
- * {
-    "name": "bugs_list",
-    "value": "bot",
-    "callback_id": "select_remote_1234",
-    "type": "interactive_message",
-    "team": {
-        "id": "T012AB0A1",
-        "domain": "pocket-calculator"
-    },
-    "channel": {
-        "id": "C012AB3CD",
-        "name": "general"
-    },
-    "user": {
-        "id": "U012A1BCJ",
-        "name": "bugcatcher"
-    },
-    "action_ts": "1481670445.010908",
-    "message_ts": "1481670439.000007",
-    "attachment_id": "1",
-    "token": "verification_token_string"
-}
- Example Response
- {
-      "options": [
-        {
-            "text": "Unexpected sentience",
-            "value": "AI-2323"
-        },
-        {
-            "text": "Bot biased toward other bots",
-            "value": "SUPPORT-42"
-        },
-        {
-            "text": "Bot broke my toaster",
-            "value": "IOT-75"
-        }
-    ]
- }
  */
 exports.menu_options = functions.https.onRequest((req, res) => {
     const payload = JSON.parse(req.body.payload);
@@ -465,7 +487,23 @@ exports.menu_options = functions.https.onRequest((req, res) => {
             });
 
         } else if (menuName === "user_tags_menu_button") {
-            return;
+            var value = payload.value;
+            var user_id = payload.user.id;
+
+            var userTagsRef = database.ref('users/' + user_id + '/tags').once('value').then(snapshot => {
+                var options = {
+                    options: []
+                }
+                // Loop through tag nodes and add to menu options
+                snapshot.forEach(childSnapshot => {
+                    options.options.push({
+                        "text": childSnapshot.key,
+                        "value": childSnapshot.key
+                    });
+                });
+            });
+
+            return res.contentType('json').status(OK).send(options);
         }
 
     }
@@ -539,7 +577,7 @@ exports.removeTag = functions.https.onRequest((req, res) => {
                     "color": "#F21111",
                     "actions": [
                         {
-                            "name": "my_tags_list",
+                            "name": "user_tags_menu_button",
                             "text": "Pick a tag...",
                             "type": "select",
                             "data_source": "external",
@@ -910,41 +948,41 @@ function makeRequestWithOptions(options, success, failure) {
 }
 
 function sendAddOrCreateTagMessage(res) {
-  res.contentType('json').status(200).send({
-      "response_type": "ephemeral",
-      "replace_original": true,
-      "text": "*Add an expertise tag* :brain:",
-      "attachments": [
-          {
-              "fallback": "Interactive menu to add a workspace tag or create a new one",
-              "callback_id": "add_tag",
-              "text": "Select a tag to add or create a new one!",
-              "color": "#3AA3E3",
-              "attachment_type": "default",
-              "actions": [
-                  {
-                      "name": "team_tags_menu_button",
-                      "text": "Pick a tag...",
-                      "type": "select",
-                      "data_source": "external",
-                      "min_query_length": 3,
-                  },
-                  {
-                      "name": "create_tag_button",
-                      "text": "Create New",
-                      "type": "button",
-                      "value": "create"
-                  },
-                  {
-                      "name": "cancel_add_button",
-                      "text": "Cancel",
-                      "type": "button",
-                      "value": "cancel"
-                  }
-              ]
-          }
-      ]
-  });
+    res.contentType('json').status(200).send({
+        "response_type": "ephemeral",
+        "replace_original": true,
+        "text": "*Add an expertise tag* :brain:",
+        "attachments": [
+            {
+                "fallback": "Interactive menu to add a workspace tag or create a new one",
+                "callback_id": "add_tag",
+                "text": "Select a tag to add or create a new one!",
+                "color": "#3AA3E3",
+                "attachment_type": "default",
+                "actions": [
+                    {
+                        "name": "team_tags_menu_button",
+                        "text": "Pick a tag...",
+                        "type": "select",
+                        "data_source": "external",
+                        "min_query_length": 3,
+                    },
+                    {
+                        "name": "create_tag_button",
+                        "text": "Create New",
+                        "type": "button",
+                        "value": "create"
+                    },
+                    {
+                        "name": "cancel_add_button",
+                        "text": "Cancel",
+                        "type": "button",
+                        "value": "cancel"
+                    }
+                ]
+            }
+        ]
+    });
 }
 
 function failedToCreateTag(token, channel_id, user_id, reason) {
