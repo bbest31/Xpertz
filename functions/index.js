@@ -593,7 +593,6 @@ exports.menu_options = functions.https.onRequest((req, res) => {
   trigger_id: '359113754147.350752158706.334e59ad4556e82cbea59be1f7b0b70f' }
  */
 exports.addTag = functions.https.onRequest((req, res) => {
-    var slackRequest = req.body;
     var token = req.body.token;
 
     //Validations
@@ -612,7 +611,6 @@ exports.addTag = functions.https.onRequest((req, res) => {
  * This command is the initial response when a user wants to remove a tag from their profile.
  */
 exports.removeTag = functions.https.onRequest((req, res) => {
-    var slackRequest = req.body;
     var token = req.body.token;
 
     //Validations
@@ -629,9 +627,100 @@ exports.removeTag = functions.https.onRequest((req, res) => {
 
 // View Profile Command
 exports.profile = functions.https.onRequest((req, res) => {
-    res.contentType('json').status(200).send({
-        "text": "The profile command was invoked."
-    });
+    var token = req.body.token;
+    var user_name = req.body.user_name;
+    var user_id = req.body.user_id;
+    var team_id = req.body.team_id;
+    var text = req.body.text;
+    if (text) {
+      var forSpecificUserId = text.substring(text.indexOf('<@') + 2, text.indexOf('|'));
+      var forSpecificUserName = text.substring(text.indexOf('|') + 1, text.indexOf('>'));
+      if (forSpecificUserId && forSpecificUserName) {
+        user_id = forSpecificUserId;
+        user_name = forSpecificUserName;
+      }
+    }
+
+    //Validations
+    if (!token) {
+        res.contentType('json').status(200).send({
+            "text": "_Incorrect request!_"
+        });
+    } else if (!validateToken(token)) {
+        res.sendStatus(UNAUTHORIZED);
+    } else {
+      var attachments = [
+        {
+          "fallback": "User name's expertise",
+          "text": "*" + user_name + "'s Expertise*",
+          "color": "#2F80ED",
+          "attachment_type": "default"
+        }
+      ];
+
+      database.ref('users/' + team_id + '/' + user_id + '/tags').orderByChild('hi_five_count')
+           .once("value").then(snapshot => {
+
+          var tags = [];
+
+          // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
+          snapshot.forEach(childSnapshot => {
+              tags.push(childSnapshot.val());
+          });
+
+          console.log("BEFORE: ", tags);
+          tags.sort(tag1, tag2 => { return tag2.hi_five_count - tag1.hi_five_count });
+
+          console.log("AFTER: ", tags);
+          tags.forEach(tag => {
+              var hi_five_count = tag.hi_five_count;
+              var color = "#E0E0E0";
+
+              if (hi_five_count > 0 && hi_five_count <= 3) {
+                color = "#F2994A";
+              } else if (hi_five_count > 3 && hi_five_count <= 10) {
+                color = "#6989A7";
+              } else if (hi_five_count > 10) {
+                color = "#F2C94C";
+              }
+
+              attachments.push({
+                "fallback": "Expertise",
+                "fields": [
+                  {
+                      "value": tag.tag,
+                      "short": true
+                  },
+                  {
+                      "value": "Hi fives: " + hi_five_count,
+                      "short": true
+                  }
+                ],
+                "color": color,
+                "attachment_type": "default"
+              });
+          });
+
+          if (attachments.length > 1) {
+              res.contentType('json').status(200).send({
+                  "response_type": "ephemeral",
+                  "replace_original": true,
+                  "attachments": attachments
+              });
+          } else {
+              res.contentType('json').status(200).send({
+                  "response_type": "ephemeral",
+                  "replace_original": true,
+                  "text": user_name + " doesn't have any expertise tags added yet :disappointed:"
+              });
+          }
+          return;
+      })
+      .catch(err => {
+        if (err) console.log(err);
+        return;
+      });
+    }
 });
 
 // Hi-Five Command
