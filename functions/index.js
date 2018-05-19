@@ -305,7 +305,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                       .then(snapshot => {
                           if (!snapshot.val()) {
                             database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).set({
-                              tag
+                              tagToAddConfirm
                             }).then(snap => {
                               database.ref('tags/' + team_id + '/' + tagToAddConfirm).transaction(tagValue => {
                                 if (tagValue) {
