@@ -336,7 +336,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                           "text": "*Expertise tag was succesfully added* :raised_hands:",
                           "attachments": [
                               {
-                                  "fallback": "Interactive menu to add a workspace tag or create a new one",
+                                  "fallback": "Confirmation that tag was successfully added",
                                   "callback_id": "add_more_tags",
                                   "text": "Tag: " + tagToAddConfirm + " has been successfully added to your profile",
                                   "color": "#00D68F",
@@ -350,7 +350,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                                         "style": "primary"
                                     },
                                     {
-                                        "name": "cancel_add_button",
+                                        "name": "cancel",
                                         "text": "Finish",
                                         "type": "button",
                                         "value": "cancel"
@@ -365,9 +365,6 @@ exports.actions = functions.https.onRequest((req, res) => {
               switch (payload.actions[0]["name"]) {
                 case "add_more_tags_button":
                   sendAddOrCreateTagMessage(res);
-                  break;
-                case "cancel":
-                  cancelButtonIsPressed(response_url);
                   break;
               }
             } else if (callback_id === "remove_tag") {
@@ -427,11 +424,71 @@ exports.actions = functions.https.onRequest((req, res) => {
                     case "remove_tag_btn":
                         //Remove the tag node from the user and decrement workplace count of that tag.
                         var tagToRemoveConfrim = payload.actions[0]["value"];
-                        var id = payload.user.id;
-                        var userTagRef = database.ref('users/' + id + '/tags/' + tagToRemoveConfrim);
 
+                        database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToRemoveConfrim).once('value')
+                        .then(snapshot => {
+                          console.log("snapshot: ", snapshot);
+                            if (snapshot.val()) {
+                              database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToRemoveConfrim).remove();
+                              database.ref('tags/' + team_id + '/' + tagToRemoveConfrim).transaction(tagValue => {
+                                if (tagValue) {
+                                  if (tagValue.count > 0) {
+                                    tagValue.count--;
+                                  } else {
+                                    tagValue.count = 0;
+                                  }
+                                } else {
+                                  tagValue = {"tag_title": tagToRemoveConfrim,
+                                              "tag_code": tagToRemoveConfrim.toLowerCase(),
+                                              "count": 0 };
+                                }
+                                return tagValue;
+                              });
+                            }
+                            return;
+                        })
+                        .catch(err => {
+                            if (err) console.log(err);
+                            return;
+                        });
+
+                        res.contentType('json').status(200).send({
+                            "response_type": "ephemeral",
+                            "replace_original": true,
+                            "text": "*Expertise tag was succesfully removed* :cry:",
+                            "attachments": [
+                                {
+                                    "fallback": "Confirmation that tag was successfully removed",
+                                    "callback_id": "remove_more_tags",
+                                    "text": "Tag: " + tagToRemoveConfrim + " has been successfully removed from your profile",
+                                    "color": "#F21111",
+                                    "attachment_type": "default",
+                                    "actions": [
+                                      {
+                                          "name": "remove_more_tags_button",
+                                          "text": "Remove More Tags",
+                                          "type": "button",
+                                          "value": "remove_more",
+                                          "style": "danger"
+                                      },
+                                      {
+                                          "name": "cancel",
+                                          "text": "Finish",
+                                          "type": "button",
+                                          "value": "cancel"
+                                      }
+                                    ]
+                                }
+                            ]
+                        });
                         break;
                 }
+            } else if (callback_id === "remove_more_tags") {
+              switch (payload.actions[0]["name"]) {
+                case "remove_more_tags_button":
+                  sendRemoveTagMessage(res);
+                  break;
+              }
             }
         }
     }
@@ -562,59 +619,11 @@ exports.removeTag = functions.https.onRequest((req, res) => {
         res.contentType('json').status(200).send({
             "text": "_Incorrect request!_"
         });
-
     } else if (!validateToken(token)) {
         res.sendStatus(UNAUTHORIZED);
-
     } else {
-
-        // Validated
-
-        res.contentType("json").status(200).send({
-            "response_type": "ephemeral",
-            "replace_original": true,
-            "text": "*Remove a tag* :x:",
-            "attachments": [
-                {
-                    "fallback": "Interactive menu to remove a tag from user profile",
-                    "text": "Choose a tag to remove",
-                    "callback_id": "remove_tag",
-                    "color": "#F21111",
-                    "actions": [
-                        {
-                            "name": "user_tags_menu_button",
-                            "text": "Pick a tag...",
-                            "type": "select",
-                            "data_source": "external",
-
-                        },
-                        {
-                            "name": "remove_tag_btn",
-                            "text": "Remove",
-                            "type": "button",
-                            "value": "remove_tag",
-                            "style": "danger",
-                            "confirm": {
-                                "title": "Are you sure?",
-                                "text": "Removing this tag will remove all of its hi-fives. Do you still want to?",
-                                "ok_text": "Yes",
-                                "dismiss_text": "No"
-                            }
-                        },
-                        {
-                            "name": "cancel_remove",
-                            "text": "Cancel",
-                            "type": "button",
-                            "value": "cancel",
-                        }
-                    ]
-                }
-            ]
-        });
-
+        sendRemoveTagMessage(res);
     }
-
-
 });
 
 // View Profile Command
@@ -990,6 +999,37 @@ function sendAddOrCreateTagMessage(res) {
     });
 }
 
+function sendRemoveTagMessage(res) {
+  res.contentType("json").status(200).send({
+      "response_type": "ephemeral",
+      "replace_original": true,
+      "text": "*Remove a tag* :x:",
+      "attachments": [
+          {
+              "fallback": "Interactive menu to remove a tag from user profile",
+              "text": "Choose a tag to remove",
+              "callback_id": "remove_tag",
+              "color": "#F21111",
+              "actions": [
+                  {
+                      "name": "user_tags_menu_button",
+                      "text": "Pick a tag...",
+                      "type": "select",
+                      "data_source": "external",
+
+                  },
+                  {
+                      "name": "cancel_remove",
+                      "text": "Cancel",
+                      "type": "button",
+                      "value": "cancel",
+                  }
+              ]
+          }
+      ]
+  });
+}
+
 function failedToCreateTag(token, channel_id, user_id, reason) {
     let options = {
         method: "POST",
@@ -1010,7 +1050,7 @@ function failedToCreateTag(token, channel_id, user_id, reason) {
                     "fallback": "Confirmation of failed tag addition",
                     "callback_id": "create_new_tag_failure",
                     "text": reason,
-                    "color": "#C44236",
+                    "color": "#F21111",
                     "attachment_type": "default",
                 },
                 {
