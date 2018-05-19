@@ -247,127 +247,129 @@ exports.actions = functions.https.onRequest((req, res) => {
                         });
                         break;
                     case "team_tags_menu_button":
-                      // This was a menu selection for adding a tag
-                      var tagToAdd = payload.actions[0].selected_options[0].value;
-                      res.contentType('json').status(200).send({
-                          "response_type": "ephemeral",
-                          "replace_original": true,
-                          "text": "*Add an expertise tag* :brain:",
-                          "attachments": [
-                              {
-                                  "fallback": "Interactive menu to add a workspace tag or create a new one",
-                                  "callback_id": "add_tag",
-                                  "text": "Select a tag to add or create a new one!",
-                                  "color": "#3AA3E3",
-                                  "attachment_type": "default",
-                                  "actions": [
-                                      {
-                                          "name": "team_tags_menu_button",
-                                          "text": "Pick a tag...",
-                                          "type": "select",
-                                          "data_source": "external",
-                                          "min_query_length": 3,
-                                          "selected_options": [
-                                              {
-                                                  "text": tagToAdd,
-                                                  "value": tagToAdd
-                                              }
-                                          ]
-                                      },
-                                      {
-                                          "name": "add_tag_confirm_button",
-                                          "text": "Add",
-                                          "type": "button",
-                                          "value": tagToAdd,
-                                          "style": "primary"
-                                      },
-                                      {
-                                          "name": "create_tag_button",
-                                          "text": "Create New",
-                                          "type": "button",
-                                          "value": "create"
-                                      },
-                                      {
-                                          "name": "cancel_add_button",
-                                          "text": "Cancel",
-                                          "type": "button",
-                                          "value": "cancel"
-                                      }
-                                  ]
-                              }
-                          ]
-                      });
-                      break;
-                  case "add_tag_confirm_button":
-                      var tagToAddConfirm = payload.actions[0]["value"];
-
-                      database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).once('value')
-                      .then(snapshot => {
-                          if (!snapshot.val()) {
-                            database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).set({
-                              "tag": tagToAddConfirm,
-                              "hi_five_count": 0
-                            }).then(snap => {
-                              database.ref('tags/' + team_id + '/' + tagToAddConfirm).transaction(tagValue => {
-                                if (tagValue) {
-                                  tagValue.count++;
-                                } else {
-                                  tagValue = {"tag_title": tagToAddConfirm,
-                                              "tag_code": tagToAddConfirm.toLowerCase(),
-                                              "count": 1 };
+                        // This was a menu selection for adding a tag
+                        var tagToAdd = payload.actions[0].selected_options[0].value;
+                        res.contentType('json').status(200).send({
+                            "response_type": "ephemeral",
+                            "replace_original": true,
+                            "text": "*Add an expertise tag* :brain:",
+                            "attachments": [
+                                {
+                                    "fallback": "Interactive menu to add a workspace tag or create a new one",
+                                    "callback_id": "add_tag",
+                                    "text": "Select a tag to add or create a new one!",
+                                    "color": "#3AA3E3",
+                                    "attachment_type": "default",
+                                    "actions": [
+                                        {
+                                            "name": "team_tags_menu_button",
+                                            "text": "Pick a tag...",
+                                            "type": "select",
+                                            "data_source": "external",
+                                            "min_query_length": 3,
+                                            "selected_options": [
+                                                {
+                                                    "text": tagToAdd,
+                                                    "value": tagToAdd
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "add_tag_confirm_button",
+                                            "text": "Add",
+                                            "type": "button",
+                                            "value": tagToAdd,
+                                            "style": "primary"
+                                        },
+                                        {
+                                            "name": "create_tag_button",
+                                            "text": "Create New",
+                                            "type": "button",
+                                            "value": "create"
+                                        },
+                                        {
+                                            "name": "cancel_add_button",
+                                            "text": "Cancel",
+                                            "type": "button",
+                                            "value": "cancel"
+                                        }
+                                    ]
                                 }
-                                return tagValue;
-                              });
-                              return;
-                            }).catch(err => {
-                              if (err) console.log(err);
-                              return;
-                            });
-                          }
-                          return;
-                      })
-                      .catch(err => {
-                          if (err) console.log(err);
-                          return;
-                      });
+                            ]
+                        });
+                        break;
+                    case "add_tag_confirm_button":
+                        var tagToAddConfirm = payload.actions[0]["value"];
 
-                      res.contentType('json').status(200).send({
-                          "response_type": "ephemeral",
-                          "replace_original": true,
-                          "text": "*Expertise tag was succesfully added* :raised_hands:",
-                          "attachments": [
-                              {
-                                  "fallback": "Confirmation that tag was successfully added",
-                                  "callback_id": "add_more_tags",
-                                  "text": "Tag: " + tagToAddConfirm + " has been successfully added to your profile",
-                                  "color": "#00D68F",
-                                  "attachment_type": "default",
-                                  "actions": [
-                                    {
-                                        "name": "add_more_tags_button",
-                                        "text": "Add More Tags",
-                                        "type": "button",
-                                        "value": "add_more",
-                                        "style": "primary"
-                                    },
-                                    {
-                                        "name": "cancel",
-                                        "text": "Finish",
-                                        "type": "button",
-                                        "value": "cancel"
-                                    }
-                                  ]
-                              }
-                          ]
-                      });
-                      break;
+                        database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).once('value')
+                            .then(snapshot => {
+                                if (!snapshot.val()) {
+                                    database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).set({
+                                        "tag": tagToAddConfirm,
+                                        "hi_five_count": 0
+                                    }).then(snap => {
+                                        database.ref('tags/' + team_id + '/' + tagToAddConfirm).transaction(tagValue => {
+                                            if (tagValue) {
+                                                tagValue.count++;
+                                            } else {
+                                                tagValue = {
+                                                    "tag_title": tagToAddConfirm,
+                                                    "tag_code": tagToAddConfirm.toLowerCase(),
+                                                    "count": 1
+                                                };
+                                            }
+                                            return tagValue;
+                                        });
+                                        return;
+                                    }).catch(err => {
+                                        if (err) console.log(err);
+                                        return;
+                                    });
+                                }
+                                return;
+                            })
+                            .catch(err => {
+                                if (err) console.log(err);
+                                return;
+                            });
+
+                        res.contentType('json').status(200).send({
+                            "response_type": "ephemeral",
+                            "replace_original": true,
+                            "text": "*Expertise tag was succesfully added* :raised_hands:",
+                            "attachments": [
+                                {
+                                    "fallback": "Confirmation that tag was successfully added",
+                                    "callback_id": "add_more_tags",
+                                    "text": "Tag: " + tagToAddConfirm + " has been successfully added to your profile",
+                                    "color": "#00D68F",
+                                    "attachment_type": "default",
+                                    "actions": [
+                                        {
+                                            "name": "add_more_tags_button",
+                                            "text": "Add More Tags",
+                                            "type": "button",
+                                            "value": "add_more",
+                                            "style": "primary"
+                                        },
+                                        {
+                                            "name": "cancel",
+                                            "text": "Finish",
+                                            "type": "button",
+                                            "value": "cancel"
+                                        }
+                                    ]
+                                }
+                            ]
+                        });
+                        break;
                 }
             } else if (callback_id === "add_more_tags") {
-              switch (payload.actions[0]["name"]) {
-                case "add_more_tags_button":
-                  sendAddOrCreateTagMessage(res);
-                  break;
-              }
+                switch (payload.actions[0]["name"]) {
+                    case "add_more_tags_button":
+                        sendAddOrCreateTagMessage(res);
+                        break;
+                }
             } else if (callback_id === "remove_tag") {
                 switch (payload.actions[0]["name"]) {
                     case "user_tags_menu_button":
@@ -424,34 +426,36 @@ exports.actions = functions.https.onRequest((req, res) => {
                         break;
                     case "remove_tag_btn":
                         //Remove the tag node from the user and decrement workplace count of that tag.
-                        var tagToRemoveConfrim = payload.actions[0]["value"];
+                        var tagToRemoveConfirm = payload.actions[0]["value"];
 
-                        database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToRemoveConfrim).once('value')
-                        .then(snapshot => {
-                          console.log("snapshot: ", snapshot);
-                            if (snapshot.val()) {
-                              database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToRemoveConfrim).remove();
-                              database.ref('tags/' + team_id + '/' + tagToRemoveConfrim).transaction(tagValue => {
-                                if (tagValue) {
-                                  if (tagValue.count > 0) {
-                                    tagValue.count--;
-                                  } else {
-                                    tagValue.count = 0;
-                                  }
-                                } else {
-                                  tagValue = {"tag_title": tagToRemoveConfrim,
-                                              "tag_code": tagToRemoveConfrim.toLowerCase(),
-                                              "count": 0 };
+                        database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToRemoveConfirm).once('value')
+                            .then(snapshot => {
+                                console.log("snapshot: ", snapshot);
+                                if (snapshot.val()) {
+                                    database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToRemoveConfirm).remove();
+                                    database.ref('tags/' + team_id + '/' + tagToRemoveConfirm).transaction(tagValue => {
+                                        if (tagValue) {
+                                            if (tagValue.count > 0) {
+                                                tagValue.count--;
+                                            } else {
+                                                tagValue.count = 0;
+                                            }
+                                        } else {
+                                            tagValue = {
+                                                "tag_title": tagToRemoveConfirm,
+                                                "tag_code": tagToRemoveConfirm.toLowerCase(),
+                                                "count": 0
+                                            };
+                                        }
+                                        return tagValue;
+                                    });
                                 }
-                                return tagValue;
-                              });
-                            }
-                            return;
-                        })
-                        .catch(err => {
-                            if (err) console.log(err);
-                            return;
-                        });
+                                return;
+                            })
+                            .catch(err => {
+                                if (err) console.log(err);
+                                return;
+                            });
 
                         res.contentType('json').status(200).send({
                             "response_type": "ephemeral",
@@ -461,23 +465,23 @@ exports.actions = functions.https.onRequest((req, res) => {
                                 {
                                     "fallback": "Confirmation that tag was successfully removed",
                                     "callback_id": "remove_more_tags",
-                                    "text": "Tag: " + tagToRemoveConfrim + " has been successfully removed from your profile",
+                                    "text": "Tag: " + tagToRemoveConfirm + " has been successfully removed from your profile",
                                     "color": "#F21111",
                                     "attachment_type": "default",
                                     "actions": [
-                                      {
-                                          "name": "remove_more_tags_button",
-                                          "text": "Remove More Tags",
-                                          "type": "button",
-                                          "value": "remove_more",
-                                          "style": "danger"
-                                      },
-                                      {
-                                          "name": "cancel",
-                                          "text": "Finish",
-                                          "type": "button",
-                                          "value": "cancel"
-                                      }
+                                        {
+                                            "name": "remove_more_tags_button",
+                                            "text": "Remove More Tags",
+                                            "type": "button",
+                                            "value": "remove_more",
+                                            "style": "danger"
+                                        },
+                                        {
+                                            "name": "cancel",
+                                            "text": "Finish",
+                                            "type": "button",
+                                            "value": "cancel"
+                                        }
                                     ]
                                 }
                             ]
@@ -485,11 +489,65 @@ exports.actions = functions.https.onRequest((req, res) => {
                         break;
                 }
             } else if (callback_id === "remove_more_tags") {
-              switch (payload.actions[0]["name"]) {
-                case "remove_more_tags_button":
-                  sendRemoveTagMessage(res);
-                  break;
-              }
+                switch (payload.actions[0]["name"]) {
+                    case "remove_more_tags_button":
+                        sendRemoveTagMessage(res);
+                        break;
+                }
+            } else if (callback_id === "h5") {
+                switch (payload.actions[0]["name"]) {
+
+                    case "h5_tag_menu_button":
+                        var selectedOption = payload.actions[0].selected_options[0].value;
+                        sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
+                        break;
+
+                    case "h5_button":
+                        var optionValue = payload.actions[0]["value"];
+                        var colleague_name = optionValue.substring(optionValue.indexOf('|') + 1, optionValue.lastIndexOf('|'));
+                        var colleague_id = optionValue.substring(optionValue.lastIndexOf('|') + 1);
+                        var colleague_tag = optionValue.substring(0, optionValue.indexOf('|'));
+
+                        // Increment the hi_five count
+                        database.ref('users/' + team_id + '/' + colleague_id + '/tags/' + colleague_tag).once('value')
+                            .then(snapshot => {
+                                if (snapshot.val()) {
+                                    database.ref('users/' + team_id + '/' + colleague_id + '/tags/' + colleague_tag).transaction(tagNode => {
+                                        if (tagNode) {
+                                            tagNode.hi_five_count++;
+                                        }
+                                        return tagNode;
+                                    });
+                                } else {
+                                    throw new Error;
+                                }
+                                return;
+                            }).catch(err => {
+                                if (err) console.log(err)
+                                res.contentType('json').status(OK).send({
+                                    "response_type": "ephemeral",
+                                    "replace_original": true,
+                                    "text": "Oops! Something went wrong on our side :confused: Try again..."
+                                });
+                                return;
+                            });
+
+                        // Confirmation response
+                        res.contentType('json').status(200).send({
+                            "response_type": "ephemeral",
+                            "replace_original": true,
+                            "attachments": [
+                                {
+                                    "fallback": "Confirmation that the hi-five was successfully given",
+                                    "callback_id": "h5",
+                                    "text": "*You gave " + colleague_name + " a hi-five towards their " + colleague_tag + " expertise* :+1: :tada:",
+                                    "color": "#20BA42",
+                                    "attachment_type": "default",
+                                }
+                            ]
+                        });
+                        break;
+                }
             }
         }
     }
@@ -525,50 +583,50 @@ exports.menu_options = functions.https.onRequest((req, res) => {
 
             // read workspace tags and add to response
             database.ref('tags/' + team_id).orderByChild('tag_code')
-                 .startAt(queryTextToAddTag.toLowerCase())
-                 .endAt(queryTextToAddTag.toLowerCase()+"\uf8ff")
-                 .once("value").then(snapshot => {
+                .startAt(queryTextToAddTag.toLowerCase())
+                .endAt(queryTextToAddTag.toLowerCase() + "\uf8ff")
+                .once("value").then(snapshot => {
 
-                var options = {
-                    options: []
-                };
-                // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
-                snapshot.forEach(childSnapshot => {
-                    options.options.push({
-                        "text": childSnapshot.key,
-                        "value": childSnapshot.key
+                    var options = {
+                        options: []
+                    };
+                    // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
+                    snapshot.forEach(childSnapshot => {
+                        options.options.push({
+                            "text": childSnapshot.key,
+                            "value": childSnapshot.key
+                        });
                     });
+                    return res.contentType('json').status(OK).send(options);
+                })
+                .catch(err => {
+                    if (err) console.log(err);
+                    return;
                 });
-                return res.contentType('json').status(OK).send(options);
-            })
-            .catch(err => {
-              if (err) console.log(err);
-              return;
-            });
 
         } else if (menuName === "user_tags_menu_button") {
             var queryTextToRemoveTag = payload.value;
 
             database.ref('users/' + team_id + '/' + user_id + '/tags')
-                 .once("value").then(snapshot => {
+                .once("value").then(snapshot => {
 
-                var options = {
-                    options: []
-                };
-                // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
-                snapshot.forEach(childSnapshot => {
-                    options.options.push({
-                        "text": childSnapshot.key,
-                        "value": childSnapshot.key
+                    var options = {
+                        options: []
+                    };
+                    // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
+                    snapshot.forEach(childSnapshot => {
+                        options.options.push({
+                            "text": childSnapshot.key,
+                            "value": childSnapshot.key
+                        });
                     });
-                });
 
-                return res.contentType('json').status(OK).send(options);
-            })
-            .catch(err => {
-              if (err) console.log(err);
-              return;
-            });
+                    return res.contentType('json').status(OK).send(options);
+                })
+                .catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
         }
     }
 });
@@ -633,12 +691,12 @@ exports.profile = functions.https.onRequest((req, res) => {
     var team_id = req.body.team_id;
     var text = req.body.text;
     if (text) {
-      var forSpecificUserId = text.substring(text.indexOf('<@') + 2, text.indexOf('|'));
-      var forSpecificUserName = text.substring(text.indexOf('|') + 1, text.indexOf('>'));
-      if (forSpecificUserId && forSpecificUserName) {
-        user_id = forSpecificUserId;
-        user_name = forSpecificUserName;
-      }
+        var forSpecificUserId = text.substring(text.indexOf('<@') + 2, text.indexOf('|'));
+        var forSpecificUserName = text.substring(text.indexOf('|') + 1, text.indexOf('>'));
+        if (forSpecificUserId && forSpecificUserName) {
+            user_id = forSpecificUserId;
+            user_name = forSpecificUserName;
+        }
     }
 
     //Validations
@@ -649,86 +707,112 @@ exports.profile = functions.https.onRequest((req, res) => {
     } else if (!validateToken(token)) {
         res.sendStatus(UNAUTHORIZED);
     } else {
-      var attachments = [
-        {
-          "fallback": "User name's expertise",
-          "text": "*" + user_name + "'s Expertise*",
-          "color": "#2F80ED",
-          "attachment_type": "default"
-        }
-      ];
-
-      database.ref('users/' + team_id + '/' + user_id + '/tags').orderByChild('hi_five_count')
-           .once("value").then(snapshot => {
-
-          var tags = [];
-
-          // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
-          snapshot.forEach(childSnapshot => {
-              tags.push(childSnapshot.val());
-          });
-
-          console.log("BEFORE: ", tags);
-          tags.sort(tag1, tag2 => { return tag2.hi_five_count - tag1.hi_five_count });
-
-          console.log("AFTER: ", tags);
-          tags.forEach(tag => {
-              var hi_five_count = tag.hi_five_count;
-              var color = "#E0E0E0";
-
-              if (hi_five_count > 0 && hi_five_count <= 3) {
-                color = "#F2994A";
-              } else if (hi_five_count > 3 && hi_five_count <= 10) {
-                color = "#6989A7";
-              } else if (hi_five_count > 10) {
-                color = "#F2C94C";
-              }
-
-              attachments.push({
-                "fallback": "Expertise",
-                "fields": [
-                  {
-                      "value": tag.tag,
-                      "short": true
-                  },
-                  {
-                      "value": "Hi fives: " + hi_five_count,
-                      "short": true
-                  }
-                ],
-                "color": color,
+        var attachments = [
+            {
+                "fallback": "User name's expertise",
+                "text": "*" + user_name + "'s Expertise*",
+                "color": "#2F80ED",
                 "attachment_type": "default"
-              });
-          });
+            }
+        ];
 
-          if (attachments.length > 1) {
-              res.contentType('json').status(200).send({
-                  "response_type": "ephemeral",
-                  "replace_original": true,
-                  "attachments": attachments
-              });
-          } else {
-              res.contentType('json').status(200).send({
-                  "response_type": "ephemeral",
-                  "replace_original": true,
-                  "text": user_name + " doesn't have any expertise tags added yet :disappointed:"
-              });
-          }
-          return;
-      })
-      .catch(err => {
-        if (err) console.log(err);
-        return;
-      });
+        database.ref('users/' + team_id + '/' + user_id + '/tags').orderByChild('hi_five_count')
+            .once("value").then(snapshot => {
+
+                var tags = [];
+
+                // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
+                snapshot.forEach(childSnapshot => {
+                    tags.push(childSnapshot.val());
+                });
+
+                console.log("BEFORE: ", tags);
+                tags.sort(tag1, tag2 => { return tag2.hi_five_count - tag1.hi_five_count });
+
+                console.log("AFTER: ", tags);
+                tags.forEach(tag => {
+                    var hi_five_count = tag.hi_five_count;
+                    var color = "#E0E0E0";
+
+                    if (hi_five_count > 0 && hi_five_count <= 3) {
+                        color = "#F2994A";
+                    } else if (hi_five_count > 3 && hi_five_count <= 10) {
+                        color = "#6989A7";
+                    } else if (hi_five_count > 10) {
+                        color = "#F2C94C";
+                    }
+
+                    attachments.push({
+                        "fallback": "Expertise",
+                        "fields": [
+                            {
+                                "value": tag.tag,
+                                "short": true
+                            },
+                            {
+                                "value": "Hi fives: " + hi_five_count,
+                                "short": true
+                            }
+                        ],
+                        "color": color,
+                        "attachment_type": "default"
+                    });
+                });
+
+                if (attachments.length > 1) {
+                    res.contentType('json').status(200).send({
+                        "response_type": "ephemeral",
+                        "replace_original": true,
+                        "attachments": attachments
+                    });
+                } else {
+                    res.contentType('json').status(200).send({
+                        "response_type": "ephemeral",
+                        "replace_original": true,
+                        "text": user_name + " doesn't have any expertise tags added yet :disappointed:"
+                    });
+                }
+                return;
+            })
+            .catch(err => {
+                if (err) console.log(err);
+                return;
+            });
     }
 });
 
 // Hi-Five Command
 exports.hi_five = functions.https.onRequest((req, res) => {
-    res.contentType('json').status(200).send({
-        "text": "Invoked the hi-five command"
-    });
+    var token = req.body.token;
+    var text = req.body.text;
+    if (!token) {
+        res.contentType('json').status(200).send({
+            "text": "_Incorrect request!_"
+        });
+    } else if (!text) {
+        res.contentType('json').status(200).send({
+            "text": "_Must provide a mentioned user!_"
+        });
+    } else if (!validateToken(token)) {
+        res.sendStatus(UNAUTHORIZED);
+    } else {
+        var userId = text.substring(text.indexOf('<@') + 2, text.indexOf('|'));
+        var userName = text.substring(text.indexOf('|') + 1, text.indexOf('>'));
+        if (userId && userName) {
+            if (userId === req.body.user_id) {
+                res.contentType('json').status(200).send({
+                    "text": "_You can't hi-five yourself!_"
+                });
+            } else {
+                sendHiFiveMessage(res, userName, userId, req.body.team_id);
+            }
+        } else {
+            res.contentType('json').status(200).send({
+                "text": "_Must provide a mentioned user!_"
+            });
+        }
 
+    }
 });
 
 // Search Command
@@ -935,7 +1019,7 @@ function retrieveAccessToken(team_id, res) {
         }
         return;
     }).catch(err => {
-      if (err) console.log(err);
+        if (err) console.log(err);
         res(false);
         return;
     });
@@ -1089,35 +1173,197 @@ function sendAddOrCreateTagMessage(res) {
     });
 }
 
-function sendRemoveTagMessage(res) {
-  res.contentType("json").status(200).send({
-      "response_type": "ephemeral",
-      "replace_original": true,
-      "text": "*Remove a tag* :x:",
-      "attachments": [
-          {
-              "fallback": "Interactive menu to remove a tag from user profile",
-              "text": "Choose a tag to remove",
-              "callback_id": "remove_tag",
-              "color": "#F21111",
-              "actions": [
-                  {
-                      "name": "user_tags_menu_button",
-                      "text": "Pick a tag...",
-                      "type": "select",
-                      "data_source": "external",
+/**
+ * Not being used at the moment
+ * @param {*} res 
+ */
+function sendHiFiveInitialMessage(res) {
+    res.contentType("json").status(OK).send({
+        "response_type": "ephemeral",
+        "replace_original": true,
+        "text": "*Give someone a hi-five for helping!* :clap:",
+        "attachments": [
+            {
+                "fallback": "Select a user that helped you out with your issue.",
+                "callback_id": "h5",
+                "text": "Choose the colleague that helped you",
+                "color": "#3AA3E3",
+                "attachment_type": "default",
+                "actions": [
+                    {
+                        "name": "pick_user_menu_button",
+                        "text": "Choose colleague",
+                        "type": "select",
+                        "data_source": "users",
+                    },
+                    {
+                        "name": "cancel_h5_button",
+                        "text": "Cancel",
+                        "value": "cancel",
+                        "type": "button"
+                    }
 
-                  },
-                  {
-                      "name": "cancel_remove",
-                      "text": "Cancel",
-                      "type": "button",
-                      "value": "cancel",
-                  }
-              ]
-          }
-      ]
-  });
+                ]
+            }
+        ]
+    });
+}
+
+/**
+ * This function responds to start the hi_five workflow.
+ * @param {Express.Response} res 
+ * @param {string} user_name 
+ * @param {string} user_id 
+ */
+function sendHiFiveMessage(res, user_name, user_id, team_id) {
+    database.ref('users/' + team_id + '/' + user_id + '/tags')
+        .once("value").then(snapshot => {
+
+            var options = {
+                options: []
+            };
+            // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
+            snapshot.forEach(childSnapshot => {
+                options.options.push({
+                    "text": childSnapshot.key,
+                    "value": childSnapshot.key + '|' + user_name + '|' + user_id
+                });
+            });
+
+            return res.contentType("json").status(OK).send({
+                "response_type": "ephemeral",
+                "replace_original": true,
+                "text": "*Choose one of " + user_name + "'s expertise to hi_five!* :clap:",
+                "attachments": [
+                    {
+                        "fallback": "Select one of their expertise they used to help you out",
+                        "callback_id": "h5",
+                        "text": "Choose the expertise they used to help",
+                        "color": "#20BA42",
+                        "attachment_type": "default",
+                        "actions": [
+                            {
+                                "name": "h5_tag_menu_button",
+                                "text": "Choose expertise",
+                                "type": "select",
+                                "options": options.options,
+                            },
+                            {
+                                "name": "cancel_h5_button",
+                                "text": "Cancel",
+                                "value": "cancel",
+                                "type": "button"
+                            }
+
+                        ]
+                    }
+                ]
+            });
+        })
+        .catch(err => {
+            if (err) console.log(err);
+            return;
+        });
+
+}
+
+function sendHiFiveSelectedTagMessage(res, selectedOption, team_id) {
+    var user_id = selectedOption.substring(selectedOption.lastIndexOf('|') + 1);
+    var user_name = selectedOption.substring(selectedOption.indexOf('|') + 1, selectedOption.lastIndexOf('|'));
+    var selectedTag = selectedOption.substring(0, selectedOption.indexOf('|'));
+
+    database.ref('users/' + team_id + '/' + user_id + '/tags')
+        .once("value").then(snapshot => {
+
+            var options = {
+                options: []
+            };
+            // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
+            snapshot.forEach(childSnapshot => {
+                options.options.push({
+                    "text": childSnapshot.key,
+                    "value": childSnapshot.key + '|' + user_name + '|' + user_id
+                });
+            });
+
+            return res.contentType("json").status(OK).send({
+                "response_type": "ephemeral",
+                "replace_original": true,
+                "text": "*Choose one of " + user_name + "'s expertise to hi_five!* :clap:",
+                "attachments": [
+                    {
+                        "fallback": "Select one of their expertise they used to help you out",
+                        "callback_id": "h5",
+                        "text": "Choose the expertise they used to help",
+                        "color": "#20BA42",
+                        "attachment_type": "default",
+                        "actions": [
+                            {
+                                "name": "h5_tag_menu_button",
+                                "text": "Choose expertise",
+                                "type": "select",
+                                "options": options.options,
+                                "selected_options": [
+                                    {
+                                        "text": selectedTag,
+                                        "value": selectedOption
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "h5_button",
+                                "type": "button",
+                                "text": "Hi-Five!",
+                                "value": selectedOption,
+                                "style": "primary"
+                            },
+                            {
+                                "name": "cancel_h5_button",
+                                "text": "Cancel",
+                                "value": "cancel",
+                                "type": "button"
+                            }
+
+                        ]
+                    }
+                ]
+            });
+        })
+        .catch(err => {
+            if (err) console.log(err);
+            return;
+        });
+}
+
+function sendRemoveTagMessage(res) {
+    res.contentType("json").status(200).send({
+        "response_type": "ephemeral",
+        "replace_original": true,
+        "text": "*Remove a tag* :x:",
+        "attachments": [
+            {
+                "fallback": "Interactive menu to remove a tag from user profile",
+                "text": "Choose a tag to remove",
+                "callback_id": "remove_tag",
+                "color": "#F21111",
+                "actions": [
+                    {
+                        "name": "user_tags_menu_button",
+                        "text": "Pick a tag...",
+                        "type": "select",
+                        "data_source": "external",
+
+                    },
+                    {
+                        "name": "cancel_remove",
+                        "text": "Cancel",
+                        "type": "button",
+                        "value": "cancel",
+                    }
+                ]
+            }
+        ]
+    });
 }
 
 function failedToCreateTag(token, channel_id, user_id, reason) {
