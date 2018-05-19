@@ -305,7 +305,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                       .then(snapshot => {
                           if (!snapshot.val()) {
                             database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).set({
-                              tagToAddConfirm
+                              "tag": tagToAddConfirm
                             }).then(snap => {
                               database.ref('tags/' + team_id + '/' + tagToAddConfirm).transaction(tagValue => {
                                 if (tagValue) {
@@ -449,7 +449,7 @@ exports.menu_options = functions.https.onRequest((req, res) => {
     var token = payload.token;
     var user_id = payload.user.id;
     var team_id = payload.team.id;
-    
+
     // Validations
     if (!token) {
         res.contentType('json').status(200).send({
