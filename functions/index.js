@@ -727,7 +727,7 @@ exports.profile = functions.https.onRequest((req, res) => {
                 });
 
                 console.log("BEFORE: ", tags);
-                tags.sort(tag1, tag2 => { return tag2.hi_five_count - tag1.hi_five_count });
+                tags.sort((tag1, tag2) => { return tag2.hi_five_count - tag1.hi_five_count });
 
                 console.log("AFTER: ", tags);
                 tags.forEach(tag => {
