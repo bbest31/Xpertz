@@ -27,7 +27,7 @@ module.exports = {
 
       //Validations
       if (util.validateToken(token, res)) {
-          add.sendAddOrCreateTagMessage(res);
+          sendAddOrCreateTagMessage(res);
       }
   },
 
@@ -272,7 +272,7 @@ module.exports = {
                 res.status(OK).send();
                 util.retrieveAccessToken(team_id, token => {
                     if (token) {
-                        add.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
+                        failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
                     }
                 });
                 return;

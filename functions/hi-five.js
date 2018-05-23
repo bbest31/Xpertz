@@ -206,7 +206,7 @@ module.exports = {
 
         case "h5_tag_menu_button":
             var selectedOption = payload.actions[0].selected_options[0].value;
-            hiFive.sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
+            sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
             break;
 
         case "h5_button":
