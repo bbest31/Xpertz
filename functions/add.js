@@ -281,7 +281,7 @@ module.exports = {
             res.status(OK).send();
             util.retrieveAccessToken(team_id, token => {
                 if (token) {
-                    add.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag already exists");
+                    failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag already exists");
                 }
             });
         }
@@ -291,7 +291,7 @@ module.exports = {
         res.status(OK).send();
         util.retrieveAccessToken(team_id, token => {
             if (token) {
-                add.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
+                failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
             }
         });
         return;
@@ -368,7 +368,7 @@ module.exports = {
     switch (payload.actions[0]["name"]) {
         case "create_tag_button":
             util.cancelButtonIsPressed(response_url, success => {
-                add.openDialogToAddNewTag(team_id, trigger_id, success => {
+                openDialogToAddNewTag(team_id, trigger_id, success => {
                     res.status(OK).send();
                     return;
                 });
