@@ -10,7 +10,7 @@ module.exports = {
 
     //Validations
     if (util.validateToken(token, res)) {
-        sendSearchInitialTagMessage(res);
+        module.exports.sendSearchInitialTagMessage(res);
     }
   },
 

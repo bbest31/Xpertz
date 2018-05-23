@@ -16,6 +16,7 @@ const UNAUTHORIZED = 401;
 const OK = 200;
 
 module.exports = {
+  
   makeRequestWithOptions: function (options, success, failure) {
       rp(options)
       .then(response => {

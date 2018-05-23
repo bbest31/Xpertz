@@ -1,4 +1,8 @@
 const util = require('./util');
+const firebase = require('firebase');
+
+// Get a reference to the database service
+const database = firebase.database();
 
 const UNAUTHORIZED = 401;
 const OK = 200;
@@ -10,7 +14,7 @@ module.exports = {
 
     //Validations
     if (util.validateToken(token, res)) {
-        sendRemoveTagMessage(res);
+        module.exports.sendRemoveTagMessage(res);
     }
   },
 

@@ -18,6 +18,7 @@ module.exports = {
               res.contentType('json').status(OK).send({
                   "text": "_Must provide a mentioned user!_"
               });
+            } else {
               var userId = text.substring(text.indexOf('<@') + 2, text.indexOf('|'));
               var userName = text.substring(text.indexOf('|') + 1, text.indexOf('>'));
               if (userId && userName) {
@@ -26,7 +27,7 @@ module.exports = {
                           "text": "_You can't hi-five yourself!_"
                       });
                   } else {
-                      sendHiFiveMessage(res, userName, userId, req.body.team_id);
+                      module.exports.sendHiFiveMessage(res, userName, userId, req.body.team_id);
                   }
               } else {
                   res.contentType('json').status(OK).send({
@@ -206,7 +207,7 @@ module.exports = {
 
         case "h5_tag_menu_button":
             var selectedOption = payload.actions[0].selected_options[0].value;
-            sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
+            module.exports.sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
             break;
 
         case "h5_button":

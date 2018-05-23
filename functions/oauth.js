@@ -70,7 +70,7 @@ module.exports = {
                     });
                     return;
                 }
-                saveWorkspaceAsANewInstallation(slackResponse, response);
+                module.exports.saveWorkspaceAsANewInstallation(slackResponse, response);
                 return;
             })
             .catch(err => {

@@ -57,7 +57,7 @@ exports.actions = functions.https.onRequest((req, res) => {
     if (util.validateToken(token, res)) {
         if (type === "dialog_submission") {
             if (callback_id === "add_new_tag_dialog") {
-                add.addNewTagDialog(payload);
+                add.addNewTagDialog(payload, res);
             }
         } else if (type === "dialog_cancellation") {
             add.dialogCancellation(payload, res);
@@ -110,7 +110,7 @@ exports.menu_options = functions.https.onRequest((req, res) => {
 
         if (menuName === 'team_tags_menu_button' || menuName === 'search_tag_menu_button') {
             var queryTextForTagsList = payload.value;
-            tags.tagsListMenu(queryTextForTagsList, res);
+            tags.tagsListMenu(team_id, queryTextForTagsList, res);
         } else if (menuName === "user_tags_menu_button") {
             tags.userTagsMenu(team_id, user_id, res);
         }

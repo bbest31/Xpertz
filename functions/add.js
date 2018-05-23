@@ -1,5 +1,9 @@
 const util = require('./util');
 const rp = require('request-promise');
+const firebase = require('firebase');
+
+// Get a reference to the database service
+const database = firebase.database();
 
 const OK = 200;
 
@@ -27,7 +31,7 @@ module.exports = {
 
       //Validations
       if (util.validateToken(token, res)) {
-          sendAddOrCreateTagMessage(res);
+          module.exports.sendAddOrCreateTagMessage(res);
       }
   },
 
@@ -181,7 +185,7 @@ module.exports = {
       util.makeRequestWithOptions(options);
   },
 
-  addNewTagDialog: function (payload) {
+  addNewTagDialog: function (payload, res) {
     const token = payload.token;
     const team_id = payload.team.id;
     const tag_title = payload.submission.tag_title;
@@ -238,13 +242,6 @@ module.exports = {
                                                 "min_query_length": 1
                                             },
                                             {
-                                                "name": "add_tag_btn",
-                                                "text": "Add",
-                                                "type": "button",
-                                                "value": "add",
-                                                "style": "primary"
-                                            },
-                                            {
                                                 "name": "create_tag_button",
                                                 "text": "Create New",
                                                 "type": "button",
@@ -272,7 +269,7 @@ module.exports = {
                 res.status(OK).send();
                 util.retrieveAccessToken(team_id, token => {
                     if (token) {
-                        failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
+                        module.exports.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
                     }
                 });
                 return;
@@ -281,7 +278,7 @@ module.exports = {
             res.status(OK).send();
             util.retrieveAccessToken(team_id, token => {
                 if (token) {
-                    failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag already exists");
+                    module.exports.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag already exists");
                 }
             });
         }
@@ -291,7 +288,7 @@ module.exports = {
         res.status(OK).send();
         util.retrieveAccessToken(team_id, token => {
             if (token) {
-                failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
+                module.exports.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
             }
         });
         return;
@@ -368,7 +365,7 @@ module.exports = {
     switch (payload.actions[0]["name"]) {
         case "create_tag_button":
             util.cancelButtonIsPressed(response_url, success => {
-                openDialogToAddNewTag(team_id, trigger_id, success => {
+                module.exports.openDialogToAddNewTag(team_id, trigger_id, success => {
                     res.status(OK).send();
                     return;
                 });
