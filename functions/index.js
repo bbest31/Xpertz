@@ -86,6 +86,15 @@ exports.actions = functions.https.onRequest((req, res) => {
                 hiFive.hiFiveAction(payload, res);
             } else if (callback_id === "search_tag") {
                 search.searchTagAction(payload, res);
+            } else if (callback_id === "tags_list"){
+                switch(payload.actions[0]["name"]){
+                    case "tags_next_button":
+                    tags.tagsNextAction(req, res);
+                    break;
+                    case "tags_previous_button":
+                    tags.tagsPreviousAction(req, res);
+                    break;
+                }
             }
         }
     }
