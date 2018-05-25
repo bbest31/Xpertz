@@ -65,6 +65,9 @@ module.exports = {
 
             database.ref('tags/' + team_id + '/' + selectedTag).once("value").then(snapshot => {
                 if (snapshot.val()) {
+                    var description = snapshot.child("description").val();
+                    var count = snapshot.child("count").val();
+                    console.log("Count and Desciption:", count, description);
                     return response.contentType('json').status(OK).send({
                         "response_type": "ephemeral",
                         "replace_original": true,
@@ -82,8 +85,8 @@ module.exports = {
                                         "data_source": "external",
                                         "selected_options": [
                                             {
-                                                "text": snapshot.tag_title,
-                                                "value": selectedTag
+                                                "text": snapshot.key,
+                                                "value": snapshot.key
                                             }
                                         ]
                                     },
@@ -96,10 +99,10 @@ module.exports = {
                                 ]
                             },
                             {
-                                "fallback": snapshot.tag_title + '\n' + snapshot.description + '\nColleagues using this tag: ' + snapshot.count,
+                                "fallback": snapshot.key + '\n' + description + '\nColleagues using this tag: ' + count,
                                 "color": "#3AA3E3",
-                                "title": snapshot.tag_title,
-                                "text": snapshot.description + '\nColleagues using this tag: ' + snapshot.count
+                                "title": snapshot.key,
+                                "text": description + '\nColleagues using this tag: ' + count
                             }
                         ]
                     });
