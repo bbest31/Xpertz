@@ -160,7 +160,7 @@ module.exports = {
                 // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
                 snapshot.forEach(childSnapshot => {
                     options.options.push({
-                        "text": childSnapshot.tag_title,
+                        "text": childSnapshot.key,
                         "value": childSnapshot.key
                     });
                 });
@@ -168,7 +168,7 @@ module.exports = {
             })
             .catch(err => {
                 if (err) console.log(err);
-                return;
+                res.contentType('json').status(404).send("Error");
             });
     },
 
