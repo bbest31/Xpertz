@@ -173,7 +173,7 @@ module.exports = {
     },
 
     userTagsMenu: function (team_id, user_id, res) {
-        database.ref('users/' + team_id + '/' + user_id + '/tags')
+        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags')
             .once("value").then(snapshot => {
 
                 var options = {

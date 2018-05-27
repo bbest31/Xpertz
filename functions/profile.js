@@ -35,7 +35,7 @@ module.exports = {
             }
         ];
 
-        database.ref('users/' + team_id + '/' + user_id + '/tags').orderByChild('hi_five_count')
+        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags').orderByChild('hi_five_count')
             .once("value").then(snapshot => {
 
                 var tags = [];

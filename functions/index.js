@@ -40,7 +40,6 @@ ex. firebase deploy --only functions:func1,functions:func2
 
 //==========ACTION BUTTON FUNCTION==========
 
-
 exports.actions = functions.https.onRequest((req, res) => {
     //Get the JSON payload object
     const payload = JSON.parse(req.body.payload);

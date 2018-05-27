@@ -359,6 +359,7 @@ module.exports = {
     const response_url = payload.response_url;
     const team_id = payload.team.id;
     const user_id = payload.user.id;
+    const username = payload.user.name;
     const trigger_id = payload.trigger_id;
 
     //Handle button response from add tag workflow
@@ -427,10 +428,10 @@ module.exports = {
         case "add_tag_confirm_button":
             var tagToAddConfirm = payload.actions[0]["value"];
 
-            database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).once('value')
+            database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).once('value')
                 .then(snapshot => {
                     if (!snapshot.val()) {
-                        database.ref('users/' + team_id + '/' + user_id + '/tags/' + tagToAddConfirm).set({
+                        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).set({
                             "tag": tagToAddConfirm,
                             "hi_five_count": 0
                         }).then(snap => {
@@ -447,6 +448,25 @@ module.exports = {
                                 return tagValue;
                             });
                             return;
+                        }).catch(err => {
+                            if (err) console.log(err);
+                            return;
+                        });
+                    }
+                    return;
+                })
+                .catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
+
+            database.ref('workspaces/' + team_id + '/tags/' + tagToAddConfirm + '/users/' + user_id).once('value')
+                .then(snapshot => {
+                    if (!snapshot.val()) {
+                        database.ref('workspaces/' + team_id + '/tags/' + tagToAddConfirm + '/users/' + user_id).set({
+                            "user_id": user_id,
+                            "username": username,
+                            "hi_five_count": 0
                         }).catch(err => {
                             if (err) console.log(err);
                             return;

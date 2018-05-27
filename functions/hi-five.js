@@ -81,7 +81,7 @@ module.exports = {
    * @param {string} user_id
    */
   sendHiFiveMessage: function (res, user_name, user_id, team_id) {
-      database.ref('users/' + team_id + '/' + user_id + '/tags')
+      database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags')
           .once("value").then(snapshot => {
 
               var options = {
@@ -137,7 +137,7 @@ module.exports = {
       var user_name = selectedOption.substring(selectedOption.indexOf('|') + 1, selectedOption.lastIndexOf('|'));
       var selectedTag = selectedOption.substring(0, selectedOption.indexOf('|'));
 
-      database.ref('users/' + team_id + '/' + user_id + '/tags')
+      database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags')
           .once("value").then(snapshot => {
 
               var options = {
@@ -217,10 +217,10 @@ module.exports = {
             var colleague_tag = optionValue.substring(0, optionValue.indexOf('|'));
 
             // Increment the hi_five count
-            database.ref('users/' + team_id + '/' + colleague_id + '/tags/' + colleague_tag).once('value')
+            database.ref('workspaces/' + team_id + '/users/' + colleague_id + '/tags/' + colleague_tag).once('value')
                 .then(snapshot => {
                     if (snapshot.val()) {
-                        database.ref('users/' + team_id + '/' + colleague_id + '/tags/' + colleague_tag).transaction(tagNode => {
+                        database.ref('workspaces/' + team_id + '/users/' + colleague_id + '/tags/' + colleague_tag).transaction(tagNode => {
                             if (tagNode) {
                                 tagNode.hi_five_count++;
                             }
@@ -239,6 +239,29 @@ module.exports = {
                     });
                     return;
                 });
+
+                database.ref('workspaces/' + team_id + '/tags/' + colleague_tag + '/users/' + colleague_id).once('value')
+                    .then(snapshot => {
+                        if (snapshot.val()) {
+                            database.ref('workspaces/' + team_id + '/tags/' + colleague_tag + '/users/' + colleague_id).transaction(tagNode => {
+                                if (tagNode) {
+                                    tagNode.hi_five_count++;
+                                }
+                                return tagNode;
+                            });
+                        } else {
+                            throw new Error;
+                        }
+                        return;
+                    }).catch(err => {
+                        if (err) console.log(err)
+                        res.contentType('json').status(OK).send({
+                            "response_type": "ephemeral",
+                            "replace_original": true,
+                            "text": "Oops! Something went wrong on our side :confused: Try again..."
+                        });
+                        return;
+                    });
 
             // Confirmation response
             res.contentType('json').status(OK).send({

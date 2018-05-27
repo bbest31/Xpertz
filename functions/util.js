@@ -16,7 +16,7 @@ const UNAUTHORIZED = 401;
 const OK = 200;
 
 module.exports = {
-  
+
   makeRequestWithOptions: function (options, success, failure) {
       rp(options)
       .then(response => {
@@ -89,6 +89,27 @@ module.exports = {
         res.sendStatus(UNAUTHORIZED);
         return false;
     }
+  },
+
+  startDirectChat: function (user_id, team_id, token) {
+    module.exports.retrieveAccessToken(team_id, token => {
+        if (token) {
+            let options = {
+                method: "POST",
+                uri: "https://slack.com/api/im.open",
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: {
+                    "user": "user_id",
+                },
+                json: true
+            }
+
+            module.exports.makeRequestWithOptions(options);
+        }
+    });
   },
 
   //POSSIBLE USAGE OF cancelButtonIsPressed FUNCTION:
