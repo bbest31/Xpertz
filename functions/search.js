@@ -15,7 +15,7 @@ module.exports = {
 
     //Validations
     if (util.validateToken(token, res)) {
-        module.exports.sendSearchInitialTagMessage(res);
+        this.sendSearchInitialTagMessage(res);
     }
   },
 
@@ -100,21 +100,19 @@ module.exports = {
             break;
         case "search_tag_confirm_button":
             var selectedSearchTag = payload.actions[0]["value"];
-            module.exports.performSearchAction(team_id, selectedSearchTag, null, null, res);
+            this.performSearchAction(team_id, selectedSearchTag, null, null, res);
             break;
         case "start_again_search_button":
-            module.exports.sendSearchInitialTagMessage(res);
+            this.sendSearchInitialTagMessage(res);
             break;
         case "see_previous_search_button":
-            module.exports.searchPreviousAction(payload, res);
+            this.searchPreviousAction(payload, res);
             break;
         case "see_next_search_button":
-            module.exports.searchNextAction(payload, res);
+            this.searchNextAction(payload, res);
             break;
         case "search_tag_direct_message_button":
             var user_id = payload.actions[0]["value"];
-            console.log(user_id);
-            console.log(payload);
             var token = payload.token;
             util.startDirectChat(user_id, team_id, token);
             res.status(OK).send();
@@ -127,10 +125,8 @@ module.exports = {
       var ref = database.ref('workspaces/' + team_id + '/tags/' + tag + '/users').orderByKey();
 
       if (nextBookmark) {
-        console.log("nextBookmark: " + nextBookmark);
         ref = ref.startAt(nextBookmark).limitToFirst(QUERYLIMIT+1);
       } else if (prevBookmark) {
-        console.log("prevBookmark: " + prevBookmark);
         ref = ref.endAt(prevBookmark).limitToLast(QUERYLIMIT+2);
       } else {
         ref = ref.limitToFirst(QUERYLIMIT+1);
@@ -145,7 +141,6 @@ module.exports = {
           var isTherePrevPage = false;
           var count = 0;
           snapshot.forEach(childSnapshot => {
-              console.log('childSnapshot: ', childSnapshot.val());
               if (prevBookmark && count === 0 && snapshot.numChildren() === QUERYLIMIT + 2) {
                 isTherePrevPage = true;
               } else if (count < QUERYLIMIT) {
@@ -188,8 +183,7 @@ module.exports = {
 
           if (snapshot.numChildren() === 0) {
               // If the query was empty
-              console.log('empty');
-              return module.exports.sendSearchEmptyMessage(res);
+              return this.sendSearchEmptyMessage(res);
           } else {
             if (nextBookmark) {
               previousNewBookmark = nextBookmark;
@@ -335,7 +329,7 @@ module.exports = {
         const bookmark = value.substring(0, value.indexOf('|'));
         const tag = value.substring(value.indexOf('|') + 1);
 
-        module.exports.performSearchAction(team_id, tag, bookmark, null, res);
+        this.performSearchAction(team_id, tag, bookmark, null, res);
     },
 
     searchPreviousAction: function (payload, res) {
@@ -344,7 +338,7 @@ module.exports = {
         const bookmark = value.substring(0, value.indexOf('|'));
         const tag = value.substring(value.indexOf('|') + 1);
 
-        module.exports.performSearchAction(team_id, tag,  null, bookmark, res);
+        this.performSearchAction(team_id, tag,  null, bookmark, res);
     },
 };
 

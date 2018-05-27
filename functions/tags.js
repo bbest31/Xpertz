@@ -22,7 +22,6 @@ module.exports = {
     tagsSelectAction: function (payload, res) {
         const team_id = payload.team.id;
         const selectedTag = payload.actions[0].selected_options[0].value;
-        console.log("Tag Selection Action: ",selectedTag);
         this.sendTagListMessage(res, team_id, selectedTag);
     },
 
@@ -67,7 +66,6 @@ module.exports = {
                 if (snapshot.val()) {
                     var description = snapshot.child("description").val();
                     var count = snapshot.child("count").val();
-                    console.log("Count and Desciption:", count, description);
                     return response.contentType('json').status(OK).send({
                         "response_type": "ephemeral",
                         "replace_original": true,

@@ -92,7 +92,7 @@ module.exports = {
   },
 
   startDirectChat: function (user_id, team_id, token) {
-    module.exports.retrieveAccessToken(team_id, token => {
+    this.retrieveAccessToken(team_id, token => {
         if (token) {
             let options = {
                 method: "POST",
@@ -107,7 +107,7 @@ module.exports = {
                 json: true
             }
 
-            module.exports.makeRequestWithOptions(options);
+            this.makeRequestWithOptions(options);
         }
     });
   },

@@ -31,7 +31,7 @@ module.exports = {
 
       //Validations
       if (util.validateToken(token, res)) {
-          module.exports.sendAddOrCreateTagMessage(res);
+          this.sendAddOrCreateTagMessage(res);
       }
   },
 
@@ -269,7 +269,7 @@ module.exports = {
                 res.status(OK).send();
                 util.retrieveAccessToken(team_id, token => {
                     if (token) {
-                        module.exports.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
+                        this.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
                     }
                 });
                 return;
@@ -278,7 +278,7 @@ module.exports = {
             res.status(OK).send();
             util.retrieveAccessToken(team_id, token => {
                 if (token) {
-                    module.exports.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag already exists");
+                    this.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag already exists");
                 }
             });
         }
@@ -288,7 +288,7 @@ module.exports = {
         res.status(OK).send();
         util.retrieveAccessToken(team_id, token => {
             if (token) {
-                module.exports.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
+                this.failedToCreateTag(token, payload.channel.id, payload.user.id, "Tag has failed to be created");
             }
         });
         return;
@@ -366,7 +366,7 @@ module.exports = {
     switch (payload.actions[0]["name"]) {
         case "create_tag_button":
             util.cancelButtonIsPressed(response_url, success => {
-                module.exports.openDialogToAddNewTag(team_id, trigger_id, success => {
+                this.openDialogToAddNewTag(team_id, trigger_id, success => {
                     res.status(OK).send();
                     return;
                 });

@@ -62,7 +62,6 @@ module.exports = {
         rp(options)
             .then(slackResponse => {
                 //Check the response value
-                console.log("Repos: ", slackResponse);
                 if (!slackResponse.ok) {
                     console.error("The request was not ok: " + JSON.stringify(slackResponse));
                     res.contentType('json').status(UNAUTHORIZED).send({
@@ -70,12 +69,12 @@ module.exports = {
                     });
                     return;
                 }
-                module.exports.saveWorkspaceAsANewInstallation(slackResponse, res);
+                this.saveWorkspaceAsANewInstallation(slackResponse, res);
                 return;
             })
             .catch(err => {
+              if (err) console.log(err);
                 //Handle the error
-                console.log("Error: ", err);
                 res.contentType('json').status(UNAUTHORIZED).send({
                     "Status": "Failure - request to Slack API has failed"
                 });
@@ -99,7 +98,7 @@ module.exports = {
           });
           return;
       }).catch(err => {
-          console.log('Error setting document', err);
+        if (err) console.log(err);
           response.contentType('json').status(UNAUTHORIZED).send({
               "Failure": "Failed to save data in the DB"
           });

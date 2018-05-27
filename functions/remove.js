@@ -14,7 +14,7 @@ module.exports = {
 
     //Validations
     if (util.validateToken(token, res)) {
-        module.exports.sendRemoveTagMessage(res);
+        this.sendRemoveTagMessage(res);
     }
   },
 
@@ -112,7 +112,6 @@ module.exports = {
 
             database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToRemoveConfirm).once('value')
                 .then(snapshot => {
-                    console.log("snapshot: ", snapshot);
                     if (snapshot.val()) {
                         database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToRemoveConfirm).remove();
                         database.ref('tags/' + team_id + '/' + tagToRemoveConfirm).transaction(tagValue => {

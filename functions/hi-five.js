@@ -27,7 +27,7 @@ module.exports = {
                           "text": "_You can't hi-five yourself!_"
                       });
                   } else {
-                      module.exports.sendHiFiveMessage(res, userName, userId, req.body.team_id);
+                      this.sendHiFiveMessage(res, userName, userId, req.body.team_id);
                   }
               } else {
                   res.contentType('json').status(OK).send({
@@ -207,7 +207,7 @@ module.exports = {
 
         case "h5_tag_menu_button":
             var selectedOption = payload.actions[0].selected_options[0].value;
-            module.exports.sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
+            this.sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
             break;
 
         case "h5_button":
