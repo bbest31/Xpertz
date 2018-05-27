@@ -6,7 +6,7 @@ const database = firebase.database();
 
 const UNAUTHORIZED = 401;
 const OK = 200;
-const QUERYLIMIT = 1;
+const QUERYLIMIT = 15;
 
 module.exports = {
 
@@ -142,11 +142,12 @@ module.exports = {
           };
           var nextNewBookmark = null;
           var previousNewBookmark = null;
+          var isTherePrevPage = false;
           var count = 0;
           snapshot.forEach(childSnapshot => {
               console.log('childSnapshot: ', childSnapshot.val());
-              if (prevBookmark && count === 0) {
-                
+              if (prevBookmark && count === 0 && snapshot.numChildren() === QUERYLIMIT + 2) {
+                isTherePrevPage = true;
               } else if (count < QUERYLIMIT) {
                   var hi_five_count = childSnapshot.val().hi_five_count;
                   var color = "#E0E0E0";
@@ -175,6 +176,9 @@ module.exports = {
                       // ]
                   });
 
+                if (isTherePrevPage && count === 1) {
+                  previousNewBookmark = childSnapshot.key;
+                }
               } else {
                 nextNewBookmark = childSnapshot.key;
               }
