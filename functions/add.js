@@ -374,6 +374,7 @@ module.exports = {
             });
             break;
         case "team_tags_menu_button":
+            util.visitor.event("Actions", "Team Tags Menu Selection action").send();
             // This was a menu selection for adding a tag
             var tagToAdd = payload.actions[0].selected_options[0].value;
             res.contentType('json').status(OK).send({
@@ -426,6 +427,8 @@ module.exports = {
             });
             break;
         case "add_tag_confirm_button":
+            util.visitor.event("Actions", "Add Tag action").send();
+
             var tagToAddConfirm = payload.actions[0]["value"];
 
             database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).once('value')

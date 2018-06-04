@@ -55,6 +55,7 @@ module.exports = {
 
     switch (payload.actions[0]["name"]) {
         case "user_tags_menu_button":
+            util.visitor.event("Actions", "Remove Team Tags Menu Selection action").send();
             // Update menu button to have selection as the selected item.
             var tagToRemove = payload.actions[0].selected_options[0].value;
             res.contentType('json').status(OK).send({
@@ -107,6 +108,8 @@ module.exports = {
             });
             break;
         case "remove_tag_btn":
+            util.visitor.event("Actions", "Remove Tag action").send();
+
             //Remove the tag node from the user and decrement workplace count of that tag.
             var tagToRemoveConfirm = payload.actions[0]["value"];
 

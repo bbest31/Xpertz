@@ -206,11 +206,14 @@ module.exports = {
     switch (payload.actions[0]["name"]) {
 
         case "h5_tag_menu_button":
+            util.visitor.event("Actions", "Hi_Five Tags Menu Selection action").send();
             var selectedOption = payload.actions[0].selected_options[0].value;
             this.sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
             break;
 
         case "h5_button":
+            util.visitor.event("Actions", "Hi_Five action").send();
+
             var optionValue = payload.actions[0]["value"];
             var colleague_name = optionValue.substring(optionValue.indexOf('|') + 1, optionValue.lastIndexOf('|'));
             var colleague_id = optionValue.substring(optionValue.lastIndexOf('|') + 1);
