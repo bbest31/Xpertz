@@ -2,6 +2,9 @@ const util = require('./util');
 const rp = require('request-promise');
 const firebase = require('firebase');
 
+const ua = require('universal-analytics');
+var visitor = ua('UA-120285659-1', {https: true});
+
 // Get a reference to the database service
 const database = firebase.database();
 
@@ -374,7 +377,7 @@ module.exports = {
             });
             break;
         case "team_tags_menu_button":
-            util.visitor.event("Actions", "Team Tags Menu Selection action").send();
+            visitor.event("Actions", "Add Team Tags Menu Selection action").send();
             // This was a menu selection for adding a tag
             var tagToAdd = payload.actions[0].selected_options[0].value;
             res.contentType('json').status(OK).send({
@@ -427,7 +430,7 @@ module.exports = {
             });
             break;
         case "add_tag_confirm_button":
-            util.visitor.event("Actions", "Add Tag action").send();
+            visitor.event("Actions", "Add Tag action").send();
 
             var tagToAddConfirm = payload.actions[0]["value"];
 

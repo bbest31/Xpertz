@@ -1,6 +1,5 @@
 const firebase = require('firebase');
 const rp = require('request-promise');
-const ua = require('universal-analytics');
 
 const config = {
     apiKey: "AIzaSyDm6i6hnoJbFO-cPb_6gTV9EmE1g5WqexA",
@@ -11,7 +10,6 @@ firebase.initializeApp(config);
 
 // Get a reference to the database service
 const database = firebase.database();
-const visitor = ua('UA-120285659-1');
 
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
 const UNAUTHORIZED = 401;

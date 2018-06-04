@@ -1,6 +1,9 @@
 const firebase = require('firebase');
 const util = require('./util');
 
+const ua = require('universal-analytics');
+var visitor = ua('UA-120285659-1', {https: true});
+
 // Get a reference to the database service
 const database = firebase.database();
 
@@ -206,13 +209,13 @@ module.exports = {
     switch (payload.actions[0]["name"]) {
 
         case "h5_tag_menu_button":
-            util.visitor.event("Actions", "Hi_Five Tags Menu Selection action").send();
+            visitor.event("Actions", "Hi_Five Tags Menu Selection action").send();
             var selectedOption = payload.actions[0].selected_options[0].value;
             this.sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
             break;
 
         case "h5_button":
-            util.visitor.event("Actions", "Hi_Five action").send();
+            visitor.event("Actions", "Hi_Five action").send();
 
             var optionValue = payload.actions[0]["value"];
             var colleague_name = optionValue.substring(optionValue.indexOf('|') + 1, optionValue.lastIndexOf('|'));

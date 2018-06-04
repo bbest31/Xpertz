@@ -1,6 +1,9 @@
 const util = require('./util');
 const firebase = require('firebase');
 
+const ua = require('universal-analytics');
+var visitor = ua('UA-120285659-1', {https: true});
+
 // Get a reference to the database service
 const database = firebase.database();
 
@@ -55,7 +58,7 @@ module.exports = {
 
     switch (payload.actions[0]["name"]) {
         case "search_tag_menu_button":
-            util.visitor.event("Actions", "Search Tags Menu Selection action").send();
+            visitor.event("Actions", "Search Tags Menu Selection action").send();
             var selectedOptionSearchTag = payload.actions[0].selected_options[0].value;
             res.contentType('json').status(OK).send({
                 "response_type": "ephemeral",
@@ -100,20 +103,20 @@ module.exports = {
             });
             break;
         case "search_tag_confirm_button":
-            util.visitor.event("Actions", "Search Team Tags Menu Selection action").send();
+            visitor.event("Actions", "Search Team Tags Menu Selection action").send();
             var selectedSearchTag = payload.actions[0]["value"];
             this.performSearchAction(team_id, selectedSearchTag, null, null, res);
             break;
         case "start_again_search_button":
-            util.visitor.event("Actions", "Start Search Again action").send();
+            visitor.event("Actions", "Start Search Again action").send();
             this.sendSearchInitialTagMessage(res);
             break;
         case "see_previous_search_button":
-            util.visitor.event("Actions", "See Previous Search action").send();
+            visitor.event("Actions", "See Previous Search action").send();
             this.searchPreviousAction(payload, res);
             break;
         case "see_next_search_button":
-            util.visitor.event("Actions", "See Next Search action").send();
+            visitor.event("Actions", "See Next Search action").send();
             this.searchNextAction(payload, res);
             break;
         case "search_tag_direct_message_button":

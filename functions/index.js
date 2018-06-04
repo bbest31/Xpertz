@@ -15,6 +15,9 @@ const feedback = require('./feedback');
 // Get a reference to the database service
 var database = firebase.database();
 
+const ua = require('universal-analytics');
+var visitor = ua('UA-120285659-1', {https: true});
+
 const NOT_ACCEPTABLE = 406;
 const UNAUTHORIZED = 401;
 const OK = 200;
@@ -57,14 +60,14 @@ exports.actions = functions.https.onRequest((req, res) => {
     if (util.validateToken(token, res)) {
         if (type === "dialog_submission") {
             if (callback_id === "add_new_tag_dialog") {
-                util.visitor.event("Dialog Actions", "Add new tag dialog submission").send();
+                visitor.event("Dialog Actions", "Add new tag dialog submission").send();
                 add.addNewTagDialog(payload, res);
             } else if (callback_id === "feedback_tag_dialog") {
-                util.visitor.event("Dialog Actions", "Feedback dialog submission").send();
+                visitor.event("Dialog Actions", "Feedback dialog submission").send();
                 feedback.feedbackSubmission(payload, res);
             }
         } else if (type === "dialog_cancellation") {
-            util.visitor.event("Dialog Actions", "Add new tag dialog cancellation").send();
+            visitor.event("Dialog Actions", "Add new tag dialog cancellation").send();
             add.dialogCancellation(payload, res);
         } else {
             // Interactive Message
@@ -74,7 +77,7 @@ exports.actions = functions.https.onRequest((req, res) => {
             } else if (callback_id === "add_tag") {
                 add.addTagAction(payload, res);
             } else if (callback_id === "add_more_tags") {
-                util.visitor.event("Actions", "Add More Tags action").send();
+                visitor.event("Actions", "Add More Tags action").send();
                 switch (payload.actions[0]["name"]) {
                     case "add_more_tags_button":
                         add.sendAddOrCreateTagMessage(res);
@@ -83,7 +86,7 @@ exports.actions = functions.https.onRequest((req, res) => {
             } else if (callback_id === "remove_tag") {
                 remove.removeTagAction(payload, res);
             } else if (callback_id === "remove_more_tags") {
-                util.visitor.event("Actions", "Remove More Tags action").send();
+                visitor.event("Actions", "Remove More Tags action").send();
                 switch (payload.actions[0]["name"]) {
                     case "remove_more_tags_button":
                         remove.sendRemoveTagMessage(res);
@@ -94,10 +97,10 @@ exports.actions = functions.https.onRequest((req, res) => {
             } else if (callback_id === "search_tag") {
                 search.searchTagAction(payload, res);
             } else if (callback_id === "tags_list") {
-                util.visitor.event("Actions", "Tags List action").send();
+                visitor.event("Actions", "Tags List action").send();
                 tags.tagsSelectAction(payload, res);
             } else if (callback_id === "feedback_action") {
-                util.visitor.event("Actions", "Feedback action").send();
+                visitor.event("Actions", "Feedback action").send();
                 feedback.feedbackCommand(team_id, token, trigger_id, res);
             }
         }
@@ -123,14 +126,14 @@ exports.menu_options = functions.https.onRequest((req, res) => {
 
         if (menuName === 'team_tags_menu_button' || menuName === 'search_tag_menu_button') {
             if (menuName === 'team_tags_menu_button') {
-              util.visitor.event("Menu Selection", "Team Tags menu").send();
+              visitor.event("Menu Selection", "Team Tags menu").send();
             } else if (menuName === 'search_tag_menu_button') {
-              util.visitor.event("Menu Selection", "Search menu").send();
+              visitor.event("Menu Selection", "Search menu").send();
             }
             var queryTextForTagsList = payload.value;
             tags.tagsListMenu(team_id, queryTextForTagsList, res);
         } else if (menuName === "user_tags_menu_button") {
-            util.visitor.event("Menu Selection", "User Tags menu").send();
+            visitor.event("Menu Selection", "User Tags menu").send();
             tags.userTagsMenu(team_id, user_id, res);
         }
     }
@@ -141,7 +144,7 @@ exports.menu_options = functions.https.onRequest((req, res) => {
 
 //Add tag command. For the response example see add.addCommand function comments.
 exports.addTag = functions.https.onRequest((req, res) => {
-    util.visitor.event("Slash command", "Add command").send();
+    visitor.event("Slash command", "Add command").send();
     add.addCommand(req, res);
 });
 
@@ -149,25 +152,25 @@ exports.addTag = functions.https.onRequest((req, res) => {
  * This command is the initial response when a user wants to remove a tag from their profile.
  */
 exports.removeTag = functions.https.onRequest((req, res) => {
-    util.visitor.event("Slash command", "Remove command").send();
+    visitor.event("Slash command", "Remove command").send();
     remove.removeCommand(req, res);
 });
 
 // View Profile Command
 exports.profile = functions.https.onRequest((req, res) => {
-    util.visitor.event("Slash command", "Profile command").send();
+    visitor.event("Slash command", "Profile command").send();
     profile.profileCommand(req, res)
 });
 
 // Hi-Five Command
 exports.hi_five = functions.https.onRequest((req, res) => {
-    util.visitor.event("Slash command", "Hi_Five command").send();
+    visitor.event("Slash command", "Hi_Five command").send();
     hiFive.hiFiveCommand(req, res);
 });
 
 // Search Command
 exports.search = functions.https.onRequest((req, res) => {
-    util.visitor.event("Slash command", "Search command").send();
+    visitor.event("Slash command", "Search command").send();
     search.searchCommand(req, res);
 });
 
@@ -177,7 +180,7 @@ exports.search = functions.https.onRequest((req, res) => {
  * from which the request came from. An interactive button will be present to request the next 10 listed in alphabetic.
  */
 exports.tags = functions.https.onRequest((req, res) => {
-    util.visitor.event("Slash command", "Tags command").send();
+    visitor.event("Slash command", "Tags command").send();
     tags.tagsCommand(req, res);
 });
 
@@ -186,7 +189,7 @@ exports.tags = functions.https.onRequest((req, res) => {
  * This helper command returns a description of all the slash-commands Xpertz provides.
  */
 exports.commands = functions.https.onRequest((req, res) => {
-    util.visitor.event("Slash command", "Helper command").send();
+    visitor.event("Slash command", "Helper command").send();
 
     let slackRequest = req.body;
     let token = slackRequest.token;
@@ -226,6 +229,6 @@ exports.commands = functions.https.onRequest((req, res) => {
 
 //Function to handle oauth redirect
 exports.oauth_redirect = functions.https.onRequest((req, res) => {
-    util.visitor.event("Oauth", "Add app to Slack").send();
+    visitor.event("Oauth", "Add app to Slack").send();
     oauth.oauthRedirect(req, res);
 });
