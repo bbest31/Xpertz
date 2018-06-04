@@ -80,7 +80,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                 visitor.event("Actions", "Add More Tags action").send();
                 switch (payload.actions[0]["name"]) {
                     case "add_more_tags_button":
-                        add.sendAddOrCreateTagMessage(res);
+                        add.checkAndFireAddCommandIsAvailable(team_id, user_id, token, res);
                         break;
                 }
             } else if (callback_id === "remove_tag") {

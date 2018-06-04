@@ -10,6 +10,8 @@ const database = firebase.database();
 
 const OK = 200;
 
+const MAX_TAGS = 15;
+
 module.exports = {
 
   /**Add Tag Command
@@ -31,10 +33,32 @@ module.exports = {
    */
   addCommand: function (req, res) {
       var token = req.body.token;
+      var user_id = req.body.user_id;
+      var team_id = req.body.team_id;
 
+      this.checkAndFireAddCommandIsAvailable(team_id, user_id, token, res);
+  },
+
+  checkAndFireAddCommandIsAvailable: function(team_id, user_id, token, res) {
       //Validations
       if (util.validateToken(token, res)) {
-          this.sendAddOrCreateTagMessage(res);
+        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags').once('value')
+          .then(snapshot => {
+              if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_TAGS)) {
+                this.sendAddOrCreateTagMessage(res);
+              } else {
+                res.contentType('json').status(OK).send({
+                    "response_type": "ephemeral",
+                    "replace_original": true,
+                    "text": "*Sorry, you can only add up to " + MAX_TAGS + " tags to your profile. Use /removetag command to remove some before adding new ones* :brain:"
+                  });
+              }
+              return;
+            })
+          .catch(err => {
+            if (err) console.log(err);
+            this.sendAddOrCreateTagMessage(res);
+          });
       }
   },
 
