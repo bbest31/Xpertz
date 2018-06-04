@@ -10,6 +10,7 @@ const search = require('./search');
 const tags = require('./tags');
 const util = require('./util');
 const oauth = require('./oauth');
+const feedback = require('./feedback');
 
 // Get a reference to the database service
 var database = firebase.database();
@@ -57,6 +58,8 @@ exports.actions = functions.https.onRequest((req, res) => {
         if (type === "dialog_submission") {
             if (callback_id === "add_new_tag_dialog") {
                 add.addNewTagDialog(payload, res);
+            } else if (callback_id === "feedback_tag_dialog") {
+                feedback.feedbackSubmission(payload, res);
             }
         } else if (type === "dialog_cancellation") {
             add.dialogCancellation(payload, res);
@@ -87,6 +90,8 @@ exports.actions = functions.https.onRequest((req, res) => {
                 search.searchTagAction(payload, res);
             } else if (callback_id === "tags_list") {
                 tags.tagsSelectAction(payload, res);
+            } else if (callback_id === "feedback_action") {
+              feedback.feedbackCommand(team_id, token, trigger_id, res);
             }
         }
     }
@@ -175,7 +180,23 @@ exports.commands = functions.https.onRequest((req, res) => {
                 { "text": "Add an expertise tag:\n`/add`" },
                 { "text": "Remove an expertise tag:\n`/removetag`" },
                 { "text": "View all tags used in this workspace or enterprise grid:\n`/tags`" },
-                { "text": "Search for experts by tag:\n`/search`" }
+                { "text": "Search for experts by tag:\n`/search`" },
+                {
+                  "fallback": "Button to leave a feedback",
+                  "callback_id": "feedback_action",
+                  "text": "*We’d love your feedback* :raised_hands:",
+                  "color": "#3AA3E3",
+                  "attachment_type": "default",
+                  "actions": [
+                      {
+                          "name": "leave_feedback_button",
+                          "text": "Feedback",
+                          "type": "button",
+                          "value": "feedback",
+                          "style": "primary"
+                      }
+                    ]
+                }
             ]
         });
     }

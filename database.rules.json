@@ -15,5 +15,9 @@
       ".read": "true",
       ".write": "true"
   	},
+    "feedback": {
+      ".read": "true",
+      ".write": "true"
+  	}
 	}
 }
