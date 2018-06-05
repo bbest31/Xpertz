@@ -460,7 +460,7 @@ module.exports = {
             database.ref('workspaces/' + team_id + '/users').once('value')
               .then(snapshot => {
                   if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_USERS)) {
-                    this.addTagConfirm(team_id, user_id, payload);
+                    this.addTagConfirm(team_id, user_id, payload, res);
                   } else {
                     res.contentType('json').status(OK).send({
                         "response_type": "ephemeral",
@@ -472,13 +472,13 @@ module.exports = {
                 })
               .catch(err => {
                 if (err) console.log(err);
-                this.addTagConfirm(team_id, user_id, payload);
+                this.addTagConfirm(team_id, user_id, payload, res);
               });
             break;
     }
   },
 
-  addTagConfirm: function(team_id, user_id, payload) {
+  addTagConfirm: function(team_id, user_id, payload, res) {
     var tagToAddConfirm = payload.actions[0]["value"];
 
     database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).once('value')
