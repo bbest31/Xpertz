@@ -11,6 +11,7 @@ const database = firebase.database();
 const OK = 200;
 
 const MAX_TAGS = 15;
+const MAX_USERS = 15;
 
 module.exports = {
 
@@ -456,90 +457,110 @@ module.exports = {
         case "add_tag_confirm_button":
             visitor.event("Actions", "Add Tag action").send();
 
-            var tagToAddConfirm = payload.actions[0]["value"];
-
-            database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).once('value')
-                .then(snapshot => {
-                    if (!snapshot.val()) {
-                        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).set({
-                            "tag": tagToAddConfirm,
-                            "hi_five_count": 0
-                        }).then(snap => {
-                            database.ref('tags/' + team_id + '/' + tagToAddConfirm).transaction(tagValue => {
-                                if (tagValue) {
-                                    tagValue.count++;
-                                } else {
-                                    tagValue = {
-                                        "tag_title": tagToAddConfirm,
-                                        "tag_code": tagToAddConfirm.toLowerCase(),
-                                        "count": 1
-                                    };
-                                }
-                                return tagValue;
-                            });
-                            return;
-                        }).catch(err => {
-                            if (err) console.log(err);
-                            return;
-                        });
-                    }
-                    return;
+            database.ref('workspaces/' + team_id + '/users').once('value')
+              .then(snapshot => {
+                  if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_USERS)) {
+                    this.addTagConfirm(team_id, user_id, payload);
+                  } else {
+                    res.contentType('json').status(OK).send({
+                        "response_type": "ephemeral",
+                        "replace_original": true,
+                        "text": "*Sorry, but free plan allows only up to " + MAX_USERS + " users to use the Xpertz at the same time* :disappointed_relieved:"
+                      });
+                  }
+                  return;
                 })
-                .catch(err => {
-                    if (err) console.log(err);
-                    return;
-                });
-
-            database.ref('workspaces/' + team_id + '/tags/' + tagToAddConfirm + '/users/' + user_id).once('value')
-                .then(snapshot => {
-                    if (!snapshot.val()) {
-                        database.ref('workspaces/' + team_id + '/tags/' + tagToAddConfirm + '/users/' + user_id).set({
-                            "user_id": user_id,
-                            "username": username,
-                            "hi_five_count": 0
-                        }).catch(err => {
-                            if (err) console.log(err);
-                            return;
-                        });
-                    }
-                    return;
-                })
-                .catch(err => {
-                    if (err) console.log(err);
-                    return;
-                });
-
-            res.contentType('json').status(OK).send({
-                "response_type": "ephemeral",
-                "replace_original": true,
-                "text": "*Expertise tag was succesfully added* :raised_hands:",
-                "attachments": [
-                    {
-                        "fallback": "Confirmation that tag was successfully added",
-                        "callback_id": "add_more_tags",
-                        "text": "Tag: " + tagToAddConfirm + " has been successfully added to your profile",
-                        "color": "#00D68F",
-                        "attachment_type": "default",
-                        "actions": [
-                            {
-                                "name": "add_more_tags_button",
-                                "text": "Add More Tags",
-                                "type": "button",
-                                "value": "add_more",
-                                "style": "primary"
-                            },
-                            {
-                                "name": "cancel",
-                                "text": "Finish",
-                                "type": "button",
-                                "value": "cancel"
-                            }
-                        ]
-                    }
-                ]
-            });
+              .catch(err => {
+                if (err) console.log(err);
+                this.addTagConfirm(team_id, user_id, payload);
+              });
             break;
     }
+  },
+
+  addTagConfirm: function(team_id, user_id, payload) {
+    var tagToAddConfirm = payload.actions[0]["value"];
+
+    database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).once('value')
+        .then(snapshot => {
+            if (!snapshot.val()) {
+                database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).set({
+                    "tag": tagToAddConfirm,
+                    "hi_five_count": 0
+                }).then(snap => {
+                    database.ref('tags/' + team_id + '/' + tagToAddConfirm).transaction(tagValue => {
+                        if (tagValue) {
+                            tagValue.count++;
+                        } else {
+                            tagValue = {
+                                "tag_title": tagToAddConfirm,
+                                "tag_code": tagToAddConfirm.toLowerCase(),
+                                "count": 1
+                            };
+                        }
+                        return tagValue;
+                    });
+                    return;
+                }).catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
+            }
+            return;
+        })
+        .catch(err => {
+            if (err) console.log(err);
+            return;
+        });
+
+    database.ref('workspaces/' + team_id + '/tags/' + tagToAddConfirm + '/users/' + user_id).once('value')
+        .then(snapshot => {
+            if (!snapshot.val()) {
+                database.ref('workspaces/' + team_id + '/tags/' + tagToAddConfirm + '/users/' + user_id).set({
+                    "user_id": user_id,
+                    "username": username,
+                    "hi_five_count": 0
+                }).catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
+            }
+            return;
+        })
+        .catch(err => {
+            if (err) console.log(err);
+            return;
+        });
+
+    res.contentType('json').status(OK).send({
+        "response_type": "ephemeral",
+        "replace_original": true,
+        "text": "*Expertise tag was succesfully added* :raised_hands:",
+        "attachments": [
+            {
+                "fallback": "Confirmation that tag was successfully added",
+                "callback_id": "add_more_tags",
+                "text": "Tag: " + tagToAddConfirm + " has been successfully added to your profile",
+                "color": "#00D68F",
+                "attachment_type": "default",
+                "actions": [
+                    {
+                        "name": "add_more_tags_button",
+                        "text": "Add More Tags",
+                        "type": "button",
+                        "value": "add_more",
+                        "style": "primary"
+                    },
+                    {
+                        "name": "cancel",
+                        "text": "Finish",
+                        "type": "button",
+                        "value": "cancel"
+                    }
+                ]
+            }
+        ]
+    });
   }
 
 };
