@@ -27,7 +27,7 @@ module.exports = {
               if (userId && userName) {
                   if (userId === req.body.user_id) {
                       res.contentType('json').status(OK).send({
-                          "text": "_You can't hi-five yourself!_"
+                          "text": "_You can't high-five yourself!_"
                       });
                   } else {
                       this.sendHiFiveMessage(res, userName, userId, req.body.team_id);
@@ -49,7 +49,7 @@ module.exports = {
       res.contentType("json").status(OK).send({
           "response_type": "ephemeral",
           "replace_original": true,
-          "text": "*Give someone a hi-five for helping!* :clap:",
+          "text": "*Give someone a high-five for helping!* :clap:",
           "attachments": [
               {
                   "fallback": "Select a user that helped you out with your issue.",
@@ -101,7 +101,7 @@ module.exports = {
               return res.contentType("json").status(OK).send({
                   "response_type": "ephemeral",
                   "replace_original": true,
-                  "text": "*Choose one of " + user_name + "'s expertise to hi_five!* :clap:",
+                  "text": "*Choose one of <@" + user_id + ">'s expertise to high-five!* :clap:",
                   "attachments": [
                       {
                           "fallback": "Select one of their expertise they used to help you out",
@@ -157,7 +157,7 @@ module.exports = {
               return res.contentType("json").status(OK).send({
                   "response_type": "ephemeral",
                   "replace_original": true,
-                  "text": "*Choose one of " + user_name + "'s expertise to hi_five!* :clap:",
+                  "text": "*Choose one of <@" + user_id + ">'s expertise to high-five!* :clap:",
                   "attachments": [
                       {
                           "fallback": "Select one of their expertise they used to help you out",
@@ -181,7 +181,7 @@ module.exports = {
                               {
                                   "name": "h5_button",
                                   "type": "button",
-                                  "text": "Hi-Five!",
+                                  "text": "High-Five!",
                                   "value": selectedOption,
                                   "style": "primary"
                               },
@@ -275,9 +275,9 @@ module.exports = {
                 "replace_original": true,
                 "attachments": [
                     {
-                        "fallback": "Confirmation that the hi-five was successfully given",
+                        "fallback": "Confirmation that the high-five was successfully given",
                         "callback_id": "h5",
-                        "text": "*You gave " + colleague_name + " a hi-five towards their " + colleague_tag + " expertise* :+1: :tada:",
+                        "text": "*You gave <@" + colleague_id + "> a high-five towards their " + colleague_tag + " expertise* :+1: :tada:",
                         "color": "#20BA42",
                         "attachment_type": "default",
                     }

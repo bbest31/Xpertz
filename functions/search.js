@@ -238,7 +238,7 @@ module.exports = {
                 "callback_id": "search_tag_empty",
                 "color": "#F21111",
                 "attachment_type": "default",
-                "text": "There is yet no one in your team with such expertise :disappointed_relieved: \n Try a different tag.",
+                "text": "*There is currently nobody in your team with this expertise* :worried:",
               },
               {
                   "fallback": "Interactive menu to search for people with specific tags",

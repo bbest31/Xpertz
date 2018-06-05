@@ -94,7 +94,7 @@ module.exports = {
                                 "style": "danger",
                                 "confirm": {
                                     "title": "Are you sure?",
-                                    "text": "Removing this tag will remove all of its hi-fives. Do you still want to?",
+                                    "text": "Removing this tag will remove all of its high-fives. Do you still want to?",
                                     "ok_text": "Yes",
                                     "dismiss_text": "No"
                                 }
@@ -147,7 +147,7 @@ module.exports = {
             res.contentType('json').status(OK).send({
                 "response_type": "ephemeral",
                 "replace_original": true,
-                "text": "*Expertise tag was succesfully removed* :cry:",
+                "text": "*Expertise tag was succesfully removed* :x:",
                 "attachments": [
                     {
                         "fallback": "Confirmation that tag was successfully removed",

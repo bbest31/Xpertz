@@ -51,7 +51,7 @@ module.exports = {
                 res.contentType('json').status(OK).send({
                     "response_type": "ephemeral",
                     "replace_original": true,
-                    "text": "*Sorry, you can only add up to " + MAX_TAGS + " tags to your profile. Use /removetag command to remove some before adding new ones* :brain:"
+                    "text": "*Max number of expertise tags already reached!*"
                   });
               }
               return;
@@ -72,7 +72,7 @@ module.exports = {
             {
                 "fallback": "Interactive menu to add a workspace tag or create a new one",
                 "callback_id": "add_tag",
-                "text": "Select a tag to add or create a new one!",
+                "text": "Select a tag to add or create a new one! *(max. " + MAX_TAGS + ")*",
                 "color": "#3AA3E3",
                 "attachment_type": "default",
                 "actions": [
@@ -125,14 +125,16 @@ module.exports = {
                                   "type": "text",
                                   "label": "Tag Title",
                                   "name": "tag_title",
-                                  "placeholder": "Enter tag title"
+                                  "placeholder": "Enter tag title",
+                                  "hint": "Consult your policy team on tag creation and check already in use tags with the /tags command"
                               },
                               {
                                   "type": "textarea",
                                   "label": "Description",
                                   "name": "description",
                                   "max_length": 140,
-                                  "min_length": 10
+                                  "min_length": 10,
+                                  "hint": "Please, notice that creation of a new tag doesn't add it to your profile. You need to add tag after you have created it."
                               }
                           ]
                       }
@@ -180,7 +182,7 @@ module.exports = {
                   {
                       "fallback": "Interactive menu to add a workspace tag or create a new one",
                       "callback_id": "add_tag",
-                      "text": "Select a tag to add or create a new one!",
+                      "text": "Select a tag to add or create a new one! *(max. " + MAX_TAGS + ")*",
                       "color": "#3AA3E3",
                       "attachment_type": "default",
                       "actions": [
@@ -258,7 +260,7 @@ module.exports = {
                                     {
                                         "fallback": "Interactive menu to add a workspace tag or create a new one",
                                         "callback_id": "add_tag",
-                                        "text": "Select a tag to add or create a new one!",
+                                        "text": "Select a tag to add or create a new one! *(max. " + MAX_TAGS + ")*",
                                         "color": "#3AA3E3",
                                         "attachment_type": "default",
                                         "actions": [
@@ -348,7 +350,7 @@ module.exports = {
                         {
                             "fallback": "Interactive menu to add a workspace tag or create a new one",
                             "callback_id": "add_tag",
-                            "text": "Select a tag to add or create a new one!",
+                            "text": "Select a tag to add or create a new one! *(max. " + MAX_TAGS + ")*",
                             "color": "#3AA3E3",
                             "attachment_type": "default",
                             "actions": [
@@ -413,7 +415,7 @@ module.exports = {
                     {
                         "fallback": "Interactive menu to add a workspace tag or create a new one",
                         "callback_id": "add_tag",
-                        "text": "Select a tag to add or create a new one!",
+                        "text": "Select a tag to add or create a new one! *(max. " + MAX_TAGS + ")*",
                         "color": "#3AA3E3",
                         "attachment_type": "default",
                         "actions": [
@@ -460,25 +462,25 @@ module.exports = {
             database.ref('workspaces/' + team_id + '/users').once('value')
               .then(snapshot => {
                   if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_USERS)) {
-                    this.addTagConfirm(team_id, user_id, payload, res);
+                    this.addTagConfirm(team_id, user_id, username, payload, res);
                   } else {
                     res.contentType('json').status(OK).send({
                         "response_type": "ephemeral",
                         "replace_original": true,
-                        "text": "*Sorry, but free plan allows only up to " + MAX_USERS + " users to use the Xpertz at the same time* :disappointed_relieved:"
+                        "text": "*Looks like your team only has the free tier of Xpertz which only supports the first " + MAX_USERS + " members to add tags. Consult your manager/supervisor about upgrading to support more or contact us at <email or website link>*"
                       });
                   }
                   return;
                 })
               .catch(err => {
                 if (err) console.log(err);
-                this.addTagConfirm(team_id, user_id, payload, res);
+                this.addTagConfirm(team_id, user_id, username, payload, res);
               });
             break;
     }
   },
 
-  addTagConfirm: function(team_id, user_id, payload, res) {
+  addTagConfirm: function(team_id, user_id, username, payload, res) {
     var tagToAddConfirm = payload.actions[0]["value"];
 
     database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).once('value')

@@ -162,9 +162,9 @@ exports.profile = functions.https.onRequest((req, res) => {
     profile.profileCommand(req, res)
 });
 
-// Hi-Five Command
+// High-Five Command
 exports.hi_five = functions.https.onRequest((req, res) => {
-    visitor.event("Slash command", "Hi_Five command").send();
+    visitor.event("Slash command", "High_Five command").send();
     hiFive.hiFiveCommand(req, res);
 });
 
@@ -200,6 +200,19 @@ exports.commands = functions.https.onRequest((req, res) => {
             "text": "*Xpertz Command List* :scroll:",
             "response_type": "ephemeral",
             "attachments": [
+                {
+                  "callback_id": "profile_tag",
+                  "color": "#FFFFFF",
+                  "attachment_type": "default",
+                  "actions": [
+                      {
+                          "name": "cancel_profile_button",
+                          "text": "Close",
+                          "type": "button",
+                          "value": "cancel"
+                      }
+                  ]
+                },
                 { "text": "View your expertise tags or provide a username to view theirs:\n`/profile` _@username (optional)_" },
                 { "text": "Add an expertise tag:\n`/add`" },
                 { "text": "Remove an expertise tag:\n`/removetag`" },

@@ -28,8 +28,21 @@ module.exports = {
     if (util.validateToken(token, res)) {
         var attachments = [
             {
+              "callback_id": "profile_tag",
+              "color": "#FFFFFF",
+              "attachment_type": "default",
+              "actions": [
+                  {
+                      "name": "cancel_profile_button",
+                      "text": "Close",
+                      "type": "button",
+                      "value": "cancel"
+                  }
+              ]
+            },
+            {
                 "fallback": "User name's expertise",
-                "text": "*" + user_name + "'s Expertise*",
+                "text": "*<@" + user_id + ">'s Expertise*",
                 "color": "#2F80ED",
                 "attachment_type": "default"
             }
@@ -68,7 +81,7 @@ module.exports = {
                                   "short": true
                               },
                               {
-                                  "value": "Hi fives: " + hi_five_count,
+                                  "value": "High fives: " + hi_five_count,
                                   "short": true
                               }
                           ],
