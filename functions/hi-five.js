@@ -93,7 +93,7 @@ module.exports = {
               // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
               snapshot.forEach(childSnapshot => {
                   options.options.push({
-                      "text": childSnapshot.key,
+                      "text": util.groomTheKeyFromFirebase(childSnapshot.key),
                       "value": childSnapshot.key + '|' + user_name + '|' + user_id
                   });
               });
@@ -149,7 +149,7 @@ module.exports = {
               // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
               snapshot.forEach(childSnapshot => {
                   options.options.push({
-                      "text": childSnapshot.key,
+                      "text": util.groomTheKeyFromFirebase(childSnapshot.key),
                       "value": childSnapshot.key + '|' + user_name + '|' + user_id
                   });
               });
@@ -223,10 +223,10 @@ module.exports = {
             var colleague_tag = optionValue.substring(0, optionValue.indexOf('|'));
 
             // Increment the hi_five count
-            database.ref('workspaces/' + team_id + '/users/' + colleague_id + '/tags/' + colleague_tag).once('value')
+            database.ref('workspaces/' + team_id + '/users/' + colleague_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag)).once('value')
                 .then(snapshot => {
                     if (snapshot.val()) {
-                        database.ref('workspaces/' + team_id + '/users/' + colleague_id + '/tags/' + colleague_tag).transaction(tagNode => {
+                        database.ref('workspaces/' + team_id + '/users/' + colleague_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag)).transaction(tagNode => {
                             if (tagNode) {
                                 tagNode.hi_five_count++;
                             }
@@ -246,10 +246,10 @@ module.exports = {
                     return;
                 });
 
-                database.ref('workspaces/' + team_id + '/tags/' + colleague_tag + '/users/' + colleague_id).once('value')
+                database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag) + '/users/' + colleague_id).once('value')
                     .then(snapshot => {
                         if (snapshot.val()) {
-                            database.ref('workspaces/' + team_id + '/tags/' + colleague_tag + '/users/' + colleague_id).transaction(tagNode => {
+                            database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag) + '/users/' + colleague_id).transaction(tagNode => {
                                 if (tagNode) {
                                     tagNode.hi_five_count++;
                                 }

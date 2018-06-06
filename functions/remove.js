@@ -116,11 +116,11 @@ module.exports = {
             //Remove the tag node from the user and decrement workplace count of that tag.
             var tagToRemoveConfirm = payload.actions[0]["value"];
 
-            database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToRemoveConfirm).once('value')
+            database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToRemoveConfirm)).once('value')
                 .then(snapshot => {
                     if (snapshot.val()) {
-                        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToRemoveConfirm).remove();
-                        database.ref('tags/' + team_id + '/' + tagToRemoveConfirm).transaction(tagValue => {
+                        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToRemoveConfirm)).remove();
+                        database.ref('tags/' + team_id + '/' + util.groomTheKeyToFirebase(tagToRemoveConfirm)).transaction(tagValue => {
                             if (tagValue) {
                                 if (tagValue.count > 0) {
                                     tagValue.count--;

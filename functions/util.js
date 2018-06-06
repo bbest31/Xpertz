@@ -141,5 +141,39 @@ module.exports = {
               if (success) success(false);
               return;
           });
+  },
+
+  groomTheKeyToFirebase: function(key) {
+    console.log("Groom to");
+    var newKey = key;
+    console.log(newKey);
+    newKey = newKey.replace(/\./g, "&1111");
+    console.log(newKey);
+    newKey = newKey.replace(/#/g, "&1112");
+    console.log(newKey);
+    newKey = newKey.replace(/\$/g, "&1113");
+    console.log(newKey);
+    newKey = newKey.replace(/\[/g, "&1114");
+    console.log(newKey);
+    newKey = newKey.replace(/\]/g, "&1115");
+    console.log(newKey);
+    return newKey;
+  },
+
+  groomTheKeyFromFirebase: function(key) {
+    console.log("Groom from");
+    var newKey = key;
+    console.log(newKey);
+    newKey = newKey.replace(/&1111/g, ".");
+    console.log(newKey);
+    newKey = newKey.replace(/&1112/g, "#");
+    console.log(newKey);
+    newKey = newKey.replace(/&1113/g, "$");
+    console.log(newKey);
+    newKey = newKey.replace(/&1114/g, "[");
+    console.log(newKey);
+    newKey = newKey.replace(/&1115/g, "]");
+    console.log(newKey);
+    return newKey;
   }
 };

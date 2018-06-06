@@ -77,7 +77,7 @@ module.exports = {
                           "fallback": "Expertise",
                           "fields": [
                               {
-                                  "value": tag.tag,
+                                  "value": util.groomTheKeyFromFirebase(tag.tag),
                                   "short": true
                               },
                               {

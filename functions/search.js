@@ -130,7 +130,7 @@ module.exports = {
 
     performSearchAction: function (team_id, tag, nextBookmark, prevBookmark, res) {
 
-      var ref = database.ref('workspaces/' + team_id + '/tags/' + tag + '/users').orderByKey();
+      var ref = database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(tag) + '/users').orderByKey();
 
       if (nextBookmark) {
         ref = ref.startAt(nextBookmark).limitToFirst(QUERYLIMIT+1);

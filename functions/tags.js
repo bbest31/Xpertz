@@ -62,7 +62,7 @@ module.exports = {
             });
         } else {
 
-            database.ref('tags/' + team_id + '/' + selectedTag).once("value").then(snapshot => {
+            database.ref('tags/' + team_id + '/' + util.groomTheKeyToFirebase(selectedTag)).once("value").then(snapshot => {
                 if (snapshot.val()) {
                     var description = snapshot.child("description").val();
                     var count = snapshot.child("count").val();
@@ -83,8 +83,8 @@ module.exports = {
                                         "data_source": "external",
                                         "selected_options": [
                                             {
-                                                "text": snapshot.key,
-                                                "value": snapshot.key
+                                                "text": util.groomTheKeyFromFirebase(snapshot.key),
+                                                "value": util.groomTheKeyFromFirebase(snapshot.key)
                                             }
                                         ]
                                     },
@@ -97,9 +97,9 @@ module.exports = {
                                 ]
                             },
                             {
-                                "fallback": snapshot.key + '\n' + description + '\nColleagues using this tag: ' + count,
+                                "fallback": util.groomTheKeyFromFirebase(snapshot.key) + '\n' + description + '\nColleagues using this tag: ' + count,
                                 "color": "#3AA3E3",
-                                "title": snapshot.key,
+                                "title": util.groomTheKeyFromFirebase(snapshot.key),
                                 "text": description + '\nColleagues using this tag: ' + count
                             }
                         ]
@@ -158,8 +158,8 @@ module.exports = {
                 // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
                 snapshot.forEach(childSnapshot => {
                     options.options.push({
-                        "text": childSnapshot.key,
-                        "value": childSnapshot.key
+                        "text": util.groomTheKeyFromFirebase(childSnapshot.key),
+                        "value": util.groomTheKeyFromFirebase(childSnapshot.key)
                     });
                 });
                 return res.contentType('json').status(OK).send(options);
@@ -180,8 +180,8 @@ module.exports = {
                 // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
                 snapshot.forEach(childSnapshot => {
                     options.options.push({
-                        "text": childSnapshot.key,
-                        "value": childSnapshot.key
+                        "text": util.groomTheKeyFromFirebase(childSnapshot.key),
+                        "value": util.groomTheKeyFromFirebase(childSnapshot.key)
                     });
                 });
 

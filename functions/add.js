@@ -222,9 +222,9 @@ module.exports = {
     const description = payload.submission.description;
     const tag_code = tag_title.toLowerCase();
 
-    database.ref('tags/' + team_id + '/' + tag_title).once('value').then(snapshot => {
+    database.ref('tags/' + team_id + '/' + util.groomTheKeyToFirebase(tag_title)).once('value').then(snapshot => {
         if (!snapshot.val()) {
-            database.ref('tags/' + team_id + "/" + tag_title).set({
+            database.ref('tags/' + team_id + "/" + util.groomTheKeyToFirebase(tag_title)).set({
                 tag_title,
                 tag_code,
                 description,
@@ -483,14 +483,14 @@ module.exports = {
   addTagConfirm: function(team_id, user_id, username, payload, res) {
     var tagToAddConfirm = payload.actions[0]["value"];
 
-    database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).once('value')
+    database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm)).once('value')
         .then(snapshot => {
             if (!snapshot.val()) {
-                database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + tagToAddConfirm).set({
+                database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm)).set({
                     "tag": tagToAddConfirm,
                     "hi_five_count": 0
                 }).then(snap => {
-                    database.ref('tags/' + team_id + '/' + tagToAddConfirm).transaction(tagValue => {
+                    database.ref('tags/' + team_id + '/' + util.groomTheKeyToFirebase(tagToAddConfirm)).transaction(tagValue => {
                         if (tagValue) {
                             tagValue.count++;
                         } else {
@@ -515,10 +515,10 @@ module.exports = {
             return;
         });
 
-    database.ref('workspaces/' + team_id + '/tags/' + tagToAddConfirm + '/users/' + user_id).once('value')
+    database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm) + '/users/' + user_id).once('value')
         .then(snapshot => {
             if (!snapshot.val()) {
-                database.ref('workspaces/' + team_id + '/tags/' + tagToAddConfirm + '/users/' + user_id).set({
+                database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm) + '/users/' + user_id).set({
                     "user_id": user_id,
                     "username": username,
                     "hi_five_count": 0
