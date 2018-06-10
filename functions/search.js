@@ -155,11 +155,11 @@ module.exports = {
                   var hi_five_count = childSnapshot.val().hi_five_count;
                   var color = "#E0E0E0";
 
-                  if (hi_five_count > 0 && hi_five_count <= 3) {
+                  if (hi_five_count >= 5 && hi_five_count < 15) {
                       color = "#F2994A";
-                  } else if (hi_five_count > 3 && hi_five_count <= 10) {
+                  } else if (hi_five_count >= 15 && hi_five_count < 30) {
                       color = "#6989A7";
-                  } else if (hi_five_count > 10) {
+                  } else if (hi_five_count >= 30) {
                       color = "#F2C94C";
                   }
 
