@@ -104,7 +104,7 @@ module.exports = {
                                         "short": true
                                     },
                                     {
-                                        "value": "High fives: " + hi_five_count,
+                                        "value": ":clap: " + hi_five_count,
                                         "short": true
                                     }
                                 ],
