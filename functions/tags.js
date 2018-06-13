@@ -22,7 +22,8 @@ module.exports = {
     tagsSelectAction: function (payload, res) {
         const team_id = payload.team.id;
         const selectedTag = payload.actions[0].selected_options[0].value;
-        this.sendTagListMessage(res, team_id, selectedTag);
+        const enterprise_id = payload.team.enterprise_id;
+        this.sendTagListMessage(res, team_id, enterprise_id, selectedTag);
     },
 
     /**
@@ -30,7 +31,7 @@ module.exports = {
      * If a selectedTagCode is provided we populate the selected attribute of the menu button and show
      * the tag details to the user.
      */
-    sendTagListMessage: function (response, team_id, selectedTag) {
+    sendTagListMessage: function (response, team_id, enterprise_id, selectedTag) {
 
         if (selectedTag === undefined) {
 
@@ -62,7 +63,15 @@ module.exports = {
             });
         } else {
 
-            database.ref('tags/' + team_id + '/' + util.groomTheKeyToFirebase(selectedTag)).once("value").then(snapshot => {
+            var ref = 'tags/';
+            if (enterprise_id) {
+               ref += enterprise_id + '/';
+            } else {
+              ref += team_id + '/';
+            }
+            ref += util.groomTheKeyToFirebase(selectedTag);
+
+            database.ref(ref).once("value").then(snapshot => {
                 if (snapshot.val()) {
                     var description = snapshot.child("description").val();
                     var count = snapshot.child("count").val();
@@ -145,9 +154,16 @@ module.exports = {
         }
     },
 
-    tagsListMenu: function (team_id, queryText, res) {
+    tagsListMenu: function (team_id, enterprise_id, queryText, res) {
+        var ref = 'tags/';
+        if (enterprise_id) {
+           ref += enterprise_id;
+        } else {
+          ref += team_id;
+        }
+
         // read workspace tags and add to response
-        database.ref('tags/' + team_id).orderByChild('tag_code')
+        database.ref(ref).orderByChild('tag_code')
             .startAt(queryText.toLowerCase())
             .endAt(queryText.toLowerCase() + "\uf8ff")
             .once("value").then(snapshot => {
@@ -170,8 +186,17 @@ module.exports = {
             });
     },
 
-    userTagsMenu: function (team_id, user_id, res) {
-        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags')
+    userTagsMenu: function (team_id, user_id, enterprise_id, res) {
+
+        var ref = 'workspaces/';
+        if (enterprise_id) {
+           ref += enterprise_id + '/';
+        } else {
+          ref += team_id + '/';
+        }
+        ref += 'users/' + user_id + '/tags';
+
+        database.ref(ref)
             .once("value").then(snapshot => {
 
                 var options = {

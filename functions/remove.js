@@ -54,6 +54,7 @@ module.exports = {
 
   removeTagAction: function(payload, res) {
     const team_id = payload.team.id;
+    const enterprise_id = payload.team.enterprise_id;
     const user_id = payload.user.id;
 
     switch (payload.actions[0]["name"]) {
@@ -116,11 +117,23 @@ module.exports = {
             //Remove the tag node from the user and decrement workplace count of that tag.
             var tagToRemoveConfirm = payload.actions[0]["value"];
 
-            database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToRemoveConfirm)).once('value')
+            var refUser = 'workspaces/';
+            var refTag = 'tags/';
+            if (enterprise_id) {
+               refUser += enterprise_id + '/';
+               refTag += enterprise_id + '/';
+            } else {
+              refUser += team_id + '/';
+              refTag += team_id + '/';
+            }
+            refUser += 'users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToRemoveConfirm);
+            refTag += util.groomTheKeyToFirebase(tagToRemoveConfirm);
+
+            database.ref(refUser).once('value')
                 .then(snapshot => {
                     if (snapshot.val()) {
-                        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToRemoveConfirm)).remove();
-                        database.ref('tags/' + team_id + '/' + util.groomTheKeyToFirebase(tagToRemoveConfirm)).transaction(tagValue => {
+                        database.ref(refUser).remove();
+                        database.ref(refTag).transaction(tagValue => {
                             if (tagValue) {
                                 if (tagValue.count > 0) {
                                     tagValue.count--;
@@ -143,6 +156,15 @@ module.exports = {
                     if (err) console.log(err);
                     return;
                 });
+
+            var refWorkspaceTag = 'workspaces/';
+            if (enterprise_id) {
+               refWorkspaceTag += enterprise_id + '/';
+            } else {
+              refWorkspaceTag += team_id + '/';
+            }
+            refWorkspaceTag += 'tags/' + util.groomTheKeyToFirebase(tagToRemoveConfirm) + '/users/' + user_id;
+            database.ref(refWorkspaceTag).remove();
 
             res.contentType('json').status(OK).send({
                 "response_type": "ephemeral",

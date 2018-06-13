@@ -14,7 +14,9 @@ module.exports = {
         var user_name = req.body.user_name;
         var user_id = req.body.user_id;
         var team_id = req.body.team_id;
+        var enterprise_id = req.body.enterprise_id;
         var text = req.body.text;
+
         if (text) {
             var forSpecificUserId = text.substring(text.indexOf('<@') + 2, text.indexOf('|'));
             var forSpecificUserName = text.substring(text.indexOf('|') + 1, text.indexOf('>'));
@@ -48,7 +50,15 @@ module.exports = {
                 }
             ];
 
-            database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags').orderByChild('hi_five_count')
+            var ref = 'workspaces/';
+            if (enterprise_id) {
+               ref += enterprise_id + '/';
+            } else {
+              ref += team_id + '/';
+            }
+            ref += 'users/' + user_id + '/tags';
+
+            database.ref(ref).orderByChild('hi_five_count')
                 .once("value").then(snapshot => {
 
                     var tags = [];

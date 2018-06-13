@@ -119,6 +119,7 @@ exports.menu_options = functions.https.onRequest((req, res) => {
     var token = payload.token;
     var user_id = payload.user.id;
     var team_id = payload.team.id;
+    var enterprise_id = payload.team.enterprise_id;
 
     // Validations
     if (util.validateToken(token, res)) {
@@ -131,10 +132,10 @@ exports.menu_options = functions.https.onRequest((req, res) => {
               visitor.event("Menu Selection", "Search menu").send();
             }
             var queryTextForTagsList = payload.value;
-            tags.tagsListMenu(team_id, queryTextForTagsList, res);
+            tags.tagsListMenu(team_id, enterprise_id, queryTextForTagsList, res);
         } else if (menuName === "user_tags_menu_button") {
             visitor.event("Menu Selection", "User Tags menu").send();
-            tags.userTagsMenu(team_id, user_id, res);
+            tags.userTagsMenu(team_id, user_id, enterprise_id, res);
         }
     }
 });

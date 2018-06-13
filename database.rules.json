@@ -8,8 +8,8 @@
       ".read": "true",
       ".write": "true",
       "$tagId": {
-          ".indexOn": "tag_code"
-        }
+        ".indexOn": "tag_code"
+      }
     },
     "workspaces": {
       ".read": "true",

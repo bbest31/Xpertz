@@ -20,30 +20,56 @@ module.exports = {
    *
    * Example Response Body
    *
-   * body:  { token: 'th15i5AnAc355T0K3N',
-    team_id: 'ABCDEFGHI',
-    team_domain: 'xpertzdev',
-    channel_id: 'CAAFC3RDJ',
-    channel_name: 'general',
-    user_id: 'UAJKE3ULE',
-    user_name: 'bakurov.illya',
-    command: '/add',
-    text: '',
-    response_url: 'https://hooks.slack.com/commands/ABCDEFGHI/359350492293/th15i5AnAc355T0K3N',
-    trigger_id: '359113754147.350752158706.334e59ad4556e82cbea59be1f7b0b70f' }
+         ******* ENTERPRISE: ******
+         { token: 'n2UxTrT7vGYQCSPIXD2dp1th',
+          team_id: 'TB4R9R998',
+          team_domain: 'testing-xpertz',
+          channel_id: 'CB44RPD5E',
+          channel_name: 'general',
+          user_id: 'WB4G7PSBG',
+          user_name: 'primary-owner',
+          command: '/add',
+          text: '',
+          enterprise_id: 'EB4G7PKGE',
+          enterprise_name: 'ELPS Xpertz',
+          response_url: 'https://hooks.slack.com/commands/TB4R9R998/378866597600/tqgLJcmre6JIIwKIL5V2icgi',
+          trigger_id: '379565085378.378859859314.02369bdf79ece5af2f8a5a1419d021c7' }
+
+        ****** REGULAR: ******
+        { token: 'n2UxTrT7vGYQCSPIXD2dp1th',
+          team_id: 'TAAN44NLS',
+          team_domain: 'xpertzdev',
+          channel_id: 'DAHFVDG6Q',
+          channel_name: 'directmessage',
+          user_id: 'UAJKE3ULE',
+          user_name: 'bakurov.illya',
+          command: '/add',
+          text: '',
+          response_url: 'https://hooks.slack.com/commands/TAAN44NLS/379565572882/Yokp3KlyS2eFoXKouOoTvIF0',
+          trigger_id: '379565572946.350752158706.ab321bbdd934febcd844dfe7e53a9a0e' }
    */
   addCommand: function (req, res) {
       var token = req.body.token;
       var user_id = req.body.user_id;
       var team_id = req.body.team_id;
+      var enterprise_id = req.body.enterprise_id;
 
-      this.checkAndFireAddCommandIsAvailable(team_id, user_id, token, res);
+      this.checkAndFireAddCommandIsAvailable(team_id, user_id, enterprise_id, token, res);
   },
 
-  checkAndFireAddCommandIsAvailable: function(team_id, user_id, token, res) {
+  checkAndFireAddCommandIsAvailable: function(team_id, user_id, enterprise_id, token, res) {
+
+      var ref = 'workspaces/';
+      if (enterprise_id) {
+         ref += enterprise_id + '/';
+      } else {
+        ref += team_id + '/';
+      }
+      ref += 'users/' + user_id + '/tags';
+
       //Validations
       if (util.validateToken(token, res)) {
-        database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags').once('value')
+        database.ref(ref).once('value')
           .then(snapshot => {
               if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_TAGS)) {
                 this.sendAddOrCreateTagMessage(res);
@@ -220,11 +246,20 @@ module.exports = {
     const team_id = payload.team.id;
     const tag_title = payload.submission.tag_title;
     const description = payload.submission.description;
+    const enterprise_id = payload.team.enterprise_id;
     const tag_code = tag_title.toLowerCase();
 
-    database.ref('tags/' + team_id + '/' + util.groomTheKeyToFirebase(tag_title)).once('value').then(snapshot => {
+    var ref = 'tags/';
+    if (enterprise_id) {
+       ref += enterprise_id + '/';
+    } else {
+      ref += team_id + '/';
+    }
+    ref += util.groomTheKeyToFirebase(tag_title);
+
+    database.ref(ref).once('value').then(snapshot => {
         if (!snapshot.val()) {
-            database.ref('tags/' + team_id + "/" + util.groomTheKeyToFirebase(tag_title)).set({
+            database.ref(ref).set({
                 tag_title,
                 tag_code,
                 description,
@@ -386,9 +421,12 @@ module.exports = {
   },
 
   addTagAction: function (payload, res) {
+    console.log("payload", payload);
+
     const response_url = payload.response_url;
     const team_id = payload.team.id;
     const user_id = payload.user.id;
+    const enterprise_id = payload.team.enterprise_id;
     const username = payload.user.name;
     const trigger_id = payload.trigger_id;
 
@@ -459,10 +497,18 @@ module.exports = {
         case "add_tag_confirm_button":
             visitor.event("Actions", "Add Tag action").send();
 
-            database.ref('workspaces/' + team_id + '/users').once('value')
+            var ref = 'workspaces/';
+            if (enterprise_id) {
+               ref += enterprise_id + '/';
+            } else {
+              ref += team_id + '/';
+            }
+            ref += 'users';
+
+            database.ref(ref).once('value')
               .then(snapshot => {
                   if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_USERS)) {
-                    this.addTagConfirm(team_id, user_id, username, payload, res);
+                    this.addTagConfirm(team_id, user_id, enterprise_id, username, payload, res);
                   } else {
                     res.contentType('json').status(OK).send({
                         "response_type": "ephemeral",
@@ -474,23 +520,35 @@ module.exports = {
                 })
               .catch(err => {
                 if (err) console.log(err);
-                this.addTagConfirm(team_id, user_id, username, payload, res);
+                this.addTagConfirm(team_id, user_id, enterprise_id, username, payload, res);
               });
             break;
     }
   },
 
-  addTagConfirm: function(team_id, user_id, username, payload, res) {
+  addTagConfirm: function(team_id, user_id, enterprise_id, username, payload, res) {
     var tagToAddConfirm = payload.actions[0]["value"];
 
-    database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm)).once('value')
+    var refUsers = 'workspaces/';
+    var refTags = 'tags/';
+    if (enterprise_id) {
+       refUsers += enterprise_id + '/';
+       refTags += enterprise_id + '/';
+    } else {
+       refUsers += team_id + '/';
+       refTags += team_id + '/';
+    }
+    refUsers += 'users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm);
+    refTags += util.groomTheKeyToFirebase(tagToAddConfirm);
+
+    database.ref(refUsers).once('value')
         .then(snapshot => {
             if (!snapshot.val()) {
-                database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm)).set({
+                database.ref(refUsers).set({
                     "tag": tagToAddConfirm,
                     "hi_five_count": 0
                 }).then(snap => {
-                    database.ref('tags/' + team_id + '/' + util.groomTheKeyToFirebase(tagToAddConfirm)).transaction(tagValue => {
+                    database.ref(refTags).transaction(tagValue => {
                         if (tagValue) {
                             tagValue.count++;
                         } else {
@@ -515,10 +573,18 @@ module.exports = {
             return;
         });
 
-    database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm) + '/users/' + user_id).once('value')
+    var ref = 'workspaces/';
+    if (enterprise_id) {
+       ref += enterprise_id + '/';
+    } else {
+      ref += team_id + '/';
+    }
+    ref += 'tags/' + util.groomTheKeyToFirebase(tagToAddConfirm) + '/users/' + user_id;
+
+    database.ref(ref).once('value')
         .then(snapshot => {
             if (!snapshot.val()) {
-                database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm) + '/users/' + user_id).set({
+                database.ref(ref).set({
                     "user_id": user_id,
                     "username": username,
                     "hi_five_count": 0

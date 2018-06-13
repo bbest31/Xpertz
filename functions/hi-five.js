@@ -30,7 +30,7 @@ module.exports = {
                           "text": "_You can't high-five yourself!_"
                       });
                   } else {
-                      this.sendHiFiveMessage(res, userName, userId, req.body.team_id);
+                      this.sendHiFiveMessage(res, userName, userId, req.body.team_id, req.body.enterprise_id);
                   }
               } else {
                   res.contentType('json').status(OK).send({
@@ -83,8 +83,14 @@ module.exports = {
    * @param {string} user_name
    * @param {string} user_id
    */
-  sendHiFiveMessage: function (res, user_name, user_id, team_id) {
-      database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags')
+  sendHiFiveMessage: function (res, user_name, user_id, team_id, enterprise_id) {
+      var ref = 'workspaces/';
+      if (enterprise_id) {
+         ref += enterprise_id + '/';
+      }
+      ref += team_id + '/users/' + user_id + '/tags';
+
+      database.ref(ref)
           .once("value").then(snapshot => {
 
               var options = {
@@ -98,35 +104,43 @@ module.exports = {
                   });
               });
 
-              return res.contentType("json").status(OK).send({
-                  "response_type": "ephemeral",
-                  "replace_original": true,
-                  "text": "*Choose one of <@" + user_id + ">'s expertise to high-five!* :clap:",
-                  "attachments": [
-                      {
-                          "fallback": "Select one of their expertise they used to help you out",
-                          "callback_id": "h5",
-                          "text": "Choose the expertise they used to help",
-                          "color": "#20BA42",
-                          "attachment_type": "default",
-                          "actions": [
-                              {
-                                  "name": "h5_tag_menu_button",
-                                  "text": "Choose expertise",
-                                  "type": "select",
-                                  "options": options.options,
-                              },
-                              {
-                                  "name": "cancel_h5_button",
-                                  "text": "Cancel",
-                                  "value": "cancel",
-                                  "type": "button"
-                              }
+              if (options.options.length > 0) {
+                return res.contentType("json").status(OK).send({
+                    "response_type": "ephemeral",
+                    "replace_original": true,
+                    "text": "*Choose one of <@" + user_id + ">'s expertise to high-five!* :clap:",
+                    "attachments": [
+                        {
+                            "fallback": "Select one of their expertise they used to help you out",
+                            "callback_id": "h5",
+                            "text": "Choose the expertise they used to help",
+                            "color": "#20BA42",
+                            "attachment_type": "default",
+                            "actions": [
+                                {
+                                    "name": "h5_tag_menu_button",
+                                    "text": "Choose expertise",
+                                    "type": "select",
+                                    "options": options.options,
+                                },
+                                {
+                                    "name": "cancel_h5_button",
+                                    "text": "Cancel",
+                                    "value": "cancel",
+                                    "type": "button"
+                                }
 
-                          ]
-                      }
-                  ]
-              });
+                            ]
+                        }
+                    ]
+                });
+              } else {
+                return res.contentType("json").status(OK).send({
+                    "response_type": "ephemeral",
+                    "replace_original": true,
+                    "text": "*Looks like <@" + user_id + "> doesn't have any expertise to high-five at the moment!*",
+                });
+              }
           })
           .catch(err => {
               if (err) console.log(err);
@@ -135,12 +149,18 @@ module.exports = {
 
   },
 
-  sendHiFiveSelectedTagMessage: function (res, selectedOption, team_id) {
+  sendHiFiveSelectedTagMessage: function (res, selectedOption, team_id, enterprise_id) {
       var user_id = selectedOption.substring(selectedOption.lastIndexOf('|') + 1);
       var user_name = selectedOption.substring(selectedOption.indexOf('|') + 1, selectedOption.lastIndexOf('|'));
       var selectedTag = selectedOption.substring(0, selectedOption.indexOf('|'));
 
-      database.ref('workspaces/' + team_id + '/users/' + user_id + '/tags')
+      var ref = 'workspaces/';
+      if (enterprise_id) {
+         ref += enterprise_id + '/';
+      }
+      ref += team_id + '/users/' + user_id + '/tags';
+
+      database.ref(ref)
           .once("value").then(snapshot => {
 
               var options = {
@@ -205,13 +225,14 @@ module.exports = {
 
   hiFiveAction: function(payload, res) {
     const team_id = payload.team.id;
+    const enterprise_id = payload.team.enterprise_id;
 
     switch (payload.actions[0]["name"]) {
 
         case "h5_tag_menu_button":
             visitor.event("Actions", "Hi_Five Tags Menu Selection action").send();
             var selectedOption = payload.actions[0].selected_options[0].value;
-            this.sendHiFiveSelectedTagMessage(res, selectedOption, team_id);
+            this.sendHiFiveSelectedTagMessage(res, selectedOption, team_id, enterprise_id);
             break;
 
         case "h5_button":
@@ -222,11 +243,19 @@ module.exports = {
             var colleague_id = optionValue.substring(optionValue.lastIndexOf('|') + 1);
             var colleague_tag = optionValue.substring(0, optionValue.indexOf('|'));
 
+            var refUsers = 'workspaces/';
+            if (enterprise_id) {
+               refUsers += enterprise_id + '/';
+            } else {
+              refUsers += team_id + '/';
+            }
+            refUsers += 'users/' + colleague_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag);
+
             // Increment the hi_five count
-            database.ref('workspaces/' + team_id + '/users/' + colleague_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag)).once('value')
+            database.ref(refUsers).once('value')
                 .then(snapshot => {
                     if (snapshot.val()) {
-                        database.ref('workspaces/' + team_id + '/users/' + colleague_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag)).transaction(tagNode => {
+                        database.ref(refUsers).transaction(tagNode => {
                             if (tagNode) {
                                 tagNode.hi_five_count++;
                             }
@@ -246,10 +275,18 @@ module.exports = {
                     return;
                 });
 
-                database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag) + '/users/' + colleague_id).once('value')
+                var refTags = 'workspaces/';
+                if (enterprise_id) {
+                   refTags += enterprise_id + '/';
+                } else {
+                  refTags += team_id + '/';
+                }
+                refTags += 'tags/' + util.groomTheKeyToFirebase(colleague_tag) + '/users/' + colleague_id;
+
+                database.ref(refTags).once('value')
                     .then(snapshot => {
                         if (snapshot.val()) {
-                            database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag) + '/users/' + colleague_id).transaction(tagNode => {
+                            database.ref(refTags).transaction(tagNode => {
                                 if (tagNode) {
                                     tagNode.hi_five_count++;
                                 }

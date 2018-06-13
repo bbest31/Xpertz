@@ -55,9 +55,23 @@ module.exports = {
   feedbackSubmission: function(payload, res) {
       const feedbackText = payload.submission.feedback;
       const team_id = payload.team.id;
+      const user_id = payload.user.id;
+      const username = payload.user.name;
       const token = payload.token;
+      const enterprise_id = payload.team.enterprise_id;
 
-      database.ref('feedback').push().set(feedbackText).then(ref => {
+      var ref = 'feedback/';
+      if (enterprise_id) {
+         ref += enterprise_id + '/';
+      }
+      ref += team_id;
+
+      database.ref(ref).push().set({
+        "feedback": feedbackText,
+        "user_id": user_id,
+        "username": username,
+        "date": new Date()
+      }).then(ref => {
         res.status(OK).send();
         util.retrieveAccessToken(team_id, token => {
             if (token) {

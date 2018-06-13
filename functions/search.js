@@ -55,6 +55,7 @@ module.exports = {
 
   searchTagAction: function (payload, res) {
     var team_id = payload.team.id;
+    var enterprise_id = payload.team.enterprise_id;
 
     switch (payload.actions[0]["name"]) {
         case "search_tag_menu_button":
@@ -105,7 +106,7 @@ module.exports = {
         case "search_tag_confirm_button":
             visitor.event("Actions", "Search Team Tags Menu Selection action").send();
             var selectedSearchTag = payload.actions[0]["value"];
-            this.performSearchAction(team_id, selectedSearchTag, null, null, res);
+            this.performSearchAction(team_id, selectedSearchTag, enterprise_id, null, null, res);
             break;
         case "start_again_search_button":
             visitor.event("Actions", "Start Search Again action").send();
@@ -128,19 +129,26 @@ module.exports = {
         }
     },
 
-    performSearchAction: function (team_id, tag, nextBookmark, prevBookmark, res) {
+    performSearchAction: function (team_id, tag, enterprise_id, nextBookmark, prevBookmark, res) {
+      var ref = 'workspaces/';
+      if (enterprise_id) {
+         ref += enterprise_id + '/';
+      } else {
+        ref += team_id + '/';
+      }
+      ref += 'tags/' + util.groomTheKeyToFirebase(tag) + '/users';
 
-      var ref = database.ref('workspaces/' + team_id + '/tags/' + util.groomTheKeyToFirebase(tag) + '/users').orderByKey();
+      var finalRef = database.ref(ref).orderByKey();
 
       if (nextBookmark) {
-        ref = ref.startAt(nextBookmark).limitToFirst(QUERYLIMIT+1);
+        finalRef = finalRef.startAt(nextBookmark).limitToFirst(QUERYLIMIT+1);
       } else if (prevBookmark) {
-        ref = ref.endAt(prevBookmark).limitToLast(QUERYLIMIT+2);
+        finalRef = finalRef.endAt(prevBookmark).limitToLast(QUERYLIMIT+2);
       } else {
-        ref = ref.limitToFirst(QUERYLIMIT+1);
+        finalRef = finalRef.limitToFirst(QUERYLIMIT+1);
       }
 
-      ref.once("value").then(snapshot => {
+      finalRef.once("value").then(snapshot => {
           var options = {
               options: []
           };
@@ -154,6 +162,7 @@ module.exports = {
               } else if (count < QUERYLIMIT) {
                   var hi_five_count = childSnapshot.val().hi_five_count;
                   var color = "#E0E0E0";
+                  var rankEmoji = "";
 
                   if (hi_five_count >= 5 && hi_five_count < 15) {
                       color = "#F2994A";
@@ -161,13 +170,24 @@ module.exports = {
                       color = "#6989A7";
                   } else if (hi_five_count >= 30) {
                       color = "#F2C94C";
+                      if (hi_five_count >= 50 && hi_five_count < 75) {
+                          rankEmoji = ":medal:";
+                      } else if (hi_five_count >= 75 && hi_five_count < 100) {
+                          rankEmoji = ":sports_medal:";
+                      } else if (hi_five_count >= 100 && hi_five_count < 150) {
+                          rankEmoji = ":trophy:";
+                      } else if (hi_five_count >= 150 & hi_five_count < 250) {
+                          rankEmoji = ":gem:";
+                      } else if (hi_five_count >= 250) {
+                          rankEmoji = ":crown:";
+                      }
                   }
 
                   options.options.push({
                       "fallback": childSnapshot.val().username,
                       "callback_id": "search_tag",
                       "color": color,
-                      "title": "<@" + childSnapshot.key + ">",
+                      "title": "<@" + childSnapshot.key + "> " + rankEmoji,
                       // "actions": [
                       //     {
                       //         "name": "search_tag_direct_message_button",
@@ -333,20 +353,22 @@ module.exports = {
 
     searchNextAction: function (payload, res) {
         const team_id = payload.team.id;
+        const enterprise_id = payload.team.enterprise_id;
         const value = payload.actions[0]["value"];
         const bookmark = value.substring(0, value.indexOf('|'));
         const tag = value.substring(value.indexOf('|') + 1);
 
-        this.performSearchAction(team_id, tag, bookmark, null, res);
+        this.performSearchAction(team_id, tag, enterprise_id, bookmark, null, res);
     },
 
     searchPreviousAction: function (payload, res) {
         const team_id = payload.team.id;
+        const enterprise_id = payload.team.enterprise_id;
         const value = payload.actions[0]["value"];
         const bookmark = value.substring(0, value.indexOf('|'));
         const tag = value.substring(value.indexOf('|') + 1);
 
-        this.performSearchAction(team_id, tag,  null, bookmark, res);
+        this.performSearchAction(team_id, tag, enterprise_id, null, bookmark, res);
     },
 };
 
