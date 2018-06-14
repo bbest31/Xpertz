@@ -314,7 +314,7 @@ module.exports = {
                     {
                         "fallback": "Confirmation that the high-five was successfully given",
                         "callback_id": "h5",
-                        "text": "*You gave <@" + colleague_id + "> a high-five towards their " + colleague_tag + " expertise* :+1: :tada:",
+                        "text": "*You gave <@" + colleague_id + "> a high-five towards their " + colleague_tag + " expertise* :+1:",
                         "color": "#20BA42",
                         "attachment_type": "default",
                     }

@@ -218,7 +218,7 @@ exports.commands = functions.https.onRequest((req, res) => {
                 { "text": "Add an expertise tag:\n`/add`" },
                 { "text": "Remove an expertise tag:\n`/removetag`" },
                 { "text": "View all tags used in this workspace or enterprise grid:\n`/tags`" },
-                { "text": "Search for experts by tag:\n`/search`" },
+                { "text": "Search for experts by tag:\n`/xpertz`" },
                 {
                   "fallback": "Button to leave a feedback",
                   "callback_id": "feedback_action",
