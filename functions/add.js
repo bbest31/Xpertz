@@ -11,7 +11,7 @@ const database = firebase.database();
 const OK = 200;
 
 const MAX_TAGS = 15;
-const MAX_USERS = 15;
+// const MAX_USERS = 15;
 
 module.exports = {
 
@@ -497,31 +497,31 @@ module.exports = {
         case "add_tag_confirm_button":
             visitor.event("Actions", "Add Tag action").send();
 
-            var ref = 'workspaces/';
-            if (enterprise_id) {
-               ref += enterprise_id + '/';
-            } else {
-              ref += team_id + '/';
-            }
-            ref += 'users';
-
-            database.ref(ref).once('value')
-              .then(snapshot => {
-                  if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_USERS)) {
+            // var ref = 'workspaces/';
+            // if (enterprise_id) {
+            //    ref += enterprise_id + '/';
+            // } else {
+            //   ref += team_id + '/';
+            // }
+            // ref += 'users';
+            //
+            // database.ref(ref).once('value')
+            //   .then(snapshot => {
+            //       if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_USERS)) {
                     this.addTagConfirm(team_id, user_id, enterprise_id, username, payload, res);
-                  } else {
-                    res.contentType('json').status(OK).send({
-                        "response_type": "ephemeral",
-                        "replace_original": true,
-                        "text": "*Looks like your team only has the free tier of Xpertz which only supports the first " + MAX_USERS + " members to add tags. Consult your manager/supervisor about upgrading to support more or contact us at <email or website link>*"
-                      });
-                  }
-                  return;
-                })
-              .catch(err => {
-                if (err) console.log(err);
-                this.addTagConfirm(team_id, user_id, enterprise_id, username, payload, res);
-              });
+              //     } else {
+              //       res.contentType('json').status(OK).send({
+              //           "response_type": "ephemeral",
+              //           "replace_original": true,
+              //           "text": "*Looks like your team only has the free tier of Xpertz which only supports the first " + MAX_USERS + " members to add tags. Consult your manager/supervisor about upgrading to support more or contact us at <email or website link>*"
+              //         });
+              //     }
+              //     return;
+              //   })
+              // .catch(err => {
+              //   if (err) console.log(err);
+              //   this.addTagConfirm(team_id, user_id, enterprise_id, username, payload, res);
+              // });
             break;
     }
   },
