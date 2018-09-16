@@ -1,6 +1,8 @@
 const functions = require('firebase-functions');
 const firebase = require('firebase');
 const rp = require('request-promise');
+const http = require('http');
+const request = require('request');
 
 // Get a reference to the database service
 const database = firebase.database();
@@ -83,24 +85,49 @@ module.exports = {
   },
 
   saveWorkspaceAsANewInstallation: function (slackResponse, response) {
-      //Add the entry to the database
-      database.ref('installations/' + slackResponse.team_id).set({
-          token: slackResponse.access_token,
-          team: slackResponse.team_id,
-          webhook: {
-              url: slackResponse.incoming_webhook.url,
-              channel: slackResponse.incoming_webhook.channel_id
+
+      database.ref('installations/' + slackResponse.team_id).once('value').then(snapshot => {
+          if (!snapshot.val()) {
+              //Add the entry to the database
+              database.ref('installations/' + slackResponse.team_id).set({
+                  token: slackResponse.access_token,
+                  team: slackResponse.team_id,
+                  webhook: {
+                      url: slackResponse.incoming_webhook.url,
+                      channel: slackResponse.incoming_webhook.channel_id
+                  },
+                  access: {
+                      startedTrial: Date.now(),
+                      tier: 0
+                  }
+              }).then(ref => {
+                  //Success!!!
+                  // response.contentType('json').status(OK).send();
+                  response.statusCode = 200;
+                  response.setHeader('Location', 'https://xpertz-178c0.firebaseapp.com/slack-success.html');
+                  response.end();
+                  // response.writeHead(200,
+                  //     {Location: 'https://xpertz-178c0.firebaseapp.com/slack-success.html'}
+                  // );
+                  // response.end();
+                  // response.redirect('https://xpertz-178c0.firebaseapp.com/slack-success.html');
+                  return;
+              }).catch(err => {
+                if (err) console.log(err);
+                  response.contentType('json').status(UNAUTHORIZED).send({
+                      "Failure": "Failed to save data in the DB"
+                  });
+                  return;
+              });
+          } else {
+              response.contentType('json').status(UNAUTHORIZED).send({
+                  "Failure": "This team is already connected to Xpertz"
+              });
           }
-      }).then(ref => {
-          //Success!!!
-          response.contentType('json').status(OK).send({
-              "Status": "Success"
-          });
-          return;
       }).catch(err => {
         if (err) console.log(err);
           response.contentType('json').status(UNAUTHORIZED).send({
-              "Failure": "Failed to save data in the DB"
+              "Failure": "Failed to check if this team is already connected"
           });
           return;
       });

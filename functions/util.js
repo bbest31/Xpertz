@@ -14,6 +14,7 @@ const database = firebase.database();
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
 const UNAUTHORIZED = 401;
 const OK = 200;
+const TRIAL_DAYS = 30;
 
 module.exports = {
 
@@ -89,6 +90,46 @@ module.exports = {
         res.sendStatus(UNAUTHORIZED);
         return false;
     }
+  },
+
+  validateTeamAccess: function (team_id, response, callback) {
+      database.ref('installations/' + team_id).once('value').then(snapshot => {
+          if (!snapshot.val()) {
+              //No team with that id found
+              response.contentType('json').status(OK).send({
+                  "response_type": "ephemeral",
+                  "replace_original": true,
+                  "text": "Request has failed. If this keeps happening, please, contact us at <email>"
+                });
+          } else {
+              //If tier is trial and date it has been more than 30 days after trial started, than team doesn't have access anymore {}
+              if (snapshot.val().access.tier === 0) {
+                  var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+                  var diffDays = Math.round(Math.abs((snapshot.val().access.startedTrial - Date.now())/(oneDay)));
+                  console.log(diffDays);
+                  if (diffDays > TRIAL_DAYS) {
+                      callback(true);
+                  } else {
+                      response.contentType('json').status(OK).send({
+                          "response_type": "ephemeral",
+                          "replace_original": true,
+                          "text": "*Looks like your trial period has ended. Consult your manager/supervisor about upgrading to keep using Xpertz or contact us at <email or website link>*"
+                        });
+                  }
+              } else {
+                  callback(true);
+              }
+          }
+          return;
+      }).catch(err => {
+          console.log('Error getting team doc', err);
+          response.contentType('json').status(OK).send({
+              "response_type": "ephemeral",
+              "replace_original": true,
+              "text": "Request has failed. If this keeps happening, please, contact us at <email>"
+            });
+          return;
+      });
   },
 
   startDirectChat: function (user_id, team_id, token) {
