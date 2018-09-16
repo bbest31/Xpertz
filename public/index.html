@@ -1,191 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
+<head>
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <meta name="slack-app-id" content="AAAP2475G">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="slack-app-id" content="AAAP2475G">
 
-    <title>Xpertz - Collaboration Tool</title>
+  <title>Xpertz Dashboard</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom fonts for this template -->
-    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+  <!-- Semantic-UI css -->
+  <link href="../node_modules/semantic-ui/dist/semantic.min.css" rel="stylesheet">
 
-    <!-- Plugin CSS -->
-    <link href="vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
+  <!-- Custom fonts for this template -->
+  <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800'
+    rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic'
+    rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400" rel="stylesheet">
 
-    <!-- Custom styles for this template -->
-    <link href="css/creative.min.css" rel="stylesheet">
+  <!-- Plugin CSS -->
+  <link href="vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
 
-  </head>
+  <!-- Custom styles for this template -->
+  <link href="css/creative.min.css" rel="stylesheet">
 
-  <body id="page-top">
+  <!-- Main CSS File -->
+  <link href="css/app.css" rel="stylesheet">
+</head>
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
-      <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="#page-top">Xpertz</a>
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      </div>
-    </nav>
+<body id="page-top">
 
-    <header class="masthead text-center text-white d-flex">
-      <div class="container my-auto">
-        <div class="row">
-          <div class="col-lg-10 mx-auto">
-            <h1 class="text-uppercase">
-              <strong>Best collaboration tool for Experts!</strong>
-            </h1>
-            <hr>
-          </div>
-          <div class="col-lg-8 mx-auto">
-            <p class="text-faded mb-5">Start collaborating in the best way possible among the whole organization.</p>
-            <a href="https://slack.com/oauth/authorize?scope=incoming-webhook,commands&client_id=350752158706.350784143186"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
-          </div>
-        </div>
-      </div>
-    </header>
+  <!-- Navigation Sidebar -->
+  <div class="ui wide left sidebar visible inverted vertical labeled menu main-gradient">
+    <!-- Title -->
+    <div id="menu-title">
+      <img id="brand-icon" src="img/dashboard-icons/logo-white.png" alt="Xpertz"/>
+      <img id="brand-title" src="img/dashboard-icons/title-white.png" alt="XPERTZ">
+    </div>
+    <!-- Menu items -->
+    <a class="item">
+      <i class="home icon"></i>
+      Dashboard
+    </a>
+    <a class="item">Performance</a>
+    <a class="item">Network</a>
+    <a class="item">Collaborate</a>
+    <a class="item">Help</a>
+    <a class="item">Logout</a>
+  </div>
 
-    <!-- Image Showcases -->
-    <section class="showcase">
-      <center>
-        <div>
-          <div>
-            <h2>Add expertise to show what you bring to your team</h2>
-            <p class="lead mb-0">Showcase your skillset easily in Slack, and view those of your colleagues.</p>
-          </div>
-          </br>
-          <div>
-            <img style='max-width:70%;min-width:60%' src='img/screenshots/1.png' alt='Profile'>
-          </div>
-          </br>
-          </br>
-        </div>
-        <div>
-          <div>
-            <h2>Find collaborators with ease</h2>
-            <p class="lead mb-0">With Xpertz searching find the right people to be collaborating with.</p>
-          </div>
-          </br>
-          <div>
-            <img style='max-width:70%;min-width:60%' src='img/screenshots/2.png' alt='Profile'>
-          </div>
-          </br>
-          </br>
-        </div>
-        <div>
-          <div>
-            <h2>High-Five!</h2>
-            <p class="lead mb-0">Get confirmation on successful collaborations with High-Fives and rank up your expertise!</p>
-          </div>
-          </br>
-          <div>
-            <img style='max-width:70%;min-width:60%' src='img/screenshots/3.png' alt='Profile'>
-          </div>
-        </div>
-      </center>
-    </section>
-
-    <section class="bg-dark text-white">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12 text-center">
-            <h2 class="section-heading">Features</h2>
-            <hr class="my-4">
-          </div>
-        </div>
-      </div>
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-3 col-md-6 text-center">
-            <div class="service-box mt-5 mx-auto">
-              <i class="fa fa-4x fa-diamond text-primary mb-3 sr-icons"></i>
-              <h3 class="mb-3">Optimization</h3>
-              <p class="text-muted mb-0">Streamline the collabortion or delegation process by finding the right people with the right expertise.</p>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6 text-center">
-            <div class="service-box mt-5 mx-auto">
-              <i class="fa fa-4x fa-paper-plane text-primary mb-3 sr-icons"></i>
-              <h3 class="mb-3">Affirmation</h3>
-              <p class="text-muted mb-0">Rank up your expertise by getting High-Fives for successful collaborations. Become the top ranked expert in your organization.</p>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6 text-center">
-            <div class="service-box mt-5 mx-auto">
-              <i class="fa fa-4x fa-newspaper-o text-primary mb-3 sr-icons"></i>
-              <h3 class="mb-3">Analytics & Leaderboards (Coming Soon)</h3>
-              <p class="text-muted mb-0">View company wide rankings, and get instant recognition for your contribution. Analytics for upper management on who is collaborating well and insights to the skillset economy within the company.</p>
-            </div>
-          </div>
-          <div class="col-lg-3 col-md-6 text-center">
-            <div class="service-box mt-5 mx-auto">
-              <i class="fa fa-4x fa-heart text-primary mb-3 sr-icons"></i>
-              <h3 class="mb-3">Evolution</h3>
-              <p class="text-muted mb-0">Evolve the way your company collaborates as Xpertz continues to build upon optimizing and analyzing collaboration!</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      </br>
-      </br>
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12 text-center">
-            <hr class="my-4">
-            <h2 class="mb-4">Try For Free</h2>
-            <a href="https://slack.com/oauth/authorize?scope=incoming-webhook,commands&client_id=350752158706.350784143186"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
-          </div>
-        </div>
-      </div>
-    </section>
-
+  <!--Dashboard content Content -->
+  <div class="pusher">
+    <!-- Site content !-->
     <footer>
       <div class="container" style="height: 100px;">
         <div style="height: 40px;"></div>
         <div class="row">
-          <div class="col-md-4">
-            <div style="height: 5px;"></div>
-            <p style="color:#000000;font-size:80%">Copyright &copy; Xpertz Collaboration Software 2018</p>
-          </div>
-          <div class="col-md-4">
-          </div>
-          <div class="col-md-4">
-            <ul class="list-inline quicklinks">
-              <li class="list-inline-item">
-                <a style="color:#000000;" href="https://xpertz-178c0.firebaseapp.com/privacy-policy.html">Privacy Policy</a>
-              </li>
-              <li class="list-inline-item">
-                <a style="color:#000000;" href="https://goo.gl/forms/YePZcFYZCDKVVfhI2">Support</a>
-              </li>
-            </ul>
+          <div class="col-md-4 float-right">
+            <p>Copyright &copy; Xpertz Collaboration Software 2018</p>
           </div>
         </div>
       </div>
     </footer>
+  </div>
 
-    <!-- Bootstrap core JavaScript -->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Plugin JavaScript -->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-    <script src="vendor/scrollreveal/scrollreveal.min.js"></script>
-    <script src="vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Custom scripts for this template -->
-    <script src="js/creative.min.js"></script>
+  <!-- Semantic UI JS-->
+  <script src="../node_modules/semantic-ui/dist/semantic.min.js"></script>
 
-  </body>
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="vendor/scrollreveal/scrollreveal.min.js"></script>
+  <script src="vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/creative.min.js"></script>
+
+</body>
 
 </html>
