@@ -1,7 +1,7 @@
 /* Xpertz Main CSS File */
 
 #brand-title {
-    padding-left: 10px;
+    padding: 0px 0px 15px 15px;
 }
 
 #brand-icon {
@@ -28,10 +28,10 @@
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
-.content-header {
+/* .content-header {
 
 }
 
 .content-header p{
     
-}
+} */
