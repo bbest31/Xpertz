@@ -14,7 +14,7 @@ const database = firebase.database();
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
 const UNAUTHORIZED = 401;
 const OK = 200;
-const TRIAL_DAYS = 30;
+const TRIAL_DAYS = 2000;
 
 module.exports = {
 
@@ -109,6 +109,7 @@ module.exports = {
                   console.log(diffDays);
                   if (diffDays > TRIAL_DAYS) {
                       callback(true);
+                      return;
                   } else {
                       response.contentType('json').status(OK).send({
                           "response_type": "ephemeral",
@@ -118,6 +119,7 @@ module.exports = {
                   }
               } else {
                   callback(true);
+                  return;
               }
           }
           return;
