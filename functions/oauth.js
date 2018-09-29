@@ -124,6 +124,7 @@ module.exports = {
                   "Failure": "This team is already connected to Xpertz"
               });
           }
+          return;
       }).catch(err => {
         if (err) console.log(err);
           response.contentType('json').status(UNAUTHORIZED).send({
