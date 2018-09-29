@@ -1,0 +1,29 @@
+/* Xpertz Main CSS File */
+
+#brand-title {
+    padding-left: 10px;
+}
+
+#brand-icon {
+    width: 57px;
+    height: 59px;
+}
+
+#menu-title {
+    padding: 20px;
+}
+
+
+.title {
+    font-family: 'Josefin Sans', sans-serif;
+    text-transform: uppercase;
+}
+
+.main-gradient {
+    background: #373B44;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #4286f4, #373B44) !important;
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to bottom, #091E3A, #2F80ED,#2D9EE0) !important; 
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
