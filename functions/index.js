@@ -1,7 +1,24 @@
 const functions = require('firebase-functions');
 const firebase = require('firebase');
 const rp = require('request-promise');
+const express = require('express');
+const app = express();
+const api = functions.https.onRequest(app);
+const bodyParser = require('body-parser');
+//const methodOverride = require('method-override');
 
+// Routes initialization
+var indexRoutes = require('../public/routes/index');
+
+// Middleware and quality of life usages
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'ejs');
+
+
+// Requiring Routes
+app.use(indexRoutes);
+
+// Slack Integrated Functions
 const add = require('./add');
 const remove = require('./remove');
 const profile = require('./profile');
@@ -16,7 +33,7 @@ const feedback = require('./feedback');
 var database = firebase.database();
 
 const ua = require('universal-analytics');
-var visitor = ua('UA-120285659-1', {https: true});
+var visitor = ua('UA-120285659-1', { https: true });
 
 const NOT_ACCEPTABLE = 406;
 const UNAUTHORIZED = 401;
@@ -25,7 +42,18 @@ const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
 
 //var request = require("request");
 
-//=========XPERTZ FUNCTIONS===========
+//=========XPERTZ DASHBOARD FUNCTIONS===========
+
+// app.get('*', (req, res) => {
+//     app.render('', (err) => {
+
+//     });
+// });
+
+
+
+
+//=========XPERTZ SLACK FUNCTIONS===========
 /*
 This file contains all the functions called from Slack using HTTPS.
 To deploy a single firebase function:
@@ -127,9 +155,9 @@ exports.menu_options = functions.https.onRequest((req, res) => {
 
         if (menuName === 'team_tags_menu_button' || menuName === 'search_tag_menu_button') {
             if (menuName === 'team_tags_menu_button') {
-              visitor.event("Menu Selection", "Team Tags menu").send();
+                visitor.event("Menu Selection", "Team Tags menu").send();
             } else if (menuName === 'search_tag_menu_button') {
-              visitor.event("Menu Selection", "Search menu").send();
+                visitor.event("Menu Selection", "Search menu").send();
             }
             var queryTextForTagsList = payload.value;
             tags.tagsListMenu(team_id, enterprise_id, queryTextForTagsList, res);
@@ -214,17 +242,17 @@ exports.commands = functions.https.onRequest((req, res) => {
             "response_type": "ephemeral",
             "attachments": [
                 {
-                  "callback_id": "profile_tag",
-                  "color": "#FFFFFF",
-                  "attachment_type": "default",
-                  "actions": [
-                      {
-                          "name": "cancel_profile_button",
-                          "text": "Close",
-                          "type": "button",
-                          "value": "cancel"
-                      }
-                  ]
+                    "callback_id": "profile_tag",
+                    "color": "#FFFFFF",
+                    "attachment_type": "default",
+                    "actions": [
+                        {
+                            "name": "cancel_profile_button",
+                            "text": "Close",
+                            "type": "button",
+                            "value": "cancel"
+                        }
+                    ]
                 },
                 { "text": "View your expertise tags or provide a username to view theirs:\n`/profile` _@username (optional)_" },
                 { "text": "Add an expertise tag:\n`/add`" },
@@ -232,19 +260,19 @@ exports.commands = functions.https.onRequest((req, res) => {
                 { "text": "View all tags used in this workspace or enterprise grid:\n`/tags`" },
                 { "text": "Search for experts by tag:\n`/xpertz`" },
                 {
-                  "fallback": "Button to leave a feedback",
-                  "callback_id": "feedback_action",
-                  "text": "*We’d love your feedback* :raised_hands:",
-                  "color": "#3AA3E3",
-                  "attachment_type": "default",
-                  "actions": [
-                      {
-                          "name": "leave_feedback_button",
-                          "text": "Feedback",
-                          "type": "button",
-                          "value": "feedback",
-                          "style": "primary"
-                      }
+                    "fallback": "Button to leave a feedback",
+                    "callback_id": "feedback_action",
+                    "text": "*We’d love your feedback* :raised_hands:",
+                    "color": "#3AA3E3",
+                    "attachment_type": "default",
+                    "actions": [
+                        {
+                            "name": "leave_feedback_button",
+                            "text": "Feedback",
+                            "type": "button",
+                            "value": "feedback",
+                            "style": "primary"
+                        }
                     ]
                 }
             ]
@@ -258,3 +286,7 @@ exports.oauth_redirect = functions.https.onRequest((req, res) => {
     visitor.event("Oauth", "Add app to Slack").send();
     oauth.oauthRedirect(req, res);
 });
+
+module.exports = {
+    api
+}
