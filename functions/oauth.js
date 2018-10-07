@@ -34,17 +34,19 @@ module.exports = {
         //Check if this is the GET request
         if (req.method !== "GET") {
             console.error(`Got unsupported ${req.method} request. Expected GET.`);
-            res.contentType('json').status(WRONG_REQUEST_TYPE).send({
-                "Status": "Failure - Only GET requests are accepted"
-            });
+            // res.contentType('json').status(WRONG_REQUEST_TYPE).send({
+            //     "Status": "Failure - Only GET requests are accepted"
+            // });
+            res.redirect('http://xpertzsoftware.com/');
             return;
         }
 
         //Check if we have code in the request query
         if (!req.query && !req.query.code) {
-            res.contentType('json').status(UNAUTHORIZED).send({
-                "Status": "Failure - Missing query attribute 'code'"
-            });
+            // res.contentType('json').status(UNAUTHORIZED).send({
+            //     "Status": "Failure - Missing query attribute 'code'"
+            // });
+            res.redirect('http://xpertzsoftware.com/');
             return;
         }
 
@@ -66,9 +68,10 @@ module.exports = {
                 //Check the response value
                 if (!slackResponse.ok) {
                     console.error("The request was not ok: " + JSON.stringify(slackResponse));
-                    res.contentType('json').status(UNAUTHORIZED).send({
-                        "Status": "Failure - No response from Slack API"
-                    });
+                    res.redirect('http://xpertzsoftware.com/');
+                    // res.contentType('json').status(UNAUTHORIZED).send({
+                    //     "Status": "Failure - No response from Slack API"
+                    // });
                     return;
                 }
                 this.saveWorkspaceAsANewInstallation(slackResponse, res);
@@ -77,14 +80,16 @@ module.exports = {
             .catch(err => {
               if (err) console.log(err);
                 //Handle the error
-                res.contentType('json').status(UNAUTHORIZED).send({
-                    "Status": "Failure - request to Slack API has failed"
-                });
+                // res.contentType('json').status(UNAUTHORIZED).send({
+                //     "Status": "Failure - request to Slack API has failed"
+                // });
+                res.redirect('http://xpertzsoftware.com/');
                 return;
             });
   },
 
   saveWorkspaceAsANewInstallation: function (slackResponse, response) {
+      console.log("slackResponse: " + JSON.stringify(slackResponse));
 
       database.ref('installations/' + slackResponse.team_id).once('value').then(snapshot => {
           if (!snapshot.val()) {
@@ -120,16 +125,19 @@ module.exports = {
                   return;
               });
           } else {
-              response.contentType('json').status(UNAUTHORIZED).send({
-                  "Failure": "This team is already connected to Xpertz"
-              });
+              res.redirect('http://xpertzsoftware.com/');
+
+              // response.contentType('json').status(UNAUTHORIZED).send({
+              //     "Failure": "This team is already connected to Xpertz"
+              // });
           }
           return;
       }).catch(err => {
         if (err) console.log(err);
-          response.contentType('json').status(UNAUTHORIZED).send({
-              "Failure": "Failed to check if this team is already connected"
-          });
+        res.redirect('http://xpertzsoftware.com/');
+          // response.contentType('json').status(UNAUTHORIZED).send({
+          //     "Failure": "Failed to check if this team is already connected"
+          // });
           return;
       });
   }
