@@ -107,25 +107,18 @@ module.exports = {
                   }
               }).then(ref => {
                   //Success!!!
-                  // response.contentType('json').status(OK).send();
-                  response.statusCode = 200;
-                  response.setHeader('Location', 'https://xpertz-178c0.firebaseapp.com/slack-success.html');
-                  response.end();
-                  // response.writeHead(200,
-                  //     {Location: 'https://xpertz-178c0.firebaseapp.com/slack-success.html'}
-                  // );
-                  // response.end();
-                  // response.redirect('https://xpertz-178c0.firebaseapp.com/slack-success.html');
+                  response.redirect('http://xpertzsoftware.com/');
                   return;
               }).catch(err => {
                 if (err) console.log(err);
-                  response.contentType('json').status(UNAUTHORIZED).send({
-                      "Failure": "Failed to save data in the DB"
-                  });
+                  // response.contentType('json').status(UNAUTHORIZED).send({
+                  //     "Failure": "Failed to save data in the DB"
+                  // });
+                  response.redirect('http://xpertzsoftware.com/');
                   return;
               });
           } else {
-              res.redirect('http://xpertzsoftware.com/');
+              response.redirect('http://xpertzsoftware.com/');
 
               // response.contentType('json').status(UNAUTHORIZED).send({
               //     "Failure": "This team is already connected to Xpertz"
@@ -134,7 +127,7 @@ module.exports = {
           return;
       }).catch(err => {
         if (err) console.log(err);
-        res.redirect('http://xpertzsoftware.com/');
+        response.redirect('http://xpertzsoftware.com/');
           // response.contentType('json').status(UNAUTHORIZED).send({
           //     "Failure": "Failed to check if this team is already connected"
           // });
