@@ -3,20 +3,21 @@ const firebase = require('firebase');
 const rp = require('request-promise');
 const express = require('express');
 const app = express();
-const api = functions.https.onRequest(app);
+const engines = require("consolidate");
 const bodyParser = require('body-parser');
 //const methodOverride = require('method-override');
 
-// Routes initialization
-var indexRoutes = require('../public/routes/index');
+// // Routes initialization
+// var indexRoutes = require('../public/routes/index');
 
 // Middleware and quality of life usages
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set('view engine', 'ejs');
-
+app.engine('ejs',engines.ejs );
+app.set('views','./views');
+app.set('view engine','ejs');
 
 // Requiring Routes
-app.use(indexRoutes);
+// app.use(indexRoutes);
 
 // Slack Integrated Functions
 const add = require('./add');
@@ -44,14 +45,12 @@ const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
 
 //=========XPERTZ DASHBOARD FUNCTIONS===========
 
-// app.get('*', (req, res) => {
-//     app.render('', (err) => {
-
-//     });
-// });
+app.get('/', (req, res) => {
+    res.render("dashboard");
+});
 
 
-
+exports.app = functions.https.onRequest(app);
 
 //=========XPERTZ SLACK FUNCTIONS===========
 /*
@@ -286,7 +285,3 @@ exports.oauth_redirect = functions.https.onRequest((req, res) => {
     visitor.event("Oauth", "Add app to Slack").send();
     oauth.oauthRedirect(req, res);
 });
-
-module.exports = {
-    api
-}
