@@ -87,7 +87,7 @@ module.exports = {
     } else if (token === VERIFICATION_TOKEN) {
         return true;
     } else {
-        res.sendStatus(UNAUTHORIZED);
+        res.send(UNAUTHORIZED);
         return false;
     }
   },
@@ -107,14 +107,14 @@ module.exports = {
                   var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
                   var diffDays = Math.round(Math.abs((snapshot.val().access.startedTrial - Date.now())/(oneDay)));
                   console.log(diffDays);
-                  if (diffDays > TRIAL_DAYS) {
+                  if (diffDays < TRIAL_DAYS) {
                       callback(true);
                       return;
                   } else {
                       response.contentType('json').status(OK).send({
                           "response_type": "ephemeral",
                           "replace_original": true,
-                          "text": "*Looks like your trial period has ended. Consult your manager/supervisor about upgrading to keep using Xpertz or contact us at <email or website link>*"
+                          "text": "*Looks like your trial period has ended. Consult your manager/supervisor about upgrading to keep using Xpertz or contact us at http://xpertzsoftware.com*"
                         });
                   }
               } else {
@@ -128,7 +128,7 @@ module.exports = {
           response.contentType('json').status(OK).send({
               "response_type": "ephemeral",
               "replace_original": true,
-              "text": "Request has failed. If this keeps happening, please, contact us at <email>"
+              "text": "Request has failed. If this keeps happening, please, contact us at http://xpertzsoftware.com"
             });
           return;
       });
