@@ -56,6 +56,7 @@ exports.actions = functions.https.onRequest((req, res) => {
     const trigger_id = payload.trigger_id;
     const team_id = payload.team.id;
     const user_id = payload.user.id;
+    const enterprise_id = payload.team.enterprise_id;
 
     // Validations
     if (util.validateToken(token, res)) {
@@ -81,7 +82,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                 visitor.event("Actions", "Add More Tags action").send();
                 switch (payload.actions[0]["name"]) {
                     case "add_more_tags_button":
-                        add.checkAndFireAddCommandIsAvailable(team_id, user_id, token, res);
+                        add.checkAndFireAddCommandIsAvailable(team_id, user_id, enterprise_id, token, res);
                         break;
                 }
             } else if (callback_id === "remove_tag") {
