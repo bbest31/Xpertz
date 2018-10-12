@@ -52,9 +52,9 @@ module.exports = {
 
             var ref = 'workspaces/';
             if (enterprise_id) {
-               ref += enterprise_id + '/';
+                ref += enterprise_id + '/';
             } else {
-              ref += team_id + '/';
+                ref += team_id + '/';
             }
             ref += 'users/' + user_id + '/tags';
 
@@ -113,7 +113,7 @@ module.exports = {
                             });
                         });
                     }
-
+                    console.log("Attachment length: " + attachments.length);
                     if (attachments.length > 1) {
                         res.contentType('json').status(200).send({
                             "response_type": "ephemeral",
