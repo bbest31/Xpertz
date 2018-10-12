@@ -112,21 +112,23 @@ module.exports = {
                                 "attachment_type": "default"
                             });
                         });
-                    }
-                    console.log("Attachment length: " + attachments.length);
-                    if (attachments.length > 1) {
+                        
+                        //Append attachments
                         res.contentType('json').status(200).send({
                             "response_type": "ephemeral",
                             "replace_original": true,
                             "attachments": attachments
                         });
+
                     } else {
+                        // If user has no expertise added yet
                         res.contentType('json').status(200).send({
                             "response_type": "ephemeral",
                             "replace_original": true,
                             "text": user_name + " doesn't have any expertise tags added yet :disappointed:"
                         });
                     }
+
                     return;
                 })
                 .catch(err => {
