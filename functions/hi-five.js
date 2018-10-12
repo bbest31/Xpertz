@@ -207,7 +207,7 @@ module.exports = {
                                 },
                                 {
                                     "name": "cancel_h5_button",
-                                    "text": "Cancel",
+                                    "text": "Done",
                                     "value": "cancel",
                                     "type": "button"
                                 }
@@ -308,7 +308,8 @@ module.exports = {
 
                 // Confirmation response
                 res.contentType('json').status(OK).send({
-                    "replace_original": true,
+                    "response_type" : "in_channel",
+                    "replace_original": false,
                     "attachments": [
                         {
                             "fallback": "Confirmation that the high-five was successfully given",

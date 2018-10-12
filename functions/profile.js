@@ -112,22 +112,25 @@ module.exports = {
                                 "attachment_type": "default"
                             });
                         });
-                        
-                        //Append attachments
-                        res.contentType('json').status(200).send({
-                            "response_type": "ephemeral",
-                            "replace_original": true,
-                            "attachments": attachments
-                        });
 
                     } else {
                         // If user has no expertise added yet
-                        res.contentType('json').status(200).send({
-                            "response_type": "ephemeral",
-                            "replace_original": true,
-                            "text": user_name + " doesn't have any expertise tags added yet :disappointed:"
+                        attachments.push({
+
+                            "fallback": "No expertise added yet.",
+                            "text": "No expertise tags added yet :disappointed:",
+                            "color": "#2F80ED",
+                            "attachment_type": "default"
+
                         });
+
                     }
+
+                    res.contentType('json').status(200).send({
+                        "response_type": "ephemeral",
+                        "replace_original": true,
+                        "attachments": attachments
+                    });
 
                     return;
                 })
