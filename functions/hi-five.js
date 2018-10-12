@@ -66,7 +66,7 @@ module.exports = {
                         },
                         {
                             "name": "cancel_h5_button",
-                            "text": "Cancel",
+                            "text": "Close",
                             "value": "cancel",
                             "type": "button"
                         }
@@ -125,7 +125,7 @@ module.exports = {
                                     },
                                     {
                                         "name": "cancel_h5_button",
-                                        "text": "Cancel",
+                                        "text": "Close",
                                         "value": "cancel",
                                         "type": "button"
                                     }
@@ -207,7 +207,7 @@ module.exports = {
                                 },
                                 {
                                     "name": "cancel_h5_button",
-                                    "text": "Done",
+                                    "text": "Close",
                                     "value": "cancel",
                                     "type": "button"
                                 }
