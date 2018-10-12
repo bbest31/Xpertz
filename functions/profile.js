@@ -52,9 +52,9 @@ module.exports = {
 
             var ref = 'workspaces/';
             if (enterprise_id) {
-               ref += enterprise_id + '/';
+                ref += enterprise_id + '/';
             } else {
-              ref += team_id + '/';
+                ref += team_id + '/';
             }
             ref += 'users/' + user_id + '/tags';
 
@@ -112,21 +112,26 @@ module.exports = {
                                 "attachment_type": "default"
                             });
                         });
+
+                    } else {
+                        // If user has no expertise added yet
+                        attachments.push({
+
+                            "fallback": "No expertise added yet.",
+                            "text": "No expertise tags added yet :disappointed:",
+                            "color": "#2F80ED",
+                            "attachment_type": "default"
+
+                        });
+
                     }
 
-                    if (attachments.length > 1) {
-                        res.contentType('json').status(200).send({
-                            "response_type": "ephemeral",
-                            "replace_original": true,
-                            "attachments": attachments
-                        });
-                    } else {
-                        res.contentType('json').status(200).send({
-                            "response_type": "ephemeral",
-                            "replace_original": true,
-                            "text": user_name + " doesn't have any expertise tags added yet :disappointed:"
-                        });
-                    }
+                    res.contentType('json').status(200).send({
+                        "response_type": "ephemeral",
+                        "replace_original": true,
+                        "attachments": attachments
+                    });
+
                     return;
                 })
                 .catch(err => {

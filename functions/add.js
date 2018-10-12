@@ -158,7 +158,7 @@ module.exports = {
                                   "type": "textarea",
                                   "label": "Description",
                                   "name": "description",
-                                  "max_length": 140,
+                                  "max_length": 220,
                                   "min_length": 10,
                                   "hint": "Please, notice that creation of a new tag doesn't add it to your profile. You need to add tag after you have created it."
                               }
