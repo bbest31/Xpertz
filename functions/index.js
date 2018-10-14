@@ -25,7 +25,7 @@ const NOT_ACCEPTABLE = 406;
 const UNAUTHORIZED = 401;
 const OK = 200;
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
-const BOT_TOKEN = 'xoxp-350752158706-350055370880-456837057063-f3a158d9572e5a849d824faa2ff1565e';
+const BOT_TOKEN = 'xoxb-350752158706-372086406743-54hRaX653L9Mg4Kl90DgLGOP';
 
 
 //var request = require("request");
@@ -48,50 +48,43 @@ ex. firebase deploy --only functions:func1,functions:func2
 
 //==========XPERTZ EVENT SUBSCRIPTION=====================
 exports.events = functions.https.onRequest((req, res) => {
+
     // Get the JSON payload object
     let body = req.body;
+
     //Grab the attributes we want
     var token = body.token;
     var type = body.type;
+
+
     if (util.validateToken(token, res)) {
+        // Event API verification hook (used once).
         if (type === 'url_verification') {
             var challenge = body.challenge;
             res.contentType("json").status(OK).send({
                 "challenge": challenge
             });
+            // New user joined team.
         } else if (type === 'team_join') {
             let user = body.user;
-            if (user.is_bot === false) {
-                //Get DM id
-                request.get('https://slack.com/api/im.open?token=' + BOT_TOKEN + '&user=' + user.user_id + '&return_im=true&pretty=1', (err, res, body) => {
-                    if (err) {
-                        return console.log(err);
-                    } else {
-                        let DMId = body.channel.id;
-                        let user_id = body.channel.user;
-                        //Send DM to user
-                        request.post(
-                            'https://slack.com/api/chat.postMessage?token=xoxp-350752158706-350055370880-456837057063-f3a158d9572e5a849d824faa2ff1565e&channel=' + DMId,
-                            {
-                                json: {
-                                    "ok": true,
-                                    "text": "Welcome to the Slack workspace <@" + user_id + ">!",
-                                    "attachments": [
-                                        {
-                                            "text": "Let's show your new colleagues what skills your bring to the team using Xpertz. You can start but using the `/helper` command to get started.",
-                                            "color": "#2F80ED"
-                                        }
-                                    ]
-                                }
-                            });
-                    }
-                })
+            var team_id = user.team_id;
+            var enterprise_id = user.enterprise_id;
+            var id = null;
+            if (enterprise_id) {
+                id = enterprise_id;
+            } else if (team_id) {
+                id = team_id;
             }
 
+            // Not a bot user joined
+            if (user.is_bot === false) {
+                util.validateTeamAccess(id, res, hasAccess => {
+                    visitor.event("Event", "team_join event").send();
+                    bot.onboardMsg(user, res);
+                });
+            }
         }
-
     }
-
 });
 
 
