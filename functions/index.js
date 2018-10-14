@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const firebase = require('firebase');
 const rp = require('request-promise');
+const request = require('request');
 
 // Slack Integrated Functions
 const add = require('./add');
@@ -12,6 +13,7 @@ const tags = require('./tags');
 const util = require('./util');
 const oauth = require('./oauth');
 const feedback = require('./feedback');
+const bot = require('./bot');
 
 // Get a reference to the database service
 var database = firebase.database();
@@ -23,6 +25,8 @@ const NOT_ACCEPTABLE = 406;
 const UNAUTHORIZED = 401;
 const OK = 200;
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
+const BOT_TOKEN = 'xoxp-350752158706-350055370880-456837057063-f3a158d9572e5a849d824faa2ff1565e';
+
 
 //var request = require("request");
 
@@ -41,6 +45,54 @@ ex. firebase deploy --only functions:func1,functions:func2
 //         {json: {text: `New sign up from ${email} !!`}}
 //     );
 // });
+
+//==========XPERTZ EVENT SUBSCRIPTION=====================
+exports.events = functions.https.onRequest((req, res) => {
+    // Get the JSON payload object
+    let body = req.body;
+    //Grab the attributes we want
+    var token = body.token;
+    var type = body.type;
+    if (util.validateToken(token, res)) {
+        if (type === 'url_verification') {
+            var challenge = body.challenge;
+            res.contentType("json").status(OK).send({
+                "challenge": challenge
+            });
+        } else if (type === 'team_join') {
+            let user = body.user;
+            if (user.is_bot === false) {
+                //Get DM id
+                request.get('https://slack.com/api/im.open?token=' + BOT_TOKEN + '&user=' + user.user_id + '&return_im=true&pretty=1', (err, res, body) => {
+                    if (err) {
+                        return console.log(err);
+                    } else {
+                        let DMId = body.channel.id;
+                        let user_id = body.channel.user;
+                        //Send DM to user
+                        request.post(
+                            'https://slack.com/api/chat.postMessage?token=xoxp-350752158706-350055370880-456837057063-f3a158d9572e5a849d824faa2ff1565e&channel=' + DMId,
+                            {
+                                json: {
+                                    "ok": true,
+                                    "text": "Welcome to the Slack workspace <@" + user_id + ">!",
+                                    "attachments": [
+                                        {
+                                            "text": "Let's show your new colleagues what skills your bring to the team using Xpertz. You can start but using the `/helper` command to get started.",
+                                            "color": "#2F80ED"
+                                        }
+                                    ]
+                                }
+                            });
+                    }
+                })
+            }
+
+        }
+
+    }
+
+});
 
 
 //==========ACTION BUTTON FUNCTION==========
