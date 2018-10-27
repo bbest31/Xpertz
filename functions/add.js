@@ -529,22 +529,25 @@ module.exports = {
   addTagConfirm: function(team_id, user_id, enterprise_id, username, payload, res) {
     var tagToAddConfirm = payload.actions[0]["value"];
 
-    var refUsers = 'workspaces/';
+    var refUser = 'workspaces/';
     var refTags = 'tags/';
     if (enterprise_id) {
-       refUsers += enterprise_id + '/';
+       refUser += enterprise_id + '/';
        refTags += enterprise_id + '/';
     } else {
-       refUsers += team_id + '/';
+       refUser += team_id + '/';
        refTags += team_id + '/';
     }
-    refUsers += 'users/' + user_id + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm);
+    refUser += 'users/' + user_id;
+    refUsersTag += refUser + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm);
     refTags += util.groomTheKeyToFirebase(tagToAddConfirm);
 
-    database.ref(refUsers).once('value')
+    database.ref(refUser).set({"active": true});
+
+    database.ref(refUsersTag).once('value')
         .then(snapshot => {
             if (!snapshot.val()) {
-                database.ref(refUsers).set({
+                database.ref(refUsersTag).set({
                     "tag": tagToAddConfirm,
                     "hi_five_count": 0
                 }).then(snap => {
