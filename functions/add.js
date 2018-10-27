@@ -539,10 +539,10 @@ module.exports = {
        refTags += team_id + '/';
     }
     refUser += 'users/' + user_id;
-    refUsersTag += refUser + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm);
+    var refUsersTag = refUser + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm);
     refTags += util.groomTheKeyToFirebase(tagToAddConfirm);
 
-    database.ref(refUser).set({"active": true});
+    database.ref(refUser).child("active").set(true);
 
     database.ref(refUsersTag).once('value')
         .then(snapshot => {
