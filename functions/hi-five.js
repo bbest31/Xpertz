@@ -1,5 +1,6 @@
 const firebase = require('firebase');
 const util = require('./util');
+const bot = require('./bot');
 
 const ua = require('universal-analytics');
 var visitor = ua('UA-120285659-1', { https: true });
@@ -258,6 +259,10 @@ module.exports = {
                             database.ref(refUsers).transaction(tagNode => {
                                 if (tagNode) {
                                     tagNode.hi_five_count++;
+                                    // Call async function to send rank up DM if appropriate
+                                    if(util.rankUpCheck(tagNode.hi_five_count)){
+                                        bot.tagRankUp(colleague_id);
+                                    }
                                 }
                                 return tagNode;
                             });

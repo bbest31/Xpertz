@@ -83,6 +83,86 @@ exports.events = functions.https.onRequest((req, res) => {
                     bot.onboardMsg(user, res);
                 });
             }
+        } else if (type === 'user_change') {
+            let user = body.user;
+            var deleted = user.deleted;
+            var team_id = user.team_id;
+            var enterprise_id = user.enterprise_id;
+            var id = null;
+            if (enterprise_id) {
+                id = enterprise_id;
+            } else if (team_id) {
+                id = team_id;
+            }
+
+            // Not a bot user
+            if (user.is_bot === false) {
+                util.validateTeamAccess(id, res, hasAccess => {
+                    visitor.event("Event", "user_change event").send();
+                    if (deleted) {
+                        // Set active attribute of user index to false
+                        var updates = {};
+                        updates['/active'] = false;
+                        database.ref('workspaces/' + id + '/users/' + user.id + '/active').transaction(activeValue => {
+                            if (activeValue) {
+                                activeValue = false;
+                            }
+                            return activeValue;
+                        });
+                        // Update count of active users
+                        database.ref('workspaces/' + id + '/users/' + user.id + '/tags').once("value").then(snapshot => {
+                            // Obtain tags from user we need to decrement.
+                            userTags = [];
+                            snapshot.forEach(childSnapshot => {
+                                userTags.push(childSnapshot.val());
+                            });
+
+                            // For each of the user tags decrement the count of the active users in the team index of that tag
+                            userTags.forEach(tag => {
+                                database.ref('tags/' + id + '/' + tag.tag).transaction(tagValue => {
+                                    tagValue.count--;
+                                    return tagValue;
+                                });
+                            });
+
+
+                        }).catch(err => {
+                            if (err) console.log(err);
+                            return;
+                        });
+                    } else {
+                        // Check db active status of user incase this was a user rejoining the team.
+                        database.ref('workspaces/' + id + '/users/' + user.id + '/active').transaction(activeValue => {
+                            if (!activeValue) {
+                                activeValue = true;
+
+                                // Update team expert count for each tag
+                                database.ref('workspaces/' + id + '/users/' + user.id + '/tags').once("value").then(snapshot => {
+                                    // Obtain tags from user we need to decrement.
+                                    userTags = [];
+                                    snapshot.forEach(childSnapshot => {
+                                        userTags.push(childSnapshot.val());
+                                    });
+
+                                    // For each of the user tags increment the count of the active users in the team index of that tag
+                                    userTags.forEach(tag => {
+                                        database.ref('tags/' + id + '/' + tag.tag).transaction(tagValue => {
+                                            tagValue.count++;
+                                            return tagValue;
+                                        });
+                                    });
+
+
+                                }).catch(err => {
+                                    if (err) console.log(err);
+                                    return;
+                                });
+                            }
+                            return activeValue;
+                        });
+                    }
+                });
+            }
         }
     }
 });
