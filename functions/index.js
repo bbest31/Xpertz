@@ -101,64 +101,61 @@ exports.events = functions.https.onRequest((req, res) => {
                     visitor.event("Event", "user_change event").send();
                     if (deleted) {
                         // Set active attribute of user index to false
-                        var updates = {};
-                        updates['/active'] = false;
-                        database.ref('workspaces/' + id + '/users/' + user.id + '/active').transaction(activeValue => {
-                            if (activeValue) {
-                                activeValue = false;
-                            }
-                            return activeValue;
-                        });
-                        // Update count of active users
-                        database.ref('workspaces/' + id + '/users/' + user.id + '/tags').once("value").then(snapshot => {
-                            // Obtain tags from user we need to decrement.
-                            userTags = [];
-                            snapshot.forEach(childSnapshot => {
-                                userTags.push(childSnapshot.val());
-                            });
+                        database.ref('workspaces/' + id + '/users/' + user.user_id).transaction(userJson => {
+                            if (userJson.active != undefined) {
+                                if (userJson.active) {
+                                    userJson.active = false;
 
-                            // For each of the user tags decrement the count of the active users in the team index of that tag
-                            userTags.forEach(tag => {
-                                database.ref('tags/' + id + '/' + tag.tag).transaction(tagValue => {
-                                    tagValue.count--;
-                                    return tagValue;
-                                });
-                            });
-
-
-                        }).catch(err => {
-                            if (err) console.log(err);
-                            return;
-                        });
-                    } else {
-                        // Check db active status of user incase this was a user rejoining the team.
-                        database.ref('workspaces/' + id + '/users/' + user.id + '/active').transaction(activeValue => {
-                            if (!activeValue) {
-                                activeValue = true;
-
-                                // Update team expert count for each tag
-                                database.ref('workspaces/' + id + '/users/' + user.id + '/tags').once("value").then(snapshot => {
+                                    // Update count of active users
                                     // Obtain tags from user we need to decrement.
-                                    userTags = [];
-                                    snapshot.forEach(childSnapshot => {
-                                        userTags.push(childSnapshot.val());
-                                    });
-
-                                    // For each of the user tags increment the count of the active users in the team index of that tag
-                                    userTags.forEach(tag => {
-                                        database.ref('tags/' + id + '/' + tag.tag).transaction(tagValue => {
-                                            tagValue.count++;
+                                    var userTags = userJson.tags;
+                                    // For each of the user tags decrement the count of the active users in the team index of that tag
+                                    for(var tag in userTags) {
+                                        database.ref('tags/' + id + '/' + tag).transaction(tagValue => {
+                                            if(tagValue != null){
+                                                tagValue.count--;
+                                            }
                                             return tagValue;
                                         });
-                                    });
+                                    };
 
+                                }
 
-                                }).catch(err => {
-                                    if (err) console.log(err);
-                                    return;
-                                });
+                            } else {
+                                // User index does not have active attribute so we set one
+                                userJson.active = false;
                             }
-                            return activeValue;
+                            res.status(OK).send();
+                            return userJson;
+                        });
+
+                    } else {
+                        // Deleted attribute was false
+                        // Check db active status of user incase this was a user rejoining the team.
+                        database.ref('workspaces/' + id + '/users/' + user.user_id).transaction(userJson => {
+                            if (userJson.active != undefined) {
+                                if (!userJson.active) {
+                                
+                                    userJson.active = true;
+
+                                    // Update count of active users
+                                    // Obtain tags from user we need to increment.
+                                    var userTags = userJson.tags;
+                                    // For each of the user tags increment the count of the active users in the team index of that tag
+                                    for(var tag in userTags) {
+                                        database.ref('tags/' + id + '/' + tag).transaction(tagValue => {
+                                            if(tagValue != null){
+                                                tagValue.count++;
+                                            }
+                                            return tagValue;
+                                        });
+                                    };
+                                }
+                            } else {
+                                userJson.active = true;
+                            }
+                            res.status(OK).send();
+                            return userJson;
                         });
                     }
                 });
