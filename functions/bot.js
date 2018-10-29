@@ -37,7 +37,7 @@ module.exports = {
     },
 
     // Sends a DM to the user by the bot notifying them one of their skills ranked up.
-    tagRankUp: function (id) {
+    tagRankUp: async function (id) {
 
         //Get DM id
         request.get('https://slack.com/api/conversations.open?token=' + BOT_TOKEN + '&users=' + id, (err, res, body) => {
