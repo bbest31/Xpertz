@@ -62,5 +62,37 @@ module.exports = {
             }
         });
         return;
+    },
+
+    // Unsure if we will use this
+    tagRecommendation: async function (id, sender_id, skill) {
+        //Get DM id
+        request.get('https://slack.com/api/conversations.open?token=' + BOT_TOKEN + '&users=' + id, (err, res, body) => {
+            if (err) {
+                return console.log(err);
+            } else {
+
+                let payload = JSON.parse(body);
+                let dm_id = payload.channel.id;
+                var msg = "*Your colleague <@" + sender_id + "> is recommending you add " + skill + " to your xpertz profile.*";
+
+                //Send DM to user
+                request.post('https://slack.com/api/chat.postMessage?token=' + BOT_TOKEN + '&channel=' + dm_id + '&text=' + msg, (error, res, body) => {
+                    if (error) {
+                        return console.log(error);
+                    } else {
+                        // Success when new user joins
+                        // console.log(res);
+                        return;
+                    }
+                });
+            }
+        });
+        return;
+    },
+
+    // DM's the workspace owner to ask if they want to import a standardized set of expertise tags
+    presetTagOptions : function(){
+
     }
 };
