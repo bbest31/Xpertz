@@ -544,8 +544,7 @@ module.exports = {
         refTags += util.groomTheKeyToFirebase(tagToAddConfirm);
 
         database.ref(refUser).child("active").set(true);
-        //database.ref(refUser).child("email").set(email);
-
+        
         database.ref(refUsersTag).once('value')
             .then(snapshot => {
                 if (!snapshot.val()) {

@@ -228,6 +228,13 @@ module.exports = {
         const team_id = payload.team.id;
         const enterprise_id = payload.team.enterprise_id;
         const user_id = payload.user.id;
+        var id = false;
+        if (enterprise_id) {
+            id = enterprise_id;
+        } else {
+            id = team_id;
+        }
+
         switch (payload.actions[0]["name"]) {
 
             case "h5_tag_menu_button":
@@ -244,12 +251,7 @@ module.exports = {
                 var colleague_id = optionValue.substring(optionValue.lastIndexOf('|') + 1);
                 var colleague_tag = optionValue.substring(0, optionValue.indexOf('|'));
 
-                var refUsers = 'workspaces/';
-                if (enterprise_id) {
-                    refUsers += enterprise_id + '/';
-                } else {
-                    refUsers += team_id + '/';
-                }
+                var refUsers = 'workspaces/' + id + '/';
                 refUsers += 'users/' + colleague_id + '/tags/' + util.groomTheKeyToFirebase(colleague_tag);
 
                 // Increment the hi_five count
@@ -261,7 +263,7 @@ module.exports = {
                                     tagNode.hi_five_count++;
                                     // Call async function to send rank up DM if appropriate
                                     if(util.rankUpCheck(tagNode.hi_five_count)){
-                                        bot.tagRankUp(colleague_id);
+                                        bot.tagRankUp(colleague_id, id);
                                     }
                                 }
                                 return tagNode;
@@ -280,12 +282,7 @@ module.exports = {
                         return;
                     });
 
-                var refTags = 'workspaces/';
-                if (enterprise_id) {
-                    refTags += enterprise_id + '/';
-                } else {
-                    refTags += team_id + '/';
-                }
+                var refTags = 'workspaces/' + id + '/';
                 refTags += 'tags/' + util.groomTheKeyToFirebase(colleague_tag) + '/users/' + colleague_id;
 
                 database.ref(refTags).once('value')

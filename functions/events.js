@@ -21,14 +21,16 @@ module.exports = {
         if (user.is_bot === false) {
             util.validateTeamAccess(id, res, hasAccess => {
                 visitor.event("Event", "team_join event").send();
-                bot.onboardMsg(user, res);
+                bot.onboardMsg(user,id, res);
             });
         }
     },
+    
     userChange: function (user, res) {
 
         let user = body.user;
         var deleted = user.deleted;
+        var user_email = user.profile.email;
         var team_id = user.team_id;
         var enterprise_id = user.enterprise_id;
         var id = null;
@@ -100,6 +102,35 @@ module.exports = {
                         res.status(OK).send();
                         return userJson;
                     });
+                }
+
+                // Check if we got a change in email
+                if(user_email != undefined){
+                    // We have email permission so compare with recorded value
+                    database.ref('users/' + user_email).transaction(userIndex => {
+                        if(userIndex != undefined){
+                            if(userIndex.key() != user_email){
+                                //Update recorded email
+                                return {
+                                    user_email : {
+                                        teams : userIndex.teams
+                                    }
+                                };
+                            }
+                        } else {
+                            // create user index
+                            return {
+                                user_email : {
+                                    teams : {
+                                        id : {
+                                            name : team_name
+                                        }
+                                    }
+                                }
+                            };
+                        }
+                    });
+
                 }
             });
         }
