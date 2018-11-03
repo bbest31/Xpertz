@@ -23,7 +23,7 @@ module.exports = {
                     var msg = "*Welcome to the team* <@" + user.user_id + ">! Let's show your new colleagues what skills you bring to the team using Xpertz. You can start by using the `/helper` command to get started.";
 
                     //Send DM to user
-                    request.post('https://slack.com/api/chat.postMessage?token=' + token + '&channel=' + dm_id + '&text=' + msg, (error, res, body) => {
+                    request.post('https://slack.com/api/chat.postMessage?token=' + token + '&channel=' + dm_id + '&text=' + encodeURIComponent(msg), (error, res, body) => {
                         if (error) {
                             return console.log(error);
                         } else {
@@ -61,7 +61,7 @@ module.exports = {
 
                     //Send DM to user
                     //TODO change to json body post
-                    request.post('https://slack.com/api/chat.postMessage?token=' + token + '&channel=' + dm_id + '&text=' + msg, (error, res, body) => {
+                    request.post('https://slack.com/api/chat.postMessage?token=' + token + '&channel=' + dm_id + '&text=' + encodeURIComponent(msg), (error, res, body) => {
                         if (error) {
                             return console.log(error);
                         } else {
