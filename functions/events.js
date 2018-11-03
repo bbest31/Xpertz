@@ -4,7 +4,7 @@ const util = require('./util');
 const bot = require('./bot');
 // Get a reference to the database service
 var database = firebase.database();
-var visitor = ua('UA-120285659-1', { https: true });
+// var visitor = ua('UA-120285659-1', { https: true });
 
 module.exports = {
     teamJoin: function (user, res) {
@@ -20,7 +20,7 @@ module.exports = {
         // Not a bot user joined
         if (user.is_bot === false) {
             util.validateTeamAccess(id, res, hasAccess => {
-                visitor.event("Event", "team_join event").send();
+                // visitor.event("Event", "team_join event").send();
                 bot.onboardMsg(user,id, res);
             });
         }
@@ -28,7 +28,6 @@ module.exports = {
     
     userChange: function (user, res) {
 
-        let user = body.user;
         var deleted = user.deleted;
         var user_email = user.profile.email;
         var team_id = user.team_id;
@@ -43,11 +42,11 @@ module.exports = {
         // Not a bot user
         if (user.is_bot === false) {
             util.validateTeamAccess(id, res, hasAccess => {
-                visitor.event("Event", "user_change event").send();
+                // visitor.event("Event", "user_change event").send();
                 if (deleted) {
                     // Set active attribute of user index to false
                     database.ref('workspaces/' + id + '/users/' + user.user_id).transaction(userJson => {
-                        if (userJson.active != undefined) {
+                        if (userJson.active !== undefined) {
                             if (userJson.active) {
                                 userJson.active = false;
 
@@ -57,12 +56,12 @@ module.exports = {
                                 // For each of the user tags decrement the count of the active users in the team index of that tag
                                 for (var tag in userTags) {
                                     database.ref('tags/' + id + '/' + tag).transaction(tagValue => {
-                                        if (tagValue != null) {
+                                        if (tagValue !== null) {
                                             tagValue.count--;
                                         }
                                         return tagValue;
                                     });
-                                };
+                                }
 
                             }
 
@@ -78,7 +77,7 @@ module.exports = {
                     // Deleted attribute was false
                     // Check db active status of user incase this was a user rejoining the team.
                     database.ref('workspaces/' + id + '/users/' + user.user_id).transaction(userJson => {
-                        if (userJson.active != undefined) {
+                        if (userJson.active !== undefined) {
                             if (!userJson.active) {
 
                                 userJson.active = true;
@@ -89,12 +88,12 @@ module.exports = {
                                 // For each of the user tags increment the count of the active users in the team index of that tag
                                 for (var tag in userTags) {
                                     database.ref('tags/' + id + '/' + tag).transaction(tagValue => {
-                                        if (tagValue != null) {
+                                        if (tagValue !== null) {
                                             tagValue.count++;
                                         }
                                         return tagValue;
                                     });
-                                };
+                                }
                             }
                         } else {
                             userJson.active = true;
@@ -105,33 +104,33 @@ module.exports = {
                 }
 
                 // Check if we got a change in email
-                if(user_email != undefined){
-                    // We have email permission so compare with recorded value
-                    database.ref('users/' + user_email).transaction(userIndex => {
-                        if(userIndex != undefined){
-                            if(userIndex.key() != user_email){
-                                //Update recorded email
-                                return {
-                                    user_email : {
-                                        teams : userIndex.teams
-                                    }
-                                };
-                            }
-                        } else {
-                            // create user index
-                            return {
-                                user_email : {
-                                    teams : {
-                                        id : {
-                                            name : team_name
-                                        }
-                                    }
-                                }
-                            };
-                        }
-                    });
+                // if(user_email !== undefined){
+                //     // We have email permission so compare with recorded value
+                //     database.ref('users/' + user_email).transaction(userIndex => {
+                //         if(userIndex !== undefined){
+                //             if(userIndex.key() !== user_email){
+                //                 //Update recorded email
+                //                 return {
+                //                     user_email : {
+                //                         teams : userIndex.teams
+                //                     }
+                //                 };
+                //             }
+                //         } else {
+                //             // create user index
+                //             return {
+                //                 user_email : {
+                //                     teams : {
+                //                         id : {
+                //                             name : team_name
+                //                         }
+                //                     }
+                //                 }
+                //             };
+                //         }
+                //     });
 
-                }
+                // }
             });
         }
 

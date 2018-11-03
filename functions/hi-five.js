@@ -263,7 +263,7 @@ module.exports = {
                                     tagNode.hi_five_count++;
                                     // Call async function to send rank up DM if appropriate
                                     if(util.rankUpCheck(tagNode.hi_five_count)){
-                                        bot.tagRankUp(colleague_id, id);
+                                        bot.tagRankUp(colleague_id,colleague_tag, id);
                                     }
                                 }
                                 return tagNode;
