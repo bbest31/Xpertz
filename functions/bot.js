@@ -1,29 +1,35 @@
 const request = require('request');
 const firebase = require('firebase');
 const util = require('./util');
+const OK = 200;
 // Get a reference to the database service
 var database = firebase.database();
 
 // Actions executed by our Bot user.
 module.exports = {
-    // Onboarding msg dm'd to a user that joins the workspace triggered by the team_join event type
-    onboardMsg: function (user, team_id, res) {
+    /**
+     * Onboarding msg direct messaged to a user that joins the workspace triggered by the team_join event type
+     * @param {Object} user 
+     * @param {String} teamId 
+     * @param {Object} res 
+     */
+    onboardMsg: function (user, teamId, res) {
 
         var token = undefined;
-        database.ref('installations/' + team_id + '/token').once("value").then(snapshot => {
+        database.ref('installations/' + teamId + '/token').once('value').then(snapshot => {
             token = snapshot.val().token;
             //Get DM id
-            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + user.user_id, (err, res, body) => {
+            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + user.userId, (err, res, body) => {
                 if (err) {
                     return console.log(err);
                 } else {
 
                     let payload = JSON.parse(body);
-                    let dm_id = payload.channel.id;
-                    var msg = "*Welcome to the team* <@" + user.user_id + ">! Let's show your new colleagues what skills you bring to the team using Xpertz. You can start by using the `/helper` command to get started.";
+                    let dmId = payload.channel.id;
+                    var msg = '*Welcome to the team* <@' + user.userId + ">! Let's show your new colleagues what skills you bring to the team using Xpertz. You can start by using the `/helper` command to get started.";
 
                     //Send DM to user
-                    request.post('https://slack.com/api/chat.postMessage?token=' + token + '&channel=' + dm_id + '&text=' + encodeURIComponent(msg), (error, res, body) => {
+                    request.post('https://slack.com/api/chat.postMessage?token=' + token + '&channel=' + dmId + '&text=' + encodeURIComponent(msg), (error, res, body) => {
                         if (error) {
                             return console.log(error);
                         } else {
@@ -45,23 +51,27 @@ module.exports = {
         return;
     },
 
-    // Sends a DM to the user by the bot notifying them one of their skills ranked up.
-    tagRankUp: function (id, tag_name, team_id) {
-        database.ref('installations/' + team_id).once("value").then(snapshot => {
+    /**
+     *  Sends a DM to the user by the bot notifying them one of their skills ranked up.
+     * @param {*} userId 
+     * @param {*} tagName 
+     * @param {*} teamId 
+     */
+    tagRankUp: function (userId, tagName, teamId) {
+        database.ref('installations/' + teamId).once('value').then(snapshot => {
             token = snapshot.val().token;
             //Get DM id
-            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + id, (err, res, body) => {
+            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + userId, (err, res, body) => {
                 if (err) {
                     return console.log(err);
                 } else {
                     let payload = JSON.parse(body);
-                    console.log(payload);
-                    let dm_id = payload.channel.id;
-                    var msg = "*Congratulations* <@" + id + "> *your " + tag_name + " expertise has ranked up!*";
+                    let dmId = payload.channel.id;
+                    var msg = '*Congratulations* <@' + userId + '> *your ' + tagName + ' expertise has ranked up!*';
 
                     //Send DM to user
                     //TODO change to json body post
-                    request.post('https://slack.com/api/chat.postMessage?token=' + token + '&channel=' + dm_id + '&text=' + encodeURIComponent(msg), (error, res, body) => {
+                    request.post('https://slack.com/api/chat.postMessage?token=' + token + '&channel=' + dmId + '&text=' + encodeURIComponent(msg), (error, res, body) => {
                         if (error) {
                             return console.log(error);
                         } else {
@@ -81,12 +91,127 @@ module.exports = {
 
         return;
     },
+    /**
+     * A direct message to the owner user to ask if they would like to import a premade set of expertise tags into their workspace.
+     * This interactive message workflow is triggered on installation
+     * @param {*} teamId 
+     */
+    presetTagOptions: function (teamId) {
 
-    installDM: function (){
+        database.ref('installations/' + teamId).once('value').then(snapshot => {
+            token = snapshot.val().token;
+            // Get the id of the workspace owner
+            request.get('https://slack.com/api/users.list?token=' + token, (err, res, body) => {
+                if (error) {
+                    return console.log(error);
+                } else {
+                    let payload = JSON.parse(body);
+                    let members = payload.members;
+                    members.forEach(user => {
+                        if (user.is_owner) {
+                            let userId = user.id;
+                            //Get DM id
+                            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + userId, (err, res, body) => {
+                                if (err) {
+                                    return console.log(err);
+                                } else {
+                                    let payload = JSON.parse(body);
+                                    let dmId = payload.channel.id;
+                                    let options = {
+                                        method: 'POST',
+                                        uri: 'https://slack.com/api/chat.postMessage',
+                                        headers: {
+                                            'Content-Type': 'application/json; charset=utf-8',
+                                            'Authorization': 'Bearer ' + token
+                                        },
+                                        body: {
+                                            'text': '*To get your team started would you like to import a preset set of expertise tags?*',
+                                            'channel': dmId,
+                                            'user': userId,
+                                            'attachments': [
+                                                {
+                                                    'fallback': 'Preset tag menu options',
+                                                    'callback_id': 'preset_tags',
+                                                    'color': '#3AA3E3',
+                                                    'actions': [
+                                                        {
+                                                            'name': 'view_preset_import',
+                                                            'text': 'Yes',
+                                                            'type': 'button',
+                                                            'style': ' primary',
+                                                            'value': 'view_presets_button',
+                                                        },
+                                                        {
+                                                            'name': 'cancel_preset_import',
+                                                            'text': 'No Thanks',
+                                                            'type': 'button',
+                                                            'value': 'cancel',
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        json: true
 
+                                    }
+                                    util.makeRequestWithOptions(options);
+
+                                }
+                                return;
+                            });
+                        }
+                    });
+                    return;
+                }
+            });
+        });
     },
-    // DM's the workspace owner to ask if they want to import a standardized set of expertise tags
-    presetTagOptions: function () {
+
+    /**
+     * This functions gives the response to the owner user based on their response to the
+     * interactive message prompting the preset tags import.
+     * @param {*} payload 
+     */
+    presetTagActions: function (payload) {
+        const teamID = payload.team.id;
+        const enterpriseID = payload.team.enterprise_id;
+        const userID = payload.user.id;
+        var id = false;
+        if (enterpriseID) {
+            id = enterpriseID;
+        } else {
+            id = teamID;
+        }
+
+        switch (payload.actions[0]['name']) {
+            case 'view_presets_button':
+                res.contentType('json').status(OK).send({
+                    'replace_original': true,
+                    'text': '*Select from one of our presets that would fit your team.*',
+                    'attachments': [
+                        {
+                            'fallback': 'Preset tag menu options',
+                            'callback_id': 'preset_tags_menu_options',
+                            'color': '#3AA3E3',
+                            'actions': [
+                                {
+                                    'name': 'preset_tags_menu_button',
+                                    'type': 'select',
+                                    'text': 'Select set...',
+                                    'data_source': 'external',
+                                },
+                                {
+                                    'name': 'preset_list_cancel_button',
+                                    'text': 'Cancel',
+                                    'value': 'cancel',
+                                    'type': 'button',
+                                }
+                            ]
+                        }
+                    ]
+                });
+                break;
+        }
 
     }
 };

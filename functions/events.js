@@ -8,19 +8,19 @@ var database = firebase.database();
 
 module.exports = {
     teamJoin: function (user, res) {
-        var team_id = user.team_id;
-        var enterprise_id = user.enterprise_id;
+        var teamID = user.team_id;
+        var enterpriseID = user.enterprise_id;
         var id = null;
-        if (enterprise_id) {
-            id = enterprise_id;
-        } else if (team_id) {
-            id = team_id;
+        if (enterpriseID) {
+            id = enterpriseID;
+        } else if (teamID) {
+            id = teamID;
         }
 
         // Not a bot user joined
         if (user.is_bot === false) {
             util.validateTeamAccess(id, res, hasAccess => {
-                // visitor.event("Event", "team_join event").send();
+                // visitor.event('Event', 'team_join event').send();
                 bot.onboardMsg(user,id, res);
             });
         }
@@ -29,20 +29,20 @@ module.exports = {
     userChange: function (user, res) {
 
         var deleted = user.deleted;
-        var user_email = user.profile.email;
-        var team_id = user.team_id;
-        var enterprise_id = user.enterprise_id;
+        var userEmail = user.profile.email;
+        var teamID = user.team_id;
+        var enterpriseID = user.enterprise_id;
         var id = null;
-        if (enterprise_id) {
-            id = enterprise_id;
-        } else if (team_id) {
-            id = team_id;
+        if (enterpriseID) {
+            id = enterpriseID;
+        } else if (teamID) {
+            id = teamID;
         }
 
         // Not a bot user
         if (user.is_bot === false) {
             util.validateTeamAccess(id, res, hasAccess => {
-                // visitor.event("Event", "user_change event").send();
+                // visitor.event('Event', 'user_change event').send();
                 if (deleted) {
                     // Set active attribute of user index to false
                     database.ref('workspaces/' + id + '/users/' + user.user_id).transaction(userJson => {

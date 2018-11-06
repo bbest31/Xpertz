@@ -11,18 +11,18 @@ module.exports = {
 
     profileCommand: function (req, res) {
         var token = req.body.token;
-        var user_name = req.body.user_name;
-        var user_id = req.body.user_id;
-        var team_id = req.body.team_id;
-        var enterprise_id = req.body.enterprise_id;
+        var userName = req.body.user_name;
+        var userID = req.body.user_id;
+        var teamID = req.body.team_id;
+        var enterpriseID = req.body.enterprise_id;
         var text = req.body.text;
 
         if (text) {
             var forSpecificUserId = text.substring(text.indexOf('<@') + 2, text.indexOf('|'));
             var forSpecificUserName = text.substring(text.indexOf('|') + 1, text.indexOf('>'));
             if (forSpecificUserId && forSpecificUserName) {
-                user_id = forSpecificUserId;
-                user_name = forSpecificUserName;
+                userID = forSpecificUserId;
+                userName = forSpecificUserName;
             }
         }
 
@@ -30,36 +30,36 @@ module.exports = {
         if (util.validateToken(token, res)) {
             var attachments = [
                 {
-                    "callback_id": "profile_tag",
-                    "color": "#FFFFFF",
-                    "attachment_type": "default",
-                    "actions": [
+                    'callback_id': 'profile_tag',
+                    'color': '#FFFFFF',
+                    'attachment_type': 'default',
+                    'actions': [
                         {
-                            "name": "cancel_profile_button",
-                            "text": "Close",
-                            "type": "button",
-                            "value": "cancel"
+                            'name': 'cancel_profile_button',
+                            'text': 'Close',
+                            'type': 'button',
+                            'value': 'cancel'
                         }
                     ]
                 },
                 {
-                    "fallback": "User name's expertise",
-                    "text": "*<@" + user_id + ">'s Expertise*",
-                    "color": "#2F80ED",
-                    "attachment_type": "default"
+                    'fallback': "User name's expertise",
+                    'text': '*<@' + userID + ">'s Expertise*",
+                    'color': '#2F80ED',
+                    'attachment_type': 'default'
                 }
             ];
 
             var ref = 'workspaces/';
-            if (enterprise_id) {
-                ref += enterprise_id + '/';
+            if (enterpriseID) {
+                ref += enterpriseID + '/';
             } else {
-                ref += team_id + '/';
+                ref += teamID + '/';
             }
-            ref += 'users/' + user_id + '/tags';
+            ref += 'users/' + userID + '/tags';
 
             database.ref(ref).orderByChild('hi_five_count')
-                .once("value").then(snapshot => {
+                .once('value').then(snapshot => {
 
                     var tags = [];
 
@@ -72,44 +72,44 @@ module.exports = {
                         tags.sort((tag1, tag2) => { return tag2.hi_five_count - tag1.hi_five_count });
 
                         tags.forEach(tag => {
-                            var hi_five_count = tag.hi_five_count;
-                            var color = "#E0E0E0";
-                            var rankEmoji = "";
+                            var highFiveCount = tag.hi_five_count;
+                            var color = '#E0E0E0';
+                            var rankEmoji = '';
 
-                            if (hi_five_count >= 5 && hi_five_count < 15) {
-                                color = "#F2994A";
-                            } else if (hi_five_count >= 15 && hi_five_count < 30) {
-                                color = "#6989A7";
-                            } else if (hi_five_count >= 30) {
-                                color = "#F2C94C";
-                                if (hi_five_count >= 50 && hi_five_count < 75) {
-                                    rankEmoji = ":medal:";
-                                } else if (hi_five_count >= 75 && hi_five_count < 100) {
-                                    rankEmoji = ":sports_medal:";
-                                } else if (hi_five_count >= 100 && hi_five_count < 150) {
-                                    rankEmoji = ":trophy:";
-                                } else if (hi_five_count >= 150 & hi_five_count < 250) {
-                                    rankEmoji = ":gem:";
-                                } else if (hi_five_count >= 250) {
-                                    rankEmoji = ":crown:";
+                            if (highFiveCount >= 5 && highFiveCount < 15) {
+                                color = '#F2994A';
+                            } else if (highFiveCount >= 15 && highFiveCount < 30) {
+                                color = '#6989A7';
+                            } else if (highFiveCount >= 30) {
+                                color = '#F2C94C';
+                                if (highFiveCount >= 50 && highFiveCount < 75) {
+                                    rankEmoji = ':medal:';
+                                } else if (highFiveCount >= 75 && highFiveCount < 100) {
+                                    rankEmoji = ':sports_medal:';
+                                } else if (highFiveCount >= 100 && highFiveCount < 150) {
+                                    rankEmoji = ':trophy:';
+                                } else if (highFiveCount >= 150 & highFiveCount < 250) {
+                                    rankEmoji = ':gem:';
+                                } else if (highFiveCount >= 250) {
+                                    rankEmoji = ':crown:';
                                 }
 
                             }
 
                             attachments.push({
-                                "fallback": "Expertise",
-                                "fields": [
+                                'fallback': 'Expertise',
+                                'fields': [
                                     {
-                                        "value": util.groomTheKeyFromFirebase(tag.tag) + rankEmoji,
-                                        "short": true
+                                        'value': util.groomTheKeyFromFirebase(tag.tag) + rankEmoji,
+                                        'short': true
                                     },
                                     {
-                                        "value": ":clap: " + hi_five_count,
-                                        "short": true
+                                        'value': ':clap: ' + highFiveCount,
+                                        'short': true
                                     }
                                 ],
-                                "color": color,
-                                "attachment_type": "default"
+                                'color': color,
+                                'attachment_type': 'default'
                             });
                         });
 
@@ -117,19 +117,19 @@ module.exports = {
                         // If user has no expertise added yet
                         attachments.push({
 
-                            "fallback": "No expertise added yet.",
-                            "text": "No expertise tags added yet :disappointed:",
-                            "color": "#2F80ED",
-                            "attachment_type": "default"
+                            'fallback': 'No expertise added yet.',
+                            'text': 'No expertise tags added yet :disappointed:',
+                            'color': '#2F80ED',
+                            'attachment_type': 'default'
 
                         });
 
                     }
 
                     res.contentType('json').status(200).send({
-                        "response_type": "ephemeral",
-                        "replace_original": true,
-                        "attachments": attachments
+                        'response_type': 'ephemeral',
+                        'replace_original': true,
+                        'attachments': attachments
                     });
 
                     return;
