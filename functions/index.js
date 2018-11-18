@@ -72,6 +72,8 @@ exports.events = functions.https.onRequest((req, res) => {
         } else if (type === 'user_change') {
             let user = body.user;
             events.userChange(user,res);
+        } else {
+            res.status(OK).send();
         }
     }
 });

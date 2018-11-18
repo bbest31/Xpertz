@@ -117,7 +117,11 @@ module.exports = {
                   response.redirect('http://xpertzsoftware.com/');
                   return;
               });
+
+              //DM the primary owner to ask if they want preset tags
+
           } else {
+              console.log("Existing team!");
               response.redirect('http://xpertzsoftware.com/');
 
               // response.contentType('json').status(UNAUTHORIZED).send({

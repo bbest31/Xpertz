@@ -96,76 +96,76 @@ module.exports = {
      * This interactive message workflow is triggered on installation
      * @param {*} teamId 
      */
-    presetTagOptions: function (teamId) {
+    // presetTagOptions: function (teamId) {
 
-        database.ref('installations/' + teamId).once('value').then(snapshot => {
-            token = snapshot.val().token;
-            // Get the id of the workspace owner
-            request.get('https://slack.com/api/users.list?token=' + token, (err, res, body) => {
-                if (error) {
-                    return console.log(error);
-                } else {
-                    let payload = JSON.parse(body);
-                    let members = payload.members;
-                    members.forEach(user => {
-                        if (user.is_owner) {
-                            let userId = user.id;
-                            //Get DM id
-                            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + userId, (err, res, body) => {
-                                if (err) {
-                                    return console.log(err);
-                                } else {
-                                    let payload = JSON.parse(body);
-                                    let dmId = payload.channel.id;
-                                    let options = {
-                                        method: 'POST',
-                                        uri: 'https://slack.com/api/chat.postMessage',
-                                        headers: {
-                                            'Content-Type': 'application/json; charset=utf-8',
-                                            'Authorization': 'Bearer ' + token
-                                        },
-                                        body: {
-                                            'text': '*To get your team started would you like to import a preset set of expertise tags?*',
-                                            'channel': dmId,
-                                            'user': userId,
-                                            'attachments': [
-                                                {
-                                                    'fallback': 'Preset tag menu options',
-                                                    'callback_id': 'preset_tags',
-                                                    'color': '#3AA3E3',
-                                                    'actions': [
-                                                        {
-                                                            'name': 'view_preset_import',
-                                                            'text': 'Yes',
-                                                            'type': 'button',
-                                                            'style': ' primary',
-                                                            'value': 'view_presets_button',
-                                                        },
-                                                        {
-                                                            'name': 'cancel_preset_import',
-                                                            'text': 'No Thanks',
-                                                            'type': 'button',
-                                                            'value': 'cancel',
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        json: true
+    //     database.ref('installations/' + teamId).once('value').then(snapshot => {
+    //         token = snapshot.val().token;
+    //         // Get the id of the workspace owner
+    //         request.get('https://slack.com/api/users.list?token=' + token, (err, res, body) => {
+    //             if (error) {
+    //                 return console.log(error);
+    //             } else {
+    //                 let payload = JSON.parse(body);
+    //                 let members = payload.members;
+    //                 members.forEach(user => {
+    //                     if (user.is_owner) {
+    //                         let userId = user.id;
+    //                         //Get DM id
+    //                         request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + userId, (err, res, body) => {
+    //                             if (err) {
+    //                                 return console.log(err);
+    //                             } else {
+    //                                 let payload = JSON.parse(body);
+    //                                 let dmId = payload.channel.id;
+    //                                 let options = {
+    //                                     method: 'POST',
+    //                                     uri: 'https://slack.com/api/chat.postMessage',
+    //                                     headers: {
+    //                                         'Content-Type': 'application/json; charset=utf-8',
+    //                                         'Authorization': 'Bearer ' + token
+    //                                     },
+    //                                     body: {
+    //                                         'text': '*To get your team started would you like to import a preset set of expertise tags?*',
+    //                                         'channel': dmId,
+    //                                         'user': userId,
+    //                                         'attachments': [
+    //                                             {
+    //                                                 'fallback': 'Preset tag menu options',
+    //                                                 'callback_id': 'preset_tags',
+    //                                                 'color': '#3AA3E3',
+    //                                                 'actions': [
+    //                                                     {
+    //                                                         'name': 'view_preset_import',
+    //                                                         'text': 'Yes',
+    //                                                         'type': 'button',
+    //                                                         'style': ' primary',
+    //                                                         'value': 'view_presets_button',
+    //                                                     },
+    //                                                     {
+    //                                                         'name': 'cancel_preset_import',
+    //                                                         'text': 'No Thanks',
+    //                                                         'type': 'button',
+    //                                                         'value': 'cancel',
+    //                                                     }
+    //                                                 ]
+    //                                             }
+    //                                         ]
+    //                                     },
+    //                                     json: true
 
-                                    }
-                                    util.makeRequestWithOptions(options);
+    //                                 }
+    //                                 util.makeRequestWithOptions(options);
 
-                                }
-                                return;
-                            });
-                        }
-                    });
-                    return;
-                }
-            });
-        });
-    },
+    //                             }
+    //                             return;
+    //                         });
+    //                     }
+    //                 });
+    //                 return;
+    //             }
+    //         });
+    //     });
+    // },
 
     /**
      * This functions gives the response to the owner user based on their response to the
