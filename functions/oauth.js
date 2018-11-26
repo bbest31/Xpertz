@@ -96,6 +96,7 @@ module.exports = {
               //Add the entry to the database
               database.ref('installations/' + slackResponse.team_id).set({
                   token: slackResponse.access_token,
+                  bot_token : slackResponse.bot.bot_access_token,
                   team: slackResponse.team_id,
                   webhook: {
                       url: slackResponse.incoming_webhook.url,

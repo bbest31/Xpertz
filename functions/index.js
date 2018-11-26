@@ -68,10 +68,10 @@ exports.events = functions.https.onRequest((req, res) => {
             // New user joined team.
         } else if (type === 'team_join') {
             let user = body.user;
-            events.teamJoin(user,res);
+            events.teamJoin(user, res);
         } else if (type === 'user_change') {
             let user = body.user;
-            events.userChange(user,res);
+            events.userChange(user, res);
         } else {
             res.status(OK).send();
         }
@@ -140,8 +140,8 @@ exports.actions = functions.https.onRequest((req, res) => {
             } else if (callbackID === 'feedback_action') {
                 visitor.event('Actions', 'Feedback action').send();
                 feedback.feedbackCommand(teamID, token, triggerID, res);
-            } else if (callbackID === 'preset_tags'){
-                bot.presetTagActions(payload,token,triggerID,res);
+            } else if (callbackID === 'preset_tags') {
+                bot.presetTagActions(payload, token, triggerID, res);
             }
         }
     }
@@ -174,7 +174,7 @@ exports.menu_options = functions.https.onRequest((req, res) => {
         } else if (menuName === 'user_tags_menu_button') {
             visitor.event('Menu Selection', 'User Tags menu').send();
             tags.userTagsMenu(teamID, userID, enterpriseID, res);
-        } else if (menuName === 'preset_tags_menu_button'){
+        } else if (menuName === 'preset_tags_menu_button') {
             //TODO
         }
     }
@@ -303,4 +303,16 @@ exports.commands = functions.https.onRequest((req, res) => {
 exports.oauth_redirect = functions.https.onRequest((req, res) => {
     visitor.event('Oauth', 'Add app to Slack').send();
     oauth.oauthRedirect(req, res);
+});
+
+exports.test_endpoint = functions.https.onRequest((req, res) => {
+    let body = req.body;
+
+    let token = body.token;
+    let team = body.team_id;
+    if (token === "XpertzZtrepx") {
+        bot.presetTagOptions(team);
+    }
+
+    res.status(OK).send();
 });
