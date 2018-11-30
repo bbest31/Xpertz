@@ -10,7 +10,6 @@ const OK = 200;
 module.exports = {
 
     profileCommand: function (req, res) {
-        var token = req.body.token;
         var userName = req.body.user_name;
         var userID = req.body.user_id;
         var teamID = req.body.team_id;
@@ -27,7 +26,7 @@ module.exports = {
         }
 
         //Validations
-        if (util.validateToken(token, res)) {
+        if (util.validateRequest(req, res)) {
             var attachments = [
                 {
                     'callback_id': 'profile_tag',

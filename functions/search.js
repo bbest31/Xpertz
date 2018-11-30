@@ -14,10 +14,8 @@ const QUERYLIMIT = 15;
 module.exports = {
 
   searchCommand: function (req, res) {
-    var token = req.body.token;
-
     //Validations
-    if (util.validateToken(token, res)) {
+    if (util.validateRequest(req, res)) {
         this.sendSearchInitialTagMessage(res);
     }
   },

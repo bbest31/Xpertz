@@ -14,10 +14,9 @@ const OK = 200;
 module.exports = {
 
     hiFiveCommand: function (req, res) {
-        var token = req.body.token;
         var text = req.body.text;
 
-        if (util.validateToken(token, res)) {
+        if (util.validateRequest(req, res)) {
             if (!text) {
                 res.contentType('json').status(OK).send({
                     'text': '_Must provide a mentioned user!_'

@@ -25,7 +25,7 @@ var visitor = ua('UA-120285659-1', { https: true });
 const NOT_ACCEPTABLE = 406;
 const UNAUTHORIZED = 401;
 const OK = 200;
-const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
+const BOT_TOKEN = 'xoxb-350752158706-372086406743-54hRaX653L9Mg4Kl90DgLGOP';
 
 
 //var request = require('request');
@@ -53,11 +53,10 @@ exports.events = functions.https.onRequest((req, res) => {
     let body = req.body;
 
     //Grab the attributes we want
-    var token = body.token;
     var type = body.type;
 
 
-    if (util.validateToken(token, res)) {
+    if (util.validateRequest(req, res)) {
         // Event API verification hook (used once).
         if (type === 'url_verification') {
             var challenge = body.challenge;
@@ -87,14 +86,13 @@ exports.actions = functions.https.onRequest((req, res) => {
     const type = payload.type;
     const callbackID = payload.callback_id;
     const responseURL = payload.response_url;
-    const token = payload.token;
     const triggerID = payload.trigger_id;
     const teamID = payload.team.id;
     const userID = payload.user.id;
     const enterpriseID = payload.team.enterprise_id;
 
     // Validations
-    if (util.validateToken(token, res)) {
+    if (util.validateRequest(req, res)) {
         if (type === 'dialog_submission') {
             if (callbackID === 'add_new_tag_dialog') {
                 visitor.event('Dialog Actions', 'Add new tag dialog submission').send();
@@ -153,13 +151,12 @@ exports.actions = functions.https.onRequest((req, res) => {
  */
 exports.menu_options = functions.https.onRequest((req, res) => {
     const payload = JSON.parse(req.body.payload);
-    var token = payload.token;
     var userID = payload.user.id;
     var teamID = payload.team.id;
     var enterpriseID = payload.team.enterprise_id;
 
     // Validations
-    if (util.validateToken(token, res)) {
+    if (util.validateRequest(req, res)) {
         const menuName = payload.name;
 
         if (menuName === 'team_tags_menu_button' || menuName === 'search_tag_menu_button') {
@@ -250,9 +247,8 @@ exports.commands = functions.https.onRequest((req, res) => {
     visitor.event('Slash command', 'Helper command').send();
 
     let slackRequest = req.body;
-    let token = slackRequest.token;
 
-    if (util.validateToken(token, res)) {
+    if (util.validateRequest(req, res)) {
         // Validated
         res.contentType('json').status(OK).send({
             'text': '*Xpertz Command List* :scroll:',
