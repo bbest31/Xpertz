@@ -10,10 +10,8 @@ const OK = 200;
 module.exports = {
 
     tagsCommand: function (req, res) {
-        var token = req.body.token;
-
         //Validations
-        if (util.validateToken(token, res)) {
+        if (util.validateRequest(req, res)) {
             this.sendTagListMessage(res);
         }
     },

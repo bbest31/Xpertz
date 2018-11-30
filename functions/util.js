@@ -8,10 +8,14 @@ const config = {
 };
 firebase.initializeApp(config);
 
+const crypto = require('crypto');
+const qs = require('qs');
+
 // Get a reference to the database service
 const database = firebase.database();
 
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
+const SIGNING_SECRET = 'f41627be5a6a77d26592fbac903a37f7';
 const UNAUTHORIZED = 401;
 const OK = 200;
 const TRIAL_DAYS = 2000;
@@ -85,18 +89,39 @@ module.exports = {
      * Validates the token from the requesting body.
      * @param {string} token
      */
-    validateToken: function (token, res) {
-        if (!token) {
-            res.contentType('json').status(OK).send({
-                'text': '_Incorrect request!_'
-            });
-            return false;
-        } else if (token === VERIFICATION_TOKEN) {
-            return true;
-        } else {
+    validateRequest: function (req, res) {
+
+        const requestBody = qs.stringify(req.body,{ format:'RFC1738' });
+        const timestamp = req.headers['x-slack-request-timestamp'];
+        const slackSignature = req.headers['x-slack-signature'];
+
+        // The request timestamp is more than five minutes from local time.
+        // It could be a replay attack, so let's ignore it.
+
+        // convert current time from milliseconds to seconds
+        const time = Math.floor(new Date().getTime()/1000);
+        
+        if (Math.abs(time - timestamp) > 60 * 5) {
             res.send(UNAUTHORIZED);
             return false;
         }
+
+        const sigBasestring = 'v0:' + timestamp + ':' + requestBody;
+
+        const hmac = crypto.createHmac('sha256', SIGNING_SECRET)
+                         .update(sigBasestring, 'utf8');
+
+        const mySignature = 'v0=' + hmac.digest('hex');
+
+        if (crypto.timingSafeEqual(
+              Buffer.from(mySignature, 'utf8'),
+              Buffer.from(slackSignature, 'utf8'))) {
+            //hooray, the request came from Slack!
+            return true;
+        }
+
+        res.send(UNAUTHORIZED);
+        return false;
     },
 
     validateTeamAccess: function (teamID, response, callback) {

@@ -49,15 +49,14 @@ module.exports = {
             trigger_id: '379565572946.350752158706.ab321bbdd934febcd844dfe7e53a9a0e' }
      */
     addCommand: function (req, res) {
-        var token = req.body.token;
         var userID = req.body.user_id;
         var teamID = req.body.team_id;
         var enterpriseID = req.body.enterprise_id;
 
-        this.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, token, res);
+        this.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, req, res);
     },
 
-    checkAndFireAddCommandIsAvailable: function (teamID, userID, enterpiseID, token, res) {
+    checkAndFireAddCommandIsAvailable: function (teamID, userID, enterpiseID, req, res) {
 
         var ref = 'workspaces/';
         if (enterpiseID) {
@@ -68,7 +67,7 @@ module.exports = {
         ref += 'users/' + userID + '/tags';
 
         //Validations
-        if (util.validateToken(token, res)) {
+        if (util.validateRequest(req, res)) {
             database.ref(ref).once('value')
                 .then(snapshot => {
                     if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_TAGS)) {
