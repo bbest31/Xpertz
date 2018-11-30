@@ -25,7 +25,6 @@ var visitor = ua('UA-120285659-1', { https: true });
 const NOT_ACCEPTABLE = 406;
 const UNAUTHORIZED = 401;
 const OK = 200;
-const BOT_TOKEN = 'xoxb-350752158706-372086406743-54hRaX653L9Mg4Kl90DgLGOP';
 
 
 //var request = require('request');
@@ -245,8 +244,6 @@ exports.tags = functions.https.onRequest((req, res) => {
  */
 exports.commands = functions.https.onRequest((req, res) => {
     visitor.event('Slash command', 'Helper command').send();
-
-    let slackRequest = req.body;
 
     if (util.validateRequest(req, res)) {
         // Validated
