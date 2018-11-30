@@ -330,3 +330,9 @@ const TECH_PRESET_TAGS = {
         tag_title: 'DevOps'
     }
 }
+module.exports = {
+
+    presetOptions : function(){
+        return [TECH_PRESET_TAGS];
+    }
+}

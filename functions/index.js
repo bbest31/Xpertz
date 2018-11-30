@@ -26,7 +26,6 @@ const NOT_ACCEPTABLE = 406;
 const UNAUTHORIZED = 401;
 const OK = 200;
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
-const BOT_TOKEN = 'xoxb-350752158706-372086406743-54hRaX653L9Mg4Kl90DgLGOP';
 
 
 //var request = require('request');
@@ -141,7 +140,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                 visitor.event('Actions', 'Feedback action').send();
                 feedback.feedbackCommand(teamID, token, triggerID, res);
             } else if (callbackID === 'preset_tags') {
-                bot.presetTagActions(payload, token, triggerID, res);
+                bot.presetTagActions(payload, res);
             }
         }
     }
@@ -305,14 +304,13 @@ exports.oauth_redirect = functions.https.onRequest((req, res) => {
     oauth.oauthRedirect(req, res);
 });
 
-exports.test_endpoint = functions.https.onRequest((req, res) => {
-    let body = req.body;
+// exports.test_endpoint = functions.https.onRequest((req, res) => {
+//     let body = req.body;
+//     let id = body.team_id;
+//     let token = body.token;
+//     if (token === "XpertzZtrepx") {
+//         bot.presetTagOptions(id);
+//     }
 
-    let token = body.token;
-    let team = body.team_id;
-    if (token === "XpertzZtrepx") {
-        bot.presetTagOptions(team);
-    }
-
-    res.status(OK).send();
-});
+//     // res.status(OK).send();
+// });

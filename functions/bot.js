@@ -2,6 +2,7 @@ const request = require('request');
 const firebase = require('firebase');
 const util = require('./util');
 const OK = 200;
+const presetTagList = require('./preset_tags');
 // Get a reference to the database service
 var database = firebase.database();
 
@@ -118,6 +119,7 @@ module.exports = {
                                 } else {
                                     let payload = JSON.parse(body);
                                     let dmId = payload.channel.id;
+                                    let presets = presetTagList.presetOptions;
                                     let options = {
                                         method: 'POST',
                                         uri: 'https://slack.com/api/chat.postMessage',
@@ -136,11 +138,10 @@ module.exports = {
                                                     'color': '#3AA3E3',
                                                     'actions': [
                                                         {
-                                                            'name': 'view_preset_import',
-                                                            'text': 'Yes',
-                                                            'type': 'button',
-                                                            'style': ' primary',
-                                                            'value': 'view_presets_button',
+                                                            'name': 'preset_tags_menu_button',
+                                                            'type': 'select',
+                                                            'text': 'Select set...',
+                                                            'data_source': presets,
                                                         },
                                                         {
                                                             'name': 'cancel_preset_import',
@@ -177,7 +178,8 @@ module.exports = {
      * interactive message prompting the preset tags import.
      * @param {*} payload 
      */
-    presetTagActions: function (payload) {
+    presetTagActions: function (payload, res) {
+        console.log("Got to preset Tags action");
         const teamID = payload.team.id;
         const enterpriseID = payload.team.enterprise_id;
         const userID = payload.user.id;
@@ -204,6 +206,13 @@ module.exports = {
                                     'type': 'select',
                                     'text': 'Select set...',
                                     'data_source': 'external',
+                                },
+                                {
+                                    'name': 'view_preset_import',
+                                    'text': 'Yes',
+                                    'type': 'button',
+                                    'style': ' primary',
+                                    'value': 'view_presets_button',
                                 },
                                 {
                                     'name': 'preset_list_cancel_button',
