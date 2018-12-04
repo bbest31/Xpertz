@@ -244,8 +244,12 @@ exports.tags = functions.https.onRequest((req, res) => {
  */
 exports.commands = functions.https.onRequest((req, res) => {
     visitor.event('Slash command', 'Helper command').send();
-
-    if (util.validateRequest(req, res)) {
+    if(req.body.heartbeat){
+        res.contentType('json').status(OK).send({
+            'text':'Received Heartbeat'
+        });
+    }
+    else if (util.validateRequest(req, res)) {
         // Validated
         res.contentType('json').status(OK).send({
             'text': '*Xpertz Command List* :scroll:',
