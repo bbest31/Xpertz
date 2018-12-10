@@ -124,8 +124,8 @@ module.exports = {
               refUser += teamID + '/';
               refTag += teamID + '/';
             }
-            refUser += 'users/' + userID + '/tags/' + util.groomTheKeyToFirebase(tagToRemoveConfirm);
-            refTag += util.groomTheKeyToFirebase(tagToRemoveConfirm);
+            refUser += 'users/' + userID + '/tags/' + util.groomKeyToFirebase(tagToRemoveConfirm);
+            refTag += util.groomKeyToFirebase(tagToRemoveConfirm);
 
             database.ref(refUser).once('value')
                 .then(snapshot => {
@@ -161,7 +161,7 @@ module.exports = {
             } else {
               refWorkspaceTag += teamID + '/';
             }
-            refWorkspaceTag += 'tags/' + util.groomTheKeyToFirebase(tagToRemoveConfirm) + '/users/' + userID;
+            refWorkspaceTag += 'tags/' + util.groomKeyToFirebase(tagToRemoveConfirm) + '/users/' + userID;
             database.ref(refWorkspaceTag).remove();
 
             res.contentType('json').status(OK).send({

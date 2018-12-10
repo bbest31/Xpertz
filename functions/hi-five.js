@@ -99,7 +99,7 @@ module.exports = {
                 // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
                 snapshot.forEach(childSnapshot => {
                     options.options.push({
-                        'text': util.groomTheKeyFromFirebase(childSnapshot.key),
+                        'text': util.groomKeyFromFirebase(childSnapshot.key),
                         'value': childSnapshot.key + '|' + userName + '|' + userID
                     });
                 });
@@ -169,7 +169,7 @@ module.exports = {
                 // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
                 snapshot.forEach(childSnapshot => {
                     options.options.push({
-                        'text': util.groomTheKeyFromFirebase(childSnapshot.key),
+                        'text': util.groomKeyFromFirebase(childSnapshot.key),
                         'value': childSnapshot.key + '|' + userName + '|' + userID
                     });
                 });
@@ -251,7 +251,7 @@ module.exports = {
                 var colleagueTag = optionValue.substring(0, optionValue.indexOf('|'));
 
                 var refUsers = 'workspaces/' + id + '/';
-                refUsers += 'users/' + colleagueID + '/tags/' + util.groomTheKeyToFirebase(colleagueTag);
+                refUsers += 'users/' + colleagueID + '/tags/' + util.groomKeyToFirebase(colleagueTag);
 
                 // Increment the hi_five count
                 database.ref(refUsers).once('value')
@@ -282,7 +282,7 @@ module.exports = {
                     });
 
                 var refTags = 'workspaces/' + id + '/';
-                refTags += 'tags/' + util.groomTheKeyToFirebase(colleagueTag) + '/users/' + colleagueID;
+                refTags += 'tags/' + util.groomKeyToFirebase(colleagueTag) + '/users/' + colleagueID;
 
                 database.ref(refTags).once('value')
                     .then(snapshot => {

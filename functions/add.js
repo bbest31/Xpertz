@@ -56,6 +56,14 @@ module.exports = {
         this.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, req, res);
     },
 
+    /**
+     * Checks to see if the user has reached the limit on expertise. If not then sends the initial interactive message to start the add tag workflow.
+     * @param {*} teamID 
+     * @param {*} userID 
+     * @param {*} enterpiseID 
+     * @param {*} req 
+     * @param {*} res 
+     */
     checkAndFireAddCommandIsAvailable: function (teamID, userID, enterpiseID, req, res) {
 
         var ref = 'workspaces/';
@@ -88,6 +96,10 @@ module.exports = {
         }
     },
 
+    /**
+     * This function takes in the HTTP repsonse and sends the initial message for the add tag workflow.
+     * @param {*} res 
+     */
     sendAddOrCreateTagMessage: function (res) {
         res.contentType('json').status(OK).send({
             'response_type': 'ephemeral',
@@ -126,6 +138,12 @@ module.exports = {
         });
     },
 
+    /**
+     * This function sends the dialog form to create a new expertise tag.
+     * @param {*} teamID 
+     * @param {*} triggerID 
+     * @param {*} success 
+     */
     openDialogToAddNewTag: function (teamID, triggerID, success) {
         util.retrieveAccessToken(teamID, token => {
             if (!token) {
@@ -181,6 +199,13 @@ module.exports = {
         });
     },
 
+    /**
+     * This function replies with a failed creation of an expertise tag response.
+     * @param {*} token 
+     * @param {*} channelID 
+     * @param {*} userID 
+     * @param {*} reason 
+     */
     failedToCreateTag: function (token, channelID, userID, reason) {
         let options = {
             method: 'POST',
@@ -240,6 +265,11 @@ module.exports = {
         util.makeRequestWithOptions(options);
     },
 
+    /**
+     * Responds to the user that the new expertise tag has been created and instantiated in the database.
+     * @param {*} payload 
+     * @param {*} res 
+     */
     addNewTagDialog: function (payload, res) {
         const token = payload.token;
         const teamID = payload.team.id;
@@ -254,7 +284,7 @@ module.exports = {
         } else {
             ref += teamID + '/';
         }
-        ref += util.groomTheKeyToFirebase(tag_title);
+        ref += util.groomKeyToFirebase(tag_title);
 
         database.ref(ref).once('value').then(snapshot => {
             if (!snapshot.val()) {
@@ -358,7 +388,11 @@ module.exports = {
             return;
         });
     },
-
+    /**
+     * Gives the initial add expertise tag workflow after the add tag dialog has been cancelled.
+     * @param {*} payload 
+     * @param {*} res 
+     */
     dialogCancellation: function (payload, res) {
         const token = payload.token;
         const teamID = payload.team.id;
@@ -419,6 +453,11 @@ module.exports = {
         });
     },
 
+    /**
+     * This functions handles the several button clicks that could be given on the add tags workflow.
+     * @param {*} payload 
+     * @param {*} res 
+     */
     addTagAction: function (payload, res) {
         console.log('payload', payload);
 
@@ -432,6 +471,7 @@ module.exports = {
 
         //Handle button response from add tag workflow
         switch (payload.actions[0]['name']) {
+            //Opens the create tag dialog.
             case 'create_tag_button':
                 util.cancelButtonIsPressed(response_url, success => {
                     this.openDialogToAddNewTag(teamID, trigger_id, success => {
@@ -441,6 +481,7 @@ module.exports = {
                     return;
                 });
                 break;
+            // User made a selection from the drill down menu so repsond with a populated selection and a confirm button.
             case 'team_tags_menu_button':
                 visitor.event('Actions', 'Add Team Tags Menu Selection action').send();
                 // This was a menu selection for adding a tag
@@ -494,6 +535,7 @@ module.exports = {
                     ]
                 });
                 break;
+            // User confirmed their choice for a tag to add.
             case 'add_tag_confirm_button':
                 visitor.event('Actions', 'Add Tag action').send();
 
@@ -526,35 +568,54 @@ module.exports = {
         }
     },
 
+    /**
+     * This function adds a new tag to the user.
+     * @param {*} teamID 
+     * @param {*} userID 
+     * @param {*} enterpriseID 
+     * @param {*} username 
+     * @param {*} payload 
+     * @param {*} res 
+     */
     addTagConfirm: function (teamID, userID, enterpriseID, username, payload, res) {
         var tagToAddConfirm = payload.actions[0]['value'];
 
         var refUser = 'workspaces/';
         var refTags = 'tags/';
+        var id = undefined;
         if (enterpriseID) {
             refUser += enterpriseID + '/';
             refTags += enterpriseID + '/';
+            id = enterpriseID;
         } else {
             refUser += teamID + '/';
             refTags += teamID + '/';
+            id = teamID;
         }
         refUser += 'users/' + userID;
-        var refUsersTag = refUser + '/tags/' + util.groomTheKeyToFirebase(tagToAddConfirm);
-        refTags += util.groomTheKeyToFirebase(tagToAddConfirm);
+        var refUsersTag = refUser + '/tags/' + util.groomKeyToFirebase(tagToAddConfirm);
+        refTags += util.groomKeyToFirebase(tagToAddConfirm);
 
+        // Set the user as active
         database.ref(refUser).child('active').set(true);
-        
+        // Add this team to the user email index and create an index for them if necessary.
+        this.updateEmailIndex(id, userID);
+
         database.ref(refUsersTag).once('value')
             .then(snapshot => {
                 if (!snapshot.val()) {
+                    //adds the tag to the user in the workspace index
                     database.ref(refUsersTag).set({
                         'tag': tagToAddConfirm,
                         'hi_five_count': 0
                     }).then(snap => {
                         database.ref(refTags).transaction(tagValue => {
                             if (tagValue) {
+                                //increment user count for that tag
                                 tagValue.count++;
                             } else {
+                                // Just in case this tag no longer exists we initialize it.
+                                // This should never happen however.
                                 tagValue = {
                                     'tag_title': tagToAddConfirm,
                                     'tag_code': tagToAddConfirm.toLowerCase(),
@@ -576,17 +637,19 @@ module.exports = {
                 return;
             });
 
+
+
+        //=======================================================================
+        //MAY BE REDUNANT CODE NEED TO GO OVER AND MAY DELETE.
         // Update the user reference index and update team child with this team id
         //var userRef = 'users/' + user_id;
-
-
         var ref = 'workspaces/';
         if (enterpriseID) {
             ref += enterpriseID + '/';
         } else {
             ref += teamID + '/';
         }
-        ref += 'tags/' + util.groomTheKeyToFirebase(tagToAddConfirm) + '/users/' + userID;
+        ref += 'tags/' + util.groomKeyToFirebase(tagToAddConfirm) + '/users/' + userID;
 
         database.ref(ref).once('value')
             .then(snapshot => {
@@ -635,6 +698,58 @@ module.exports = {
                     ]
                 }
             ]
+        });
+        //=======================================================================
+    },
+
+    /**
+     * This function updates the user index in the database. It will add a new team to their teams list if necessary or initialize their index.
+     * @param {*} teamID 
+     * @param {*} userID 
+     */
+    updateEmailIndex: function (teamID, userID) {
+        var ref = 'users/';
+        database.ref('installations/' + teamId).once('value').then(snapshot => {
+            var token = snapshot.val().bot_token;
+            // Get the email of the user using the web api.
+            request.get('https://slack.com/api/users.info?token=' + token + '&users=' + userID, (err, res, body) => {
+                if (err) {
+                    return console.log(err);
+                } else {
+                    let payload = JSON.parse(body);
+                    var email = payload.user.profile.email;
+                    ref += util.groomKeyToFirebase(email);
+                    database.ref(ref).transaction(userRef => {
+                        if (userRef) {
+                            //user index exists
+                            var teamsList = userRef.teams;
+                            let duplicate = false;
+                            for (team in teamsList) {
+                                if (team === teamID) {
+                                    duplicate = true;
+                                }
+                            }
+                            if (!duplicate) {
+                                teamsList.push(teamID);
+                            }
+                        } else {
+                            //init index
+                            var emailKey = util.groomKeyToFirebase(email);
+                            userRef = {
+                                emailKey: {
+                                    teams: [teamID]
+                                }
+                            }
+
+                        }
+
+                        return userRef;
+                    });
+                }
+            });
+        }).catch(err => {
+            if (err) console.log(err);
+            return undefined;
         });
     }
 

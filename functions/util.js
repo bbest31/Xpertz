@@ -232,7 +232,7 @@ module.exports = {
     /**
      * Alters a key string such that Firebase will accept its format by replacing characters it does not support in keys.
      */
-    groomTheKeyToFirebase: function (key) {
+    groomKeyToFirebase: function (key) {
         var newKey = key;
         newKey = newKey.replace(/\./g, '&1111');
         newKey = newKey.replace(/#/g, '&1112');
@@ -245,7 +245,7 @@ module.exports = {
     /**
      * Computes the original form of the key that was mutated in order to conform to Firebase key syntax rules.
      */
-    groomTheKeyFromFirebase: function (key) {
+    groomKeyFromFirebase: function (key) {
         var newKey = key;
         newKey = newKey.replace(/&1111/g, '.');
         newKey = newKey.replace(/&1112/g, '#');
