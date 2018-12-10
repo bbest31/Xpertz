@@ -103,24 +103,6 @@ module.exports = {
                     });
                 }
                 
-                // Check if we got a change in email
-                // if(userEmail !== undefined){
-                //     // We have email permission so compare with recorded value
-                //     database.ref('users/' + userEmail).transaction(userIndex => {
-                //         if(userIndex !== undefined){
-                //             if(util.groomKeyFromFirebase(userIndex.key()) !== user_email){
-                //                 //Update recorded email
-                //                 return {
-                //                     util.groomKeyToFirebase(userEmail) : {
-                //                         teams : userIndex.teams
-                //                     }
-                //                 };
-                //             }
-                //         } else {
-                //             return
-                //         }
-                //     });
-                // }
 
                 //TODO Migration Event
             });
