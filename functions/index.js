@@ -114,7 +114,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                 visitor.event('Actions', 'Add More Tags action').send();
                 switch (payload.actions[0]['name']) {
                     case 'add_more_tags_button':
-                        add.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, token, res);
+                        add.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, req, res);
                         break;
                 }
             } else if (callbackID === 'remove_tag') {

@@ -1,7 +1,7 @@
 const util = require('./util');
 const rp = require('request-promise');
 const firebase = require('firebase');
-
+const request = require('request');
 const ua = require('universal-analytics');
 var visitor = ua('UA-120285659-1', { https: true });
 
@@ -459,7 +459,7 @@ module.exports = {
      * @param {*} res 
      */
     addTagAction: function (payload, res) {
-        console.log('payload', payload);
+        // console.log('payload', payload);
 
         const response_url = payload.response_url;
         const teamID = payload.team.id;
@@ -599,7 +599,7 @@ module.exports = {
         // Set the user as active
         database.ref(refUser).child('active').set(true);
         // Add this team to the user email index and create an index for them if necessary.
-        this.updateEmailIndex(id, userID);
+        // this.updateEmailIndex(id, userID);
 
         database.ref(refUsersTag).once('value')
             .then(snapshot => {
@@ -709,7 +709,7 @@ module.exports = {
      */
     updateEmailIndex: function (teamID, userID) {
         var ref = 'users/';
-        database.ref('installations/' + teamId).once('value').then(snapshot => {
+        database.ref('installations/' + teamID).once('value').then(snapshot => {
             var token = snapshot.val().bot_token;
             // Get the email of the user using the web api.
             request.get('https://slack.com/api/users.info?token=' + token + '&users=' + userID, (err, res, body) => {
@@ -717,11 +717,13 @@ module.exports = {
                     return console.log(err);
                 } else {
                     let payload = JSON.parse(body);
-                    var email = payload.user.profile.email;
+                    let profile = payload.users[0].profile;
+                    var email = profile.email;
                     ref += util.groomKeyToFirebase(email);
                     database.ref(ref).transaction(userRef => {
                         if (userRef) {
                             //user index exists
+                            console.log("Email index exists");
                             var teamsList = userRef.teams;
                             let duplicate = false;
                             for (team in teamsList) {
@@ -742,14 +744,14 @@ module.exports = {
                             }
 
                         }
-
                         return userRef;
                     });
                 }
             });
+            return;
         }).catch(err => {
             if (err) console.log(err);
-            return undefined;
+            return;
         });
     }
 
