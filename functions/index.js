@@ -79,65 +79,69 @@ exports.events = functions.https.onRequest((req, res) => {
 //==========ACTION BUTTON FUNCTION==========
 
 exports.actions = functions.https.onRequest((req, res) => {
-    //Get the JSON payload object
-    const payload = JSON.parse(req.body.payload);
-    //Grab the attributes we want
-    const type = payload.type;
-    const callbackID = payload.callback_id;
-    const responseURL = payload.response_url;
-    const triggerID = payload.trigger_id;
-    const teamID = payload.team.id;
-    const userID = payload.user.id;
-    const enterpriseID = payload.team.enterprise_id;
+    if (req.body.heartbeat) {
+        util.heartbeatResponse(res);
+    } else {
+        //Get the JSON payload object
+        const payload = JSON.parse(req.body.payload);
+        //Grab the attributes we want
+        const type = payload.type;
+        const callbackID = payload.callback_id;
+        const responseURL = payload.response_url;
+        const triggerID = payload.trigger_id;
+        const teamID = payload.team.id;
+        const userID = payload.user.id;
+        const enterpriseID = payload.team.enterprise_id;
 
-    // Validations
-    if (util.validateRequest(req, res)) {
-        if (type === 'dialog_submission') {
-            if (callbackID === 'add_new_tag_dialog') {
-                visitor.event('Dialog Actions', 'Add new tag dialog submission').send();
-                add.addNewTagDialog(payload, res);
-            } else if (callbackID === 'feedback_tag_dialog') {
-                visitor.event('Dialog Actions', 'Feedback dialog submission').send();
-                feedback.feedbackSubmission(payload, res);
-            }
-        } else if (type === 'dialog_cancellation') {
-            visitor.event('Dialog Actions', 'Add new tag dialog cancellation').send();
-            add.dialogCancellation(payload, res);
-        } else {
-            // Interactive Message
-            if (new String(payload.actions[0]['value']).valueOf() === new String('cancel').valueOf()) {
-                res.status(OK).send();
-                util.cancelButtonIsPressed(responseURL);
-            } else if (callbackID === 'add_tag') {
-                add.addTagAction(payload, res);
-            } else if (callbackID === 'add_more_tags') {
-                visitor.event('Actions', 'Add More Tags action').send();
-                switch (payload.actions[0]['name']) {
-                    case 'add_more_tags_button':
-                        add.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, req, res);
-                        break;
+        // Validations
+        if (util.validateRequest(req, res)) {
+            if (type === 'dialog_submission') {
+                if (callbackID === 'add_new_tag_dialog') {
+                    visitor.event('Dialog Actions', 'Add new tag dialog submission').send();
+                    add.addNewTagDialog(payload, res);
+                } else if (callbackID === 'feedback_tag_dialog') {
+                    visitor.event('Dialog Actions', 'Feedback dialog submission').send();
+                    feedback.feedbackSubmission(payload, res);
                 }
-            } else if (callbackID === 'remove_tag') {
-                remove.removeTagAction(payload, res);
-            } else if (callbackID === 'remove_more_tags') {
-                visitor.event('Actions', 'Remove More Tags action').send();
-                switch (payload.actions[0]['name']) {
-                    case 'remove_more_tags_button':
-                        remove.sendRemoveTagMessage(res);
-                        break;
+            } else if (type === 'dialog_cancellation') {
+                visitor.event('Dialog Actions', 'Add new tag dialog cancellation').send();
+                add.dialogCancellation(payload, res);
+            } else {
+                // Interactive Message
+                if (new String(payload.actions[0]['value']).valueOf() === new String('cancel').valueOf()) {
+                    res.status(OK).send();
+                    util.cancelButtonIsPressed(responseURL);
+                } else if (callbackID === 'add_tag') {
+                    add.addTagAction(payload, res);
+                } else if (callbackID === 'add_more_tags') {
+                    visitor.event('Actions', 'Add More Tags action').send();
+                    switch (payload.actions[0]['name']) {
+                        case 'add_more_tags_button':
+                            add.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, req, res);
+                            break;
+                    }
+                } else if (callbackID === 'remove_tag') {
+                    remove.removeTagAction(payload, res);
+                } else if (callbackID === 'remove_more_tags') {
+                    visitor.event('Actions', 'Remove More Tags action').send();
+                    switch (payload.actions[0]['name']) {
+                        case 'remove_more_tags_button':
+                            remove.sendRemoveTagMessage(res);
+                            break;
+                    }
+                } else if (callbackID === 'h5') {
+                    hiFive.hiFiveAction(payload, res);
+                } else if (callbackID === 'search_tag') {
+                    search.searchTagAction(payload, res);
+                } else if (callbackID === 'tags_list') {
+                    visitor.event('Actions', 'Tags List action').send();
+                    tags.tagsSelectAction(payload, res);
+                } else if (callbackID === 'feedback_action') {
+                    visitor.event('Actions', 'Feedback action').send();
+                    feedback.feedbackCommand(teamID, token, triggerID, res);
+                } else if (callbackID === 'preset_tags') {
+                    bot.presetTagActions(payload, res);
                 }
-            } else if (callbackID === 'h5') {
-                hiFive.hiFiveAction(payload, res);
-            } else if (callbackID === 'search_tag') {
-                search.searchTagAction(payload, res);
-            } else if (callbackID === 'tags_list') {
-                visitor.event('Actions', 'Tags List action').send();
-                tags.tagsSelectAction(payload, res);
-            } else if (callbackID === 'feedback_action') {
-                visitor.event('Actions', 'Feedback action').send();
-                feedback.feedbackCommand(teamID, token, triggerID, res);
-            } else if (callbackID === 'preset_tags') {
-                bot.presetTagActions(payload, res);
             }
         }
     }
@@ -149,28 +153,32 @@ exports.actions = functions.https.onRequest((req, res) => {
  *This export holds all the menu options for vaious select buttons in interactive messages.
  */
 exports.menu_options = functions.https.onRequest((req, res) => {
-    const payload = JSON.parse(req.body.payload);
-    var userID = payload.user.id;
-    var teamID = payload.team.id;
-    var enterpriseID = payload.team.enterprise_id;
+    if (req.body.heartbeat) {
+       util.heartbeatResponse(res);
+    } else {
+        const payload = JSON.parse(req.body.payload);
+        var userID = payload.user.id;
+        var teamID = payload.team.id;
+        var enterpriseID = payload.team.enterprise_id;
 
-    // Validations
-    if (util.validateRequest(req, res)) {
-        const menuName = payload.name;
+        // Validations
+        if (util.validateRequest(req, res)) {
+            const menuName = payload.name;
 
-        if (menuName === 'team_tags_menu_button' || menuName === 'search_tag_menu_button') {
-            if (menuName === 'team_tags_menu_button') {
-                visitor.event('Menu Selection', 'Team Tags menu').send();
-            } else if (menuName === 'search_tag_menu_button') {
-                visitor.event('Menu Selection', 'Search menu').send();
+            if (menuName === 'team_tags_menu_button' || menuName === 'search_tag_menu_button') {
+                if (menuName === 'team_tags_menu_button') {
+                    visitor.event('Menu Selection', 'Team Tags menu').send();
+                } else if (menuName === 'search_tag_menu_button') {
+                    visitor.event('Menu Selection', 'Search menu').send();
+                }
+                var queryTextForTagsList = payload.value;
+                tags.tagsListMenu(teamID, enterpriseID, queryTextForTagsList, res);
+            } else if (menuName === 'user_tags_menu_button') {
+                visitor.event('Menu Selection', 'User Tags menu').send();
+                tags.userTagsMenu(teamID, userID, enterpriseID, res);
+            } else if (menuName === 'preset_tags_menu_button') {
+                //TODO
             }
-            var queryTextForTagsList = payload.value;
-            tags.tagsListMenu(teamID, enterpriseID, queryTextForTagsList, res);
-        } else if (menuName === 'user_tags_menu_button') {
-            visitor.event('Menu Selection', 'User Tags menu').send();
-            tags.userTagsMenu(teamID, userID, enterpriseID, res);
-        } else if (menuName === 'preset_tags_menu_button') {
-            //TODO
         }
     }
 });
@@ -244,10 +252,8 @@ exports.tags = functions.https.onRequest((req, res) => {
  */
 exports.commands = functions.https.onRequest((req, res) => {
     visitor.event('Slash command', 'Helper command').send();
-    if(req.body.heartbeat){
-        res.contentType('json').status(OK).send({
-            'text':'Received Heartbeat'
-        });
+    if (req.body.heartbeat) {
+        util.heartbeatResponse(res);
     }
     else if (util.validateRequest(req, res)) {
         // Validated

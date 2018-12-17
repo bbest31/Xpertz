@@ -269,4 +269,10 @@ module.exports = {
         }
     },
 
+    heartbeatResponse: function(res) {
+        res.contentType('json').status(OK).send({
+            'text': 'Received Heartbeat'
+        });
+    },
+
 };
