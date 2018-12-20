@@ -7,6 +7,11 @@ var database = firebase.database();
 // var visitor = ua('UA-120285659-1', { https: true });
 
 module.exports = {
+    /**
+     * Initiates an onboarding message from the bot to a new user to encourage them to user Xpertz.
+     * @param {*} user 
+     * @param {*} res 
+     */
     teamJoin: function (user, res) {
         var teamID = user.team_id;
         var enterpriseID = user.enterprise_id;
@@ -26,6 +31,12 @@ module.exports = {
         }
     },
     
+    /**
+     * This function checks whether the user has been reactivated or deactivated in order to alter the necessary population
+     * stats for a Slack team. This includes the user count for their tags within the workspace.
+     * @param {*} user 
+     * @param {*} res 
+     */
     userChange: function (user, res) {
 
         var deleted = user.deleted;
@@ -107,6 +118,15 @@ module.exports = {
                 //TODO Migration Event
             });
         }
+
+    },
+    /**
+     * This function alters the instance of a team id in the database to the new enterprise id
+     * given by the team upgrading to a Slack Enterprise Grid. 
+     * @param {*} teamID 
+     * @param {*} enterpriseID 
+     */
+    enterpriseMigration: function (teamID, enterpriseID) {
 
     }
 };

@@ -69,6 +69,10 @@ exports.events = functions.https.onRequest((req, res) => {
         } else if (type === 'user_change') {
             let user = body.user;
             events.userChange(user, res);
+        } else if (type === 'grid_migration_finished') {
+            let teamID = body.teamID;
+            let enterpriseID = body.event.enterprise_id;
+            events.enterpriseMigration(teamID, enterpriseID);
         } else {
             res.status(OK).send();
         }
@@ -154,7 +158,7 @@ exports.actions = functions.https.onRequest((req, res) => {
  */
 exports.menu_options = functions.https.onRequest((req, res) => {
     if (req.body.heartbeat) {
-       util.heartbeatResponse(res);
+        util.heartbeatResponse(res);
     } else {
         const payload = JSON.parse(req.body.payload);
         var userID = payload.user.id;

@@ -599,7 +599,7 @@ module.exports = {
         // Set the user as active
         database.ref(refUser).child('active').set(true);
         // Add this team to the user email index and create an index for them if necessary.
-        // this.updateEmailIndex(id, userID);
+        this.updateEmailIndex(id, userID);
 
         database.ref(refUsersTag).once('value')
             .then(snapshot => {
@@ -719,33 +719,33 @@ module.exports = {
                     let payload = JSON.parse(body);
                     let profile = payload.users[0].profile;
                     var email = profile.email;
-                    ref += util.groomKeyToFirebase(email);
-                    database.ref(ref).transaction(userRef => {
-                        if (userRef) {
-                            //user index exists
-                            console.log("Email index exists");
-                            var teamsList = userRef.teams;
-                            let duplicate = false;
-                            for (team in teamsList) {
-                                if (team === teamID) {
-                                    duplicate = true;
+                    //If we have email permission it will be in the payload.
+                    if (email) {
+                        ref += util.groomKeyToFirebase(email);
+                        database.ref(ref).transaction(userRef => {
+                            if (userRef) {
+                                //user index exists
+                                console.log("Email index exists");
+                                var teamsList = userRef.teams;
+                                let duplicate = false;
+                                for (team in teamsList) {
+                                    if (team === teamID) {
+                                        duplicate = true;
+                                    }
                                 }
-                            }
-                            if (!duplicate) {
-                                teamsList.push(teamID);
-                            }
-                        } else {
-                            //init index
-                            var emailKey = util.groomKeyToFirebase(email);
-                            userRef = {
-                                emailKey: {
-                                    teams: [teamID]
+                                if (!duplicate) {
+                                    teamsList.push(teamID);
                                 }
-                            }
+                            } else {
+                                //init index
+                                userRef = {
+                                        teams: [teamID],
+                                }
 
-                        }
-                        return userRef;
-                    });
+                            }
+                            return userRef;
+                        });
+                    }
                 }
             });
             return;
