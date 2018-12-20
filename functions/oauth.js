@@ -96,6 +96,7 @@ module.exports = {
               //Add the entry to the database
               database.ref('installations/' + slackResponse.team_id).set({
                   token: slackResponse.access_token,
+                  bot_token : slackResponse.bot.bot_access_token,
                   team: slackResponse.team_id,
                   webhook: {
                       url: slackResponse.incoming_webhook.url,
@@ -117,7 +118,11 @@ module.exports = {
                   response.redirect('http://xpertzsoftware.com/');
                   return;
               });
+
+              //DM the primary owner to ask if they want preset tags
+
           } else {
+              console.log("Existing team!");
               response.redirect('http://xpertzsoftware.com/');
 
               // response.contentType('json').status(UNAUTHORIZED).send({
