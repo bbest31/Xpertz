@@ -315,9 +315,10 @@ exports.oauth_redirect = functions.https.onRequest((req, res) => {
 //     let body = req.body;
 //     let id = body.team_id;
 //     let token = body.token;
+//     let enterpriseID = body.enterprise_id;
 //     if (token === "XpertzZtrepx") {
-//         bot.presetTagOptions(id);
+//         events.enterpriseMigration(id, enterpriseID);
 //     }
 
-//     // res.status(OK).send();
+//     res.status(OK).send();
 // });
