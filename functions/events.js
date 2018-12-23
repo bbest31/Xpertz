@@ -195,7 +195,6 @@ module.exports = {
         installRef.child(teamID).once('value').then(snapshot => {
             var data = snapshot.val();
             data.team = enterpriseID;
-            // data.webhook.url = ?;
             var update = {};
             update[teamID] = null;
             update[enterpriseID] = data;
