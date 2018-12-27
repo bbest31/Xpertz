@@ -127,6 +127,42 @@ module.exports = {
      * @param {*} enterpriseID 
      */
     enterpriseMigration: function (teamID, enterpriseID) {
+
+        // Remap the user ids to global user ids.
+        var tokenRef = database.ref('installations/' + teamID);
+        tokenRef.child('bot_token').once('value').then(snapshot => {
+            var token = snapshot.val();  
+            var teamUserRef = database.ref('workspaces/' + teamID + '/users');
+            teamUserRef.once('value').then(snapshot => {
+                var data = snapshot.val();
+                var update = {};
+                var userRequestString = '';
+                data.forEach(user => {
+                    userRequestString.concat(user.key + ',');
+                });
+                // strip last comma
+                userRequestString = userRequestString.slice(0, -1);
+                // Get the id mappings
+                request.get('https://slack.com/api/migration.exchange?token=' + token + '&users=' + userRequestString, (err, res, body) => {
+                    if (err) {
+                        return console.log(err);
+                    } else {
+                        let payload = JSON.parse(body);
+                        var userIdMap = body.user_id_map;
+                        // Use new Id map to create the update to the user index using new global ids.
+                        data.forEach(user => {
+                            let globalID = userIdMap[user.key];
+                            update[globalID] = user.val();
+                        });
+                        // Update user index.
+                        return teamUserRef.update(update);
+                    }
+                });
+                return;
+            });
+            return;
+        });
+
         // Change in feedback id instance
         var feedbackRef = database.ref('feedback');
         feedbackRef.child(teamID).once('value').then(snapshot => {
@@ -180,7 +216,7 @@ module.exports = {
                     var update = {}
                     var newTeams = data.teams.splice(0);
                     var pos = newTeams.indexOf(teamID);
-                    newTeams.splice(pos,1);
+                    newTeams.splice(pos, 1);
                     newTeams.push(enterpriseID);
                     update['teams'] = newTeams;
 
