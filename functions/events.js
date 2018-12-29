@@ -26,11 +26,11 @@ module.exports = {
         if (user.is_bot === false) {
             util.validateTeamAccess(id, res, hasAccess => {
                 // visitor.event('Event', 'team_join event').send();
-                bot.onboardMsg(user,id, res);
+                bot.onboardMsg(user, id, res);
             });
         }
     },
-    
+
     /**
      * This function checks whether the user has been reactivated or deactivated in order to alter the necessary population
      * stats for a Slack team. This includes the user count for their tags within the workspace.
@@ -113,7 +113,7 @@ module.exports = {
                         return userJson;
                     });
                 }
-                
+
 
                 //TODO Migration Event
             });
@@ -128,5 +128,116 @@ module.exports = {
      */
     enterpriseMigration: function (teamID, enterpriseID) {
 
+        // Remap the user ids to global user ids.
+        var tokenRef = database.ref('installations/' + teamID);
+        tokenRef.child('bot_token').once('value').then(snapshot => {
+            var token = snapshot.val();  
+            var teamUserRef = database.ref('workspaces/' + teamID + '/users');
+            teamUserRef.once('value').then(snapshot => {
+                var data = snapshot.val();
+                var update = {};
+                var userRequestString = '';
+                data.forEach(user => {
+                    userRequestString.concat(user.key + ',');
+                });
+                // strip last comma
+                userRequestString = userRequestString.slice(0, -1);
+                // Get the id mappings
+                request.get('https://slack.com/api/migration.exchange?token=' + token + '&users=' + userRequestString, (err, res, body) => {
+                    if (err) {
+                        return console.log(err);
+                    } else {
+                        let payload = JSON.parse(body);
+                        var userIdMap = body.user_id_map;
+                        // Use new Id map to create the update to the user index using new global ids.
+                        data.forEach(user => {
+                            let globalID = userIdMap[user.key];
+                            update[globalID] = user.val();
+                        });
+                        // Update user index.
+                        return teamUserRef.update(update);
+                    }
+                });
+                return;
+            });
+            return;
+        });
+
+        // Change in feedback id instance
+        var feedbackRef = database.ref('feedback');
+        feedbackRef.child(teamID).once('value').then(snapshot => {
+            var data = snapshot.val();
+            var update = {};
+            update[teamID] = null;
+            update[enterpriseID] = data;
+            return feedbackRef.update(update);
+        });
+
+        // Change key in tags index
+        var tagsRef = database.ref('tags');
+        tagsRef.child(teamID).once('value').then(snapshot => {
+            var data = snapshot.val();
+            var update = {};
+            update[teamID] = null;
+            update[enterpriseID] = data;
+            return tagsRef.update(update);
+        });
+
+        // Change key in workspaces index
+        var workspaceRef = database.ref('workspaces');
+        workspaceRef.child(teamID).once('value').then(snapshot => {
+            var data = snapshot.val();
+            var update = {};
+            update[teamID] = null;
+            update[enterpriseID] = data;
+            return workspaceRef.update(update);
+        });
+
+        // Change key in workspaces index
+        var usersRef = database.ref('users');
+        var teamUsersArray = [];
+        usersRef.once('value').then(snapshot => {
+            snapshot.forEach(user => {
+                // Check to see if the user belongs to the team migrating.
+                var data = user.val();
+                var teams = data.teams;
+                var pos = teams.indexOf(teamID);
+                if (pos !== -1) {
+                    teamUsersArray.push(user.key);
+                }
+            });
+
+            // Take all the users who have this team in their teams list and update.
+            teamUsersArray.forEach(user => {
+                var ref = database.ref('users/' + user);
+                ref.once('value').then(snapshot => {
+                    var data = snapshot.val();
+                    // Clone array then alter it to include new enterprise id.
+                    var update = {}
+                    var newTeams = data.teams.splice(0);
+                    var pos = newTeams.indexOf(teamID);
+                    newTeams.splice(pos, 1);
+                    newTeams.push(enterpriseID);
+                    update['teams'] = newTeams;
+
+                    return ref.update(update);
+
+                });
+            });
+        });
+
+        // Change installation index information.
+        var installRef = database.ref('installations');
+        installRef.child(teamID).once('value').then(snapshot => {
+            var data = snapshot.val();
+            data.team = enterpriseID;
+            var update = {};
+            update[teamID] = null;
+            update[enterpriseID] = data;
+            return installRef.update(update);
+        });
+
+
+
     }
-};
+}

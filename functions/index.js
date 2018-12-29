@@ -83,19 +83,19 @@ exports.events = functions.https.onRequest((req, res) => {
 //==========ACTION BUTTON FUNCTION==========
 
 exports.actions = functions.https.onRequest((req, res) => {
-    if (req.body.heartbeat) {
+	if (req.body.heartbeat) {
         util.heartbeatResponse(res);
-    } else {
-        //Get the JSON payload object
-        const payload = JSON.parse(req.body.payload);
-        //Grab the attributes we want
-        const type = payload.type;
-        const callbackID = payload.callback_id;
-        const responseURL = payload.response_url;
-        const triggerID = payload.trigger_id;
-        const teamID = payload.team.id;
-        const userID = payload.user.id;
-        const enterpriseID = payload.team.enterprise_id;
+    } else {    //Get the JSON payload object
+	    const payload = JSON.parse(req.body.payload);
+	    //Grab the attributes we want
+	    const type = payload.type;
+	    const callbackID = payload.callback_id;
+	    const responseURL = payload.response_url;
+	    const triggerID = payload.trigger_id;
+	    const teamID = payload.team.id;
+	    const userID = payload.user.id;
+	    const enterpriseID = payload.team.enterprise_id;
+
 
         // Validations
         if (util.validateRequest(req, res)) {
@@ -142,7 +142,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                     tags.tagsSelectAction(payload, res);
                 } else if (callbackID === 'feedback_action') {
                     visitor.event('Actions', 'Feedback action').send();
-                    feedback.feedbackCommand(teamID, token, triggerID, res);
+                    feedback.feedbackCommand(teamID, triggerID, res);
                 } else if (callbackID === 'preset_tags') {
                     bot.presetTagActions(payload, res);
                 }
@@ -315,9 +315,10 @@ exports.oauth_redirect = functions.https.onRequest((req, res) => {
 //     let body = req.body;
 //     let id = body.team_id;
 //     let token = body.token;
+//     let enterpriseID = body.enterprise_id;
 //     if (token === "XpertzZtrepx") {
-//         bot.presetTagOptions(id);
+//         events.enterpriseMigration(id, enterpriseID);
 //     }
 
-//     // res.status(OK).send();
+//     res.status(OK).send();
 // });
