@@ -90,6 +90,7 @@ exports.actions = functions.https.onRequest((req, res) => {
     const userID = payload.user.id;
     const enterpriseID = payload.team.enterprise_id;
 
+
     // Validations
     if (util.validateRequest(req, res)) {
         if (type === 'dialog_submission') {
@@ -114,7 +115,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                 visitor.event('Actions', 'Add More Tags action').send();
                 switch (payload.actions[0]['name']) {
                     case 'add_more_tags_button':
-                        add.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, token, res);
+                        add.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, req, res);
                         break;
                 }
             } else if (callbackID === 'remove_tag') {
@@ -135,7 +136,7 @@ exports.actions = functions.https.onRequest((req, res) => {
                 tags.tagsSelectAction(payload, res);
             } else if (callbackID === 'feedback_action') {
                 visitor.event('Actions', 'Feedback action').send();
-                feedback.feedbackCommand(teamID, token, triggerID, res);
+                feedback.feedbackCommand(teamID, triggerID, res);
             } else if (callbackID === 'preset_tags') {
                 bot.presetTagActions(payload, res);
             }

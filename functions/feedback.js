@@ -10,7 +10,7 @@ const OK = 200;
 
 module.exports = {
 
-  feedbackCommand: function (teamID, token, triggerID, res) {
+  feedbackCommand: function (teamID, triggerID, res) {
     util.retrieveAccessToken(teamID, token => {
         if (token) {
             let options = {
