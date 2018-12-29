@@ -99,7 +99,7 @@ module.exports = {
                                 'fallback': 'Expertise',
                                 'fields': [
                                     {
-                                        'value': util.groomTheKeyFromFirebase(tag.tag) + rankEmoji,
+                                        'value': util.groomKeyFromFirebase(tag.tag) + rankEmoji,
                                         'short': true
                                     },
                                     {

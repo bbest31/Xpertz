@@ -134,7 +134,7 @@ module.exports = {
       } else {
         ref += teamID + '/';
       }
-      ref += 'tags/' + util.groomTheKeyToFirebase(tag) + '/users';
+      ref += 'tags/' + util.groomKeyToFirebase(tag) + '/users';
 
       var finalRef = database.ref(ref).orderByKey();
 
