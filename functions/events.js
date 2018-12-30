@@ -131,7 +131,7 @@ module.exports = {
         // Remap the user ids to global user ids.
         var tokenRef = database.ref('installations/' + teamID);
         tokenRef.child('bot_token').once('value').then(snapshot => {
-            var token = snapshot.val();  
+            var token = snapshot.val();
             var teamUserRef = database.ref('workspaces/' + teamID + '/users');
             teamUserRef.once('value').then(snapshot => {
                 var data = snapshot.val();
@@ -158,9 +158,13 @@ module.exports = {
                         return teamUserRef.update(update);
                     }
                 });
-                return;
+                return null;
+            }).catch(err => {
+                console.log(err);
             });
-            return;
+            return console.log(teamID + ' local user Ids remapped successfully.');
+        }).catch(err => {
+            return console.log(err);
         });
 
         // Change in feedback id instance
@@ -171,6 +175,8 @@ module.exports = {
             update[teamID] = null;
             update[enterpriseID] = data;
             return feedbackRef.update(update);
+        }).catch(err => {
+            console.log(err);
         });
 
         // Change key in tags index
@@ -181,6 +187,8 @@ module.exports = {
             update[teamID] = null;
             update[enterpriseID] = data;
             return tagsRef.update(update);
+        }).catch(err => {
+            console.log(err);
         });
 
         // Change key in workspaces index
@@ -191,6 +199,8 @@ module.exports = {
             update[teamID] = null;
             update[enterpriseID] = data;
             return workspaceRef.update(update);
+        }).catch(err => {
+            console.log(err);
         });
 
         // Change key in workspaces index
@@ -205,6 +215,8 @@ module.exports = {
                 if (pos !== -1) {
                     teamUsersArray.push(user.key);
                 }
+            }).catch(err => {
+                console.log(err);
             });
 
             // Take all the users who have this team in their teams list and update.
@@ -222,8 +234,13 @@ module.exports = {
 
                     return ref.update(update);
 
+                }).catch(err => {
+                    console.log(err);
                 });
             });
+            return;
+        }).catch(err => {
+            console.log(err);
         });
 
         // Change installation index information.
@@ -235,6 +252,8 @@ module.exports = {
             update[teamID] = null;
             update[enterpriseID] = data;
             return installRef.update(update);
+        }).catch(err => {
+            console.log(err);
         });
 
 
