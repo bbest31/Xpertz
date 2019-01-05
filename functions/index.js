@@ -54,7 +54,7 @@ exports.events = functions.https.onRequest((req, res) => {
     //Grab the attributes we want
     var type = body.type;
 
-
+    console.log('Validating Request for event');
     if (util.validateRequest(req, res)) {
         // Event API verification hook (used once).
         if (type === 'url_verification') {
@@ -99,6 +99,7 @@ exports.actions = functions.https.onRequest((req, res) => {
 
         // Validations
         if (util.validateRequest(req, res)) {
+            
             if (type === 'dialog_submission') {
                 if (callbackID === 'add_new_tag_dialog') {
                     visitor.event('Dialog Actions', 'Add new tag dialog submission').send();
@@ -313,12 +314,11 @@ exports.oauth_redirect = functions.https.onRequest((req, res) => {
 
 // exports.test_endpoint = functions.https.onRequest((req, res) => {
 //     let body = req.body;
-//     let id = body.team_id;
+//     var id = body.team_id;
 //     let token = body.token;
-//     let enterpriseID = body.enterprise_id;
 //     if (token === "XpertzZtrepx") {
-//         events.enterpriseMigration(id, enterpriseID);
+//         let user = body.user;
+//         events.teamJoin(user, res);
 //     }
 
-//     res.status(OK).send();
 // });

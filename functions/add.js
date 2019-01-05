@@ -725,11 +725,10 @@ module.exports = {
                         database.ref(ref).transaction(userRef => {
                             if (userRef) {
                                 //user index exists
-                                console.log("Email index exists");
                                 var teamsList = userRef.teams;
-                                let duplicate = false;
-                                for (team in teamsList) {
-                                    if (team === teamID) {
+                                var duplicate = false;
+                                for (var i in teamsList) {
+                                    if (teamsList[i] === teamID) {
                                         duplicate = true;
                                     }
                                 }
@@ -739,7 +738,7 @@ module.exports = {
                             } else {
                                 //init index
                                 userRef = {
-                                        teams: [teamID],
+                                    teams: [teamID],
                                 }
 
                             }
