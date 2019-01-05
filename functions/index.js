@@ -52,9 +52,7 @@ exports.events = functions.https.onRequest((req, res) => {
     let body = req.body;
 
     //Grab the attributes we want
-    var type = body.type;
-
-    console.log('Validating Request for event');
+    var type = body.event.type;
     if (util.validateRequest(req, res)) {
         // Event API verification hook (used once).
         if (type === 'url_verification') {
@@ -64,13 +62,13 @@ exports.events = functions.https.onRequest((req, res) => {
             });
             // New user joined team.
         } else if (type === 'team_join') {
-            let user = body.user;
+            let user = body.event.user;
             events.teamJoin(user, res);
         } else if (type === 'user_change') {
-            let user = body.user;
+            let user = body.event.user;
             events.userChange(user, res);
         } else if (type === 'grid_migration_finished') {
-            let teamID = body.teamID;
+            let teamID = body.team_id;
             let enterpriseID = body.event.enterprise_id;
             events.enterpriseMigration(teamID, enterpriseID);
         } else {

@@ -119,7 +119,6 @@ module.exports = {
             //hooray, the request came from Slack!
             return true;
         }
-
         res.send(UNAUTHORIZED);
         return false;
     },
