@@ -77,18 +77,14 @@ module.exports = {
             if (token) {
                 let options = {
                     method: 'POST',
-                    uri: 'https://slack.com/api/chat.postEphemeral',
+                    uri: payload.response_url,
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8',
-                        'Authorization': 'Bearer ' + token
                     },
                     body: {
                         'response_type': 'ephemeral',
                         'replace_original': true,
                         'text': '*Thank you for your feedback! We will thoroughly review it and execute on it* :raised_hands:',
-                        'channel': payload.channel.id,
-                        'user': payload.user.id,
-                        'as_user': false,
                     },
                     json: true
                 }

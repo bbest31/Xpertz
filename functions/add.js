@@ -206,21 +206,17 @@ module.exports = {
      * @param {*} userID 
      * @param {*} reason 
      */
-    failedToCreateTag: function (token, channelID, userID, reason) {
+    failedToCreateTag: function (token, payload, reason) {
         let options = {
             method: 'POST',
-            uri: 'https://slack.com/api/chat.postEphemeral',
+            uri: payload.response_url,
             headers: {
                 'Content-Type': 'application/json; charset=utf-8',
-                'Authorization': 'Bearer ' + token
             },
             body: {
                 'response_type': 'ephemeral',
                 'replace_original': true,
                 'text': '*Add an expertise tag* :brain:',
-                'channel': channelID,
-                'user': userID,
-                'as_user': false,
                 'attachments': [
                     {
                         'fallback': 'Confirmation of failed tag addition',
@@ -301,18 +297,14 @@ module.exports = {
                         if (token) {
                             let options = {
                                 method: 'POST',
-                                uri: 'https://slack.com/api/chat.postEphemeral',
+                                uri: payload.response_url,
                                 headers: {
                                     'Content-Type': 'application/json; charset=utf-8',
-                                    'Authorization': 'Bearer ' + token
                                 },
                                 body: {
                                     'response_type': 'ephemeral',
                                     'replace_original': true,
                                     'text': '*Expertise tag was successfully added* :raised_hands:',
-                                    'channel': payload.channel.id,
-                                    'user': payload.user.id,
-                                    'as_user': false,
                                     'attachments': [
                                         {
                                             'fallback': 'Confirmation of successful tag addition',
@@ -363,7 +355,7 @@ module.exports = {
                     res.status(OK).send();
                     util.retrieveAccessToken(teamID, token => {
                         if (token) {
-                            this.failedToCreateTag(token, payload.channel.id, payload.user.id, 'Tag has failed to be created');
+                            this.failedToCreateTag(token, payload, 'Tag has failed to be created');
                         }
                     });
                     return;
@@ -372,7 +364,7 @@ module.exports = {
                 res.status(OK).send();
                 util.retrieveAccessToken(teamID, token => {
                     if (token) {
-                        this.failedToCreateTag(token, payload.channel.id, payload.user.id, 'Tag already exists');
+                        this.failedToCreateTag(token, payload, 'Tag already exists');
                     }
                 });
             }
@@ -382,7 +374,7 @@ module.exports = {
             res.status(OK).send();
             util.retrieveAccessToken(teamID, token => {
                 if (token) {
-                    this.failedToCreateTag(token, payload.channel.id, payload.user.id, 'Tag has failed to be created');
+                    this.failedToCreateTag(token, payload, 'Tag has failed to be created');
                 }
             });
             return;
@@ -402,18 +394,14 @@ module.exports = {
             if (token) {
                 let options = {
                     method: 'POST',
-                    uri: 'https://slack.com/api/chat.postEphemeral',
+                    uri: payload.response_url,
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8',
-                        'Authorization': 'Bearer ' + token
                     },
                     body: {
                         'response_type': 'ephemeral',
                         'replace_original': true,
                         'text': '*Add an expertise tag* :brain:',
-                        'channel': payload.channel.id,
-                        'user': payload.user.id,
-                        'as_user': false,
                         'attachments': [
                             {
                                 'fallback': 'Interactive menu to add a workspace tag or create a new one',
