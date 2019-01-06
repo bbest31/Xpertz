@@ -25,7 +25,6 @@ module.exports = {
         // Not a bot user joined
         if (user.is_bot === false) {
             util.validateTeamAccess(id, res, hasAccess => {
-                // visitor.event('Event', 'team_join event').send();
                 bot.onboardMsg(user, id, res);
             });
         }
@@ -53,7 +52,6 @@ module.exports = {
         // Not a bot user
         if (user.is_bot === false) {
             util.validateTeamAccess(id, res, hasAccess => {
-                // visitor.event('Event', 'user_change event').send();
                 if (deleted) {
                     // Set active attribute of user index to false
                     database.ref('workspaces/' + id + '/users/' + user.user_id).transaction(userJson => {

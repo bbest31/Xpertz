@@ -15,7 +15,7 @@ module.exports = {
      * @param {Object} res 
      */
     onboardMsg: function (user, teamId, res) {
-
+        
         var token = undefined;
         database.ref('installations/' + teamId).once('value').then(snapshot => {
             token = snapshot.val().bot_token;
