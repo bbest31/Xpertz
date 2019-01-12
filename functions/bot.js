@@ -20,14 +20,14 @@ module.exports = {
         database.ref('installations/' + teamId).once('value').then(snapshot => {
             token = snapshot.val().bot_token;
             //Get DM id
-            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + user.userId, (err, res, body) => {
+            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + user.id, (err, res, body) => {
                 if (err) {
                     return console.log(err);
                 } else {
 
                     let payload = JSON.parse(body);
                     let dmId = payload.channel.id;
-                    var msg = '*Welcome to the team* <@' + user.userId + ">! Let's show your new colleagues what skills you bring to the team using Xpertz. You can start by using the `/helper` command to get started.";
+                    var msg = '*Welcome to the team* <@' + user.id + ">! Let's show your new colleagues what skills you bring to the team using Xpertz. You can start by using the `/helper` command to get started.";
 
                     //Send DM to user
                     request.post('https://slack.com/api/chat.postMessage?token=' + token + '&channel=' + dmId + '&text=' + encodeURIComponent(msg), (error, res, body) => {

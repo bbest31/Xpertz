@@ -4,6 +4,7 @@ const util = require('./util');
 const bot = require('./bot');
 // Get a reference to the database service
 var database = firebase.database();
+const OK = 200;
 // var visitor = ua('UA-120285659-1', { https: true });
 
 module.exports = {
@@ -37,7 +38,6 @@ module.exports = {
      * @param {*} res 
      */
     userChange: function (user, res) {
-
         var deleted = user.deleted;
         var userEmail = user.profile.email;
         var teamID = user.team_id;
@@ -54,7 +54,7 @@ module.exports = {
             util.validateTeamAccess(id, res, hasAccess => {
                 if (deleted) {
                     // Set active attribute of user index to false
-                    database.ref('workspaces/' + id + '/users/' + user.user_id).transaction(userJson => {
+                    database.ref('workspaces/' + id + '/users/' + user.id).transaction(userJson => {
                         if (userJson.active !== undefined) {
                             if (userJson.active) {
                                 userJson.active = false;
@@ -85,7 +85,7 @@ module.exports = {
                 } else {
                     // Deleted attribute was false
                     // Check db active status of user incase this was a user rejoining the team.
-                    database.ref('workspaces/' + id + '/users/' + user.user_id).transaction(userJson => {
+                    database.ref('workspaces/' + id + '/users/' + user.id).transaction(userJson => {
                         if (userJson.active !== undefined) {
                             if (!userJson.active) {
 
@@ -111,9 +111,6 @@ module.exports = {
                         return userJson;
                     });
                 }
-
-
-                //TODO Migration Event
             });
         }
 
