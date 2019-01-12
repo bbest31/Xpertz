@@ -1,5 +1,6 @@
 const firebase = require('firebase');
 const rp = require('request-promise');
+const sha256 = require('js-sha256');
 
 const config = {
     apiKey: 'AIzaSyDm6i6hnoJbFO-cPb_6gTV9EmE1g5WqexA',
@@ -91,37 +92,36 @@ module.exports = {
      */
     validateRequest: function (req, res) {
 
-        const requestBody = qs.stringify(req.body,{ format:'RFC1738' });
-        const timestamp = req.headers['x-slack-request-timestamp'];
-        const slackSignature = req.headers['x-slack-signature'];
+        const requestBody = req.rawBody.toString('utf8');
+        const requestTimestamp = req.headers['x-slack-request-timestamp'];
+        const requestSignature = req.headers['x-slack-signature'];
 
         // The request timestamp is more than five minutes from local time.
         // It could be a replay attack, so let's ignore it.
-
         // convert current time from milliseconds to seconds
         const time = Math.floor(new Date().getTime()/1000);
         
-        if (Math.abs(time - timestamp) > 60 * 5) {
+        if (Math.abs(time - requestTimestamp) > 60 * 5) {
+            console.log("More than 5 minutes has passed");
             res.send(UNAUTHORIZED);
             return false;
         }
 
-        const sigBasestring = 'v0:' + timestamp + ':' + requestBody;
+        // const hmac = crypto.createHmac('sha256', "5002f9a3a9540f85d0a88be5f7bc2e7c");
+        const [version, hash] = requestSignature.split('=');
+        // hmac.update(`${version}:${requestTimestamp}:${requestBody}`);
+        var hashSha = sha256.hmac.create(SIGNING_SECRET);
+        hashSha.update(`${version}:${requestTimestamp}:${requestBody}`);
 
-        const hmac = crypto.createHmac('sha256', SIGNING_SECRET)
-                         .update(sigBasestring, 'utf8');
-
-        const mySignature = 'v0=' + hmac.digest('hex');
-
-        if (crypto.timingSafeEqual(
-              Buffer.from(mySignature, 'utf8'),
-              Buffer.from(slackSignature, 'utf8'))) {
-            //hooray, the request came from Slack!
-            return true;
+        if (!crypto.timingSafeEqual(Buffer.from(hash, 'utf8'), Buffer.from(hashSha.hex(), 'utf8'))) {
+            console.log("Failed verification comparison");
+            res.send(UNAUTHORIZED);
+            return false;
         }
 
-        res.send(UNAUTHORIZED);
-        return false;
+        //hooray, the request came from Slack!
+        console.log("Verification success");
+        return true;
     },
 
     validateTeamAccess: function (teamID, response, callback) {
@@ -138,7 +138,7 @@ module.exports = {
                 if (snapshot.val().access.tier === 0) {
                     var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                     var diffDays = Math.round(Math.abs((snapshot.val().access.startedTrial - Date.now()) / (oneDay)));
-                    console.log(diffDays);
+                    // console.log(diffDays);
                     if (diffDays < TRIAL_DAYS) {
                         callback(true);
                         return;

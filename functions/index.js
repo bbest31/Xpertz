@@ -52,9 +52,7 @@ exports.events = functions.https.onRequest((req, res) => {
     let body = req.body;
 
     //Grab the attributes we want
-    var type = body.type;
-
-
+    var type = body.event.type;
     if (util.validateRequest(req, res)) {
         // Event API verification hook (used once).
         if (type === 'url_verification') {
@@ -64,13 +62,13 @@ exports.events = functions.https.onRequest((req, res) => {
             });
             // New user joined team.
         } else if (type === 'team_join') {
-            let user = body.user;
+            let user = body.event.user;
             events.teamJoin(user, res);
         } else if (type === 'user_change') {
-            let user = body.user;
+            let user = body.event.user;
             events.userChange(user, res);
         } else if (type === 'grid_migration_finished') {
-            let teamID = body.teamID;
+            let teamID = body.team_id;
             let enterpriseID = body.event.enterprise_id;
             events.enterpriseMigration(teamID, enterpriseID);
         } else {
@@ -99,6 +97,7 @@ exports.actions = functions.https.onRequest((req, res) => {
 
         // Validations
         if (util.validateRequest(req, res)) {
+            
             if (type === 'dialog_submission') {
                 if (callbackID === 'add_new_tag_dialog') {
                     visitor.event('Dialog Actions', 'Add new tag dialog submission').send();
@@ -313,12 +312,11 @@ exports.oauth_redirect = functions.https.onRequest((req, res) => {
 
 // exports.test_endpoint = functions.https.onRequest((req, res) => {
 //     let body = req.body;
-//     let id = body.team_id;
+//     var id = body.team_id;
 //     let token = body.token;
-//     let enterpriseID = body.enterprise_id;
 //     if (token === "XpertzZtrepx") {
-//         events.enterpriseMigration(id, enterpriseID);
+//         let user = body.user;
+//         events.teamJoin(user, res);
 //     }
 
-//     res.status(OK).send();
 // });
