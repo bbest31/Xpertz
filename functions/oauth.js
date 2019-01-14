@@ -37,7 +37,7 @@ module.exports = {
             // res.contentType('json').status(WRONG_REQUEST_TYPE).send({
             //     "Status": "Failure - Only GET requests are accepted"
             // });
-            res.redirect('http://xpertzsoftware.com/');
+            res.redirect('http://xpertzsoftware.com?integration=failure');
             return;
         }
 
@@ -46,7 +46,7 @@ module.exports = {
             // res.contentType('json').status(UNAUTHORIZED).send({
             //     "Status": "Failure - Missing query attribute 'code'"
             // });
-            res.redirect('http://xpertzsoftware.com/');
+            res.redirect('http://xpertzsoftware.com?integration=failure');
             return;
         }
 
@@ -68,7 +68,7 @@ module.exports = {
                 //Check the response value
                 if (!slackResponse.ok) {
                     console.error("The request was not ok: " + JSON.stringify(slackResponse));
-                    res.redirect('http://xpertzsoftware.com/');
+                    res.redirect('http://xpertzsoftware.com?integration=failure');
                     // res.contentType('json').status(UNAUTHORIZED).send({
                     //     "Status": "Failure - No response from Slack API"
                     // });
@@ -83,7 +83,7 @@ module.exports = {
                 // res.contentType('json').status(UNAUTHORIZED).send({
                 //     "Status": "Failure - request to Slack API has failed"
                 // });
-                res.redirect('http://xpertzsoftware.com/');
+                res.redirect('http://xpertzsoftware.com?integration=failure');
                 return;
             });
   },
@@ -108,14 +108,14 @@ module.exports = {
                   }
               }).then(ref => {
                   //Success!!!
-                  response.redirect('http://xpertzsoftware.com/');
+                  response.redirect('http://xpertzsoftware.com?integration=success');
                   return;
               }).catch(err => {
                 if (err) console.log(err);
                   // response.contentType('json').status(UNAUTHORIZED).send({
                   //     "Failure": "Failed to save data in the DB"
                   // });
-                  response.redirect('http://xpertzsoftware.com/');
+                  response.redirect('http://xpertzsoftware.com?integration=failure');
                   return;
               });
 
@@ -123,7 +123,7 @@ module.exports = {
 
           } else {
               console.log("Existing team!");
-              response.redirect('http://xpertzsoftware.com/');
+              response.redirect('http://xpertzsoftware.com?integration=alreadyinstalled');
 
               // response.contentType('json').status(UNAUTHORIZED).send({
               //     "Failure": "This team is already connected to Xpertz"
@@ -132,7 +132,7 @@ module.exports = {
           return;
       }).catch(err => {
         if (err) console.log(err);
-        response.redirect('http://xpertzsoftware.com/');
+        response.redirect('http://xpertzsoftware.com?integration=failure');
           // response.contentType('json').status(UNAUTHORIZED).send({
           //     "Failure": "Failed to check if this team is already connected"
           // });
