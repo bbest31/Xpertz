@@ -17,6 +17,7 @@ const database = firebase.database();
 
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
 const SIGNING_SECRET = 'f41627be5a6a77d26592fbac903a37f7';
+const DEV_SIGNING_SECRET = 'da9615edcf644fe5e398f50697fb9c76';
 const UNAUTHORIZED = 401;
 const OK = 200;
 const TRIAL_DAYS = 2000;
