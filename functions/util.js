@@ -271,6 +271,7 @@ module.exports = {
     },
 
     heartbeatResponse: function(res) {
+        console.log('Heartbeat function execution.');
         res.contentType('json').status(OK).send({
             'text': 'Received Heartbeat'
         });

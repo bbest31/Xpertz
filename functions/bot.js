@@ -26,6 +26,7 @@ module.exports = {
                 } else {
 
                     let payload = JSON.parse(body);
+                    console.log(body);
                     let dmId = payload.channel.id;
                     var msg = '*Welcome to the team* <@' + user.id + ">! Let's show your new colleagues what skills you bring to the team using Xpertz. You can start by using the `/xpertz-help` command to get started.";
 
