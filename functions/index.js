@@ -52,7 +52,7 @@ ex. firebase deploy --only functions:func1,functions:func2
 
 
 //==========XPERTZ EVENT SUBSCRIPTION=====================
-exports.events = functions.https.onRequest((req, res) => {
+exports.events_dev = functions.https.onRequest((req, res) => {
 
     // Get the JSON payload object
     let body = req.body;
@@ -284,11 +284,12 @@ exports.commands_dev = functions.https.onRequest((req, res) => {
                         }
                     ]
                 },
-                { 'text': 'View your expertise tags or provide a username to view theirs:\n`/profile` _@username (optional)_' },
-                { 'text': 'Add an expertise tag:\n`/add`' },
-                { 'text': 'Remove an expertise tag:\n`/removetag`' },
-                { 'text': 'View all tags used in this workspace or enterprise grid:\n`/tags`' },
-                { 'text': 'Search for experts by tag:\n`/xpertz`' },
+                { 'text': 'View your expertise tags or provide a username to view theirs:\n`/xpertz-profile` _@username (optional)_' },
+                { 'text': 'Add an expertise tag:\n`/xpertz-add`' },
+                { 'text': 'Remove an expertise tag:\n`/xpertz-removetag`' },
+                {'text' : 'Validate the help of your teammates by giving them high-fives with:\n`/xpertz-hi5` _@username '},
+                { 'text': 'View all tags used in this workspace or enterprise grid:\n`/xpertz-tagslist`' },
+                { 'text': 'Search for experts by tag:\n`/xpertz-search`' },
                 {
                     'fallback': 'Button to leave a feedback',
                     'callback_id': 'feedback_action',
