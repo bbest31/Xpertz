@@ -59,6 +59,7 @@ exports.events = functions.https.onRequest((req, res) => {
 
     //Grab the attributes we want
     var type = body.event.type;
+    console.log(type);
     if (util.validateRequest(req, res)) {
         // Event API verification hook (used once).
         if (type === 'url_verification') {
