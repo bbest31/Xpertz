@@ -5,7 +5,7 @@ const sha256 = require('js-sha256');
 const config = {
     apiKey: 'AIzaSyDm6i6hnoJbFO-cPb_6gTV9EmE1g5WqexA',
     authDomain: 'xpertz-178c0.firebaseapp.com',
-    databaseURL: 'https://xpertz-178c0.firebaseio.com/'
+    databaseURL: 'https://xpertz-178c0-dev.firebaseio.com/'
 };
 firebase.initializeApp(config);
 
@@ -16,8 +16,7 @@ const qs = require('qs');
 const database = firebase.database();
 
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
-const SIGNING_SECRET = 'f41627be5a6a77d26592fbac903a37f7';
-const DEV_SIGNING_SECRET = 'da9615edcf644fe5e398f50697fb9c76';
+const SIGNING_SECRET = 'da9615edcf644fe5e398f50697fb9c76';
 const UNAUTHORIZED = 401;
 const OK = 200;
 const TRIAL_DAYS = 2000;
