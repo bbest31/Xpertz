@@ -16,7 +16,8 @@ const qs = require('qs');
 const database = firebase.database();
 
 const VERIFICATION_TOKEN = 'n2UxTrT7vGYQCSPIXD2dp1th';
-const SIGNING_SECRET = 'da9615edcf644fe5e398f50697fb9c76';
+const SIGNING_SECRET = 'f41627be5a6a77d26592fbac903a37f7';
+const SIGNING_SECRET_DEV = 'da9615edcf644fe5e398f50697fb9c76';
 const UNAUTHORIZED = 401;
 const OK = 200;
 const TRIAL_DAYS = 2000;
@@ -110,7 +111,7 @@ module.exports = {
         // const hmac = crypto.createHmac('sha256', "5002f9a3a9540f85d0a88be5f7bc2e7c");
         const [version, hash] = requestSignature.split('=');
         // hmac.update(`${version}:${requestTimestamp}:${requestBody}`);
-        var hashSha = sha256.hmac.create(SIGNING_SECRET);
+        var hashSha = sha256.hmac.create(SIGNING_SECRET_DEV);
         hashSha.update(`${version}:${requestTimestamp}:${requestBody}`);
 
         if (!crypto.timingSafeEqual(Buffer.from(hash, 'utf8'), Buffer.from(hashSha.hex(), 'utf8'))) {
