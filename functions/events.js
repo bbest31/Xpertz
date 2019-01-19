@@ -255,4 +255,11 @@ module.exports = {
 
     },
 
+    /**
+     * This function removes the database indexes of the corresponding teamID that uninstalled Xpertz.
+     * @param {*} teamID 
+     */
+    appUninstalled: function (teamID) {
+
+    }
 }
