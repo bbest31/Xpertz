@@ -56,35 +56,38 @@ exports.events_dev = functions.https.onRequest((req, res) => {
 
     // Get the JSON payload object
     let body = req.body;
-
-    //Grab the attributes we want
-    var type = body.event.type;
-    console.log(type);
-    if (util.validateRequest(req, res)) {
-        // Event API verification hook (used once).
-        if (type === 'url_verification') {
-            var challenge = body.challenge;
-            res.contentType('json').status(OK).send({
-                'challenge': challenge
-            });
-            // New user joined team.
-        } else if (type === 'team_join') {
-            let user = body.event.user;
-            events.teamJoin(user, res);
-        } else if (type === 'user_change') {
-            // User changed information
-            let user = body.event.user;
-            events.userChange(user, res);
-        } else if (type === 'grid_migration_finished') {
-            // Workspace migrated to enterprise grid
-            let teamID = body.team_id;
-            let enterpriseID = body.event.enterprise_id;
-            events.enterpriseMigration(teamID, enterpriseID);
-        } else if (type === 'app_uninstalled') {
-            // App uninstalled 
-            let teamID = body.team_id;
-        } else {
-            res.status(OK).send();
+    console.log(body);
+    // Event API verification hook (used once).
+    if (body.type === 'url_verification') {
+        var challenge = body.challenge;
+        res.contentType('json').status(OK).send({
+            'challenge': challenge
+        });
+        // New user joined team.
+    } else {
+        //Grab the attributes we want
+        var type = body.event.type;
+        console.log(type);
+        if (util.validateRequest(req, res)) {
+            if (type === 'team_join') {
+                let user = body.event.user;
+                events.teamJoin(user, res);
+            } else if (type === 'user_change') {
+                // User changed information
+                let user = body.event.user;
+                events.userChange(user, res);
+            } else if (type === 'grid_migration_finished') {
+                // Workspace migrated to enterprise grid
+                let teamID = body.team_id;
+                let enterpriseID = body.event.enterprise_id;
+                events.enterpriseMigration(teamID, enterpriseID);
+            } else if (type === 'app_uninstalled') {
+                // App uninstalled 
+                let teamID = body.team_id;
+                events.appUninstalled(teamID);
+            } else {
+                res.status(OK).send();
+            }
         }
     }
 });
