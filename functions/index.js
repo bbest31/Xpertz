@@ -287,7 +287,7 @@ exports.commands = functions.https.onRequest((req, res) => {
                 { 'text': 'View your expertise tags or provide a username to view theirs:\n`/xpertz-profile` _@username (optional)_' },
                 { 'text': 'Add an expertise tag:\n`/xpertz-add`' },
                 { 'text': 'Remove an expertise tag:\n`/xpertz-removetag`' },
-                {'text' : 'Validate the help of your teammates by giving them high-fives with:\n`/xpertz-hi5` _@username '},
+                {'text' : 'Validate the help of your teammates by giving them high-fives with:\n`/xpertz-hi5` _@username_ '},
                 { 'text': 'View all tags used in this workspace or enterprise grid:\n`/xpertz-tagslist`' },
                 { 'text': 'Search for experts by tag:\n`/xpertz-search`' },
                 {
