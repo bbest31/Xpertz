@@ -240,6 +240,8 @@ module.exports = {
         newKey = newKey.replace(/\$/g, '&1113');
         newKey = newKey.replace(/\[/g, '&1114');
         newKey = newKey.replace(/\]/g, '&1115');
+        newKey = newKey.replace(/\//g, '&1116');
+        newKey = newKey.replace(/\\/g, '&1117');
         return newKey;
     },
 
@@ -253,6 +255,8 @@ module.exports = {
         newKey = newKey.replace(/&1113/g, '$');
         newKey = newKey.replace(/&1114/g, '[');
         newKey = newKey.replace(/&1115/g, ']');
+        newKey = newKey.replace(/&1116/g, '/');
+        newKey = newKey.replace(/&1117/g, '\\');
         return newKey;
     },
 

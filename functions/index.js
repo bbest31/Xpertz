@@ -56,30 +56,38 @@ exports.events = functions.https.onRequest((req, res) => {
 
     // Get the JSON payload object
     let body = req.body;
-
-    //Grab the attributes we want
-    var type = body.event.type;
-    console.log(type);
-    if (util.validateRequest(req, res)) {
-        // Event API verification hook (used once).
-        if (type === 'url_verification') {
-            var challenge = body.challenge;
-            res.contentType('json').status(OK).send({
-                'challenge': challenge
-            });
-            // New user joined team.
-        } else if (type === 'team_join') {
-            let user = body.event.user;
-            events.teamJoin(user, res);
-        } else if (type === 'user_change') {
-            let user = body.event.user;
-            events.userChange(user, res);
-        } else if (type === 'grid_migration_finished') {
-            let teamID = body.team_id;
-            let enterpriseID = body.event.enterprise_id;
-            events.enterpriseMigration(teamID, enterpriseID);
-        } else {
-            res.status(OK).send();
+    console.log(body);
+    // Event API verification hook (used once).
+    if (body.type === 'url_verification') {
+        var challenge = body.challenge;
+        res.contentType('json').status(OK).send({
+            'challenge': challenge
+        });
+        // New user joined team.
+    } else {
+        //Grab the attributes we want
+        var type = body.event.type;
+        console.log(type);
+        if (util.validateRequest(req, res)) {
+            if (type === 'team_join') {
+                let user = body.event.user;
+                events.teamJoin(user, res);
+            } else if (type === 'user_change') {
+                // User changed information
+                let user = body.event.user;
+                events.userChange(user, res);
+            } else if (type === 'grid_migration_finished') {
+                // Workspace migrated to enterprise grid
+                let teamID = body.team_id;
+                let enterpriseID = body.event.enterprise_id;
+                events.enterpriseMigration(teamID, enterpriseID);
+            } else if (type === 'app_uninstalled') {
+                // App uninstalled 
+                let teamID = body.team_id;
+                events.appUninstalled(teamID);
+            } else {
+                res.status(OK).send();
+            }
         }
     }
 });
@@ -91,20 +99,20 @@ exports.actions = functions.https.onRequest((req, res) => {
 	if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else {    //Get the JSON payload object
-	    const payload = JSON.parse(req.body.payload);
-	    //Grab the attributes we want
-	    const type = payload.type;
-	    const callbackID = payload.callback_id;
-	    const responseURL = payload.response_url;
-	    const triggerID = payload.trigger_id;
-	    const teamID = payload.team.id;
-	    const userID = payload.user.id;
-	    const enterpriseID = payload.team.enterprise_id;
+        const payload = JSON.parse(req.body.payload);
+        //Grab the attributes we want
+        const type = payload.type;
+        const callbackID = payload.callback_id;
+        const responseURL = payload.response_url;
+        const triggerID = payload.trigger_id;
+        const teamID = payload.team.id;
+        const userID = payload.user.id;
+        const enterpriseID = payload.team.enterprise_id;
 
 
         // Validations
         if (util.validateRequest(req, res)) {
-            
+
             if (type === 'dialog_submission') {
                 if (callbackID === 'add_new_tag_dialog') {
                     visitor.event('Dialog Actions', 'Add new tag dialog submission').send();
@@ -287,7 +295,7 @@ exports.commands = functions.https.onRequest((req, res) => {
                 { 'text': 'View your expertise tags or provide a username to view theirs:\n`/xpertz-profile` _@username (optional)_' },
                 { 'text': 'Add an expertise tag:\n`/xpertz-add`' },
                 { 'text': 'Remove an expertise tag:\n`/xpertz-removetag`' },
-                {'text' : 'Validate the help of your teammates by giving them high-fives with:\n`/xpertz-hi5` _@username_ '},
+                { 'text': 'Validate the help of your teammates by giving them high-fives with:\n`/xpertz-hi5` _@username_ ' },
                 { 'text': 'View all tags used in this workspace or enterprise grid:\n`/xpertz-tagslist`' },
                 { 'text': 'Search for experts by tag:\n`/xpertz-search`' },
                 {
