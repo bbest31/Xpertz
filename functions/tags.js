@@ -9,10 +9,10 @@ const OK = 200;
 
 module.exports = {
 
-    tagsCommand: function (req, res) {
+    tagsCommand: function (req, res, id) {
         //Validations
         if (util.validateRequest(req, res)) {
-            this.sendTagListMessage(res);
+            this.sendTagListMessage(res,id);
         }
     },
 
@@ -31,8 +31,35 @@ module.exports = {
      */
     sendTagListMessage: function (response, teamID, enterpriseID, selectedTag) {
 
-        if (selectedTag === undefined) {
+        //Check if there are any tags in the workspace
 
+        var id = '';
+        if (enterpriseID) {
+            id = enterpriseID;
+        } else {
+            id = teamID;
+        }
+
+        var ref = 'tags/' + id;
+        database.ref(ref).once('value').then(snapshot => {
+            if (snapshot.exists()) {
+                // Team has existing tags
+                this.tagListResponse(response, id, selectedTag);
+            } else {
+                // No tags exist for this team
+                this.tagListNoTagsResponse(response, id, selectedTag);
+            }
+            return;
+        }).catch(err => {
+            console.log(err);
+        });
+
+    },
+
+    tagListResponse: function (response, id, selectedTag) {
+
+        if (selectedTag === undefined) {
+            // No selected tag
             response.contentType('json').status(OK).send({
                 'response_type': 'ephemeral',
                 'replace_original': true,
@@ -61,12 +88,7 @@ module.exports = {
             });
         } else {
 
-            var ref = 'tags/';
-            if (enterpriseID) {
-               ref += enterpriseID + '/';
-            } else {
-              ref += teamID + '/';
-            }
+            var ref = 'tags/' + id + '/';
             ref += util.groomKeyToFirebase(selectedTag);
 
             database.ref(ref).once('value').then(snapshot => {
@@ -113,7 +135,126 @@ module.exports = {
                     });
                 } else {
                     // Couldn't get tag information.
-                   return response.contentType('json').status(OK).send({
+                    return response.contentType('json').status(OK).send({
+                        'response_type': 'ephemeral',
+                        'replace_original': true,
+                        'text': '*Look up expertise in your workspace* :scroll:',
+                        'attachments': [
+                            {
+                                'fallback': 'Trouble displaying buttons. Delete message to close.',
+                                'callback_id': 'tags_list',
+                                'attachment_type': 'default',
+                                'actions': [
+                                    {
+                                        'name': 'search_tag_menu_button',
+                                        'type': 'select',
+                                        'text': 'Search tag...',
+                                        'data_source': 'external'
+                                    },
+                                    {
+                                        'name': 'tags_list_done_button',
+                                        'text': 'Done',
+                                        'value': 'cancel',
+                                        'type': 'button'
+                                    }
+                                ]
+                            },
+                            {
+                                'title': 'Trouble getting tag information!',
+                                'color': '#FF0000'
+                            }
+                        ]
+                    });
+                }
+
+            }).catch(err => {
+                if (err) console.log(err);
+                return;
+            });
+        }
+    },
+
+    tagListNoTagsResponse: function (response, id, selectedTag) {
+        if (selectedTag === undefined) {
+            // No selected tag
+            response.contentType('json').status(OK).send({
+                'response_type': 'ephemeral',
+                'replace_original': true,
+                'text': '*Look up expertise in your workspace* :scroll:',
+                'attachments': [
+                    {
+                        'fallback': 'Trouble displaying buttons. Delete message to close.',
+                        'callback_id': 'tags_list',
+                        'attachment_type': 'default',
+                        'actions': [
+                            {
+                                'name': 'search_tag_menu_button',
+                                'type': 'select',
+                                'text': 'Search tag...',
+                                'data_source': 'external'
+                            },
+                            {
+                                'name': 'tags_list_done_button',
+                                'text': 'Done',
+                                'value': 'cancel',
+                                'type': 'button'
+                            }
+                        ]
+                    },
+                    {
+                        'fallback': 'This team has no tags yet!',
+                        'text': 'This team seems to not have any expertise tags yet!'
+
+                    }
+                ]
+            });
+        } else {
+
+            var ref = 'tags/' + id + '/';
+            ref += util.groomKeyToFirebase(selectedTag);
+
+            database.ref(ref).once('value').then(snapshot => {
+                if (snapshot.val()) {
+                    return response.contentType('json').status(OK).send({
+                        'response_type': 'ephemeral',
+                        'replace_original': true,
+                        'text': '*Look up expertise in your workspace* :scroll:',
+                        'attachments': [
+                            {
+                                'fallback': 'Trouble displaying buttons. Delete message to close.',
+                                'callback_id': 'tags_list',
+                                'attachment_type': 'default',
+                                'actions': [
+                                    {
+                                        'name': 'search_tag_menu_button',
+                                        'type': 'select',
+                                        'text': 'Search tag...',
+                                        'data_source': 'external',
+                                        'selected_options': [
+                                            {
+                                                'text': util.groomKeyFromFirebase(snapshot.key),
+                                                'value': util.groomKeyFromFirebase(snapshot.key)
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        'name': 'tags_list_done_button',
+                                        'text': 'Done',
+                                        'value': 'cancel',
+                                        'type': 'button'
+                                    }
+                                ]
+                            },
+                            {
+                                'fallback': 'This team has no tags yet!',
+                                'text': 'This team seems to not have any expertise tags yet!'
+
+                            }
+                        ]
+                    });
+                } else {
+                    // Couldn't get tag information.
+                    return response.contentType('json').status(OK).send({
                         'response_type': 'ephemeral',
                         'replace_original': true,
                         'text': '*Look up expertise in your workspace* :scroll:',
@@ -155,9 +296,9 @@ module.exports = {
     tagsListMenu: function (teamID, enterpriseID, queryText, res) {
         var ref = 'tags/';
         if (enterpriseID) {
-           ref += enterpriseID;
+            ref += enterpriseID;
         } else {
-          ref += teamID;
+            ref += teamID;
         }
 
         // read workspace tags and add to response
@@ -169,13 +310,16 @@ module.exports = {
                 var options = {
                     options: []
                 };
+
                 // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
                 snapshot.forEach(childSnapshot => {
                     options.options.push({
                         'text': util.groomKeyFromFirebase(childSnapshot.key),
                         'value': util.groomKeyFromFirebase(childSnapshot.key)
                     });
+
                 });
+
                 return res.contentType('json').status(OK).send(options);
             })
             .catch(err => {
@@ -188,9 +332,9 @@ module.exports = {
 
         var ref = 'workspaces/';
         if (enterpriseID) {
-           ref += enterpriseID + '/';
+            ref += enterpriseID + '/';
         } else {
-          ref += teamID + '/';
+            ref += teamID + '/';
         }
         ref += 'users/' + userID + '/tags';
 

@@ -260,6 +260,70 @@ module.exports = {
      * @param {*} teamID 
      */
     appUninstalled: function (teamID) {
+        // Remove the installations index.
+        var installRef = database.ref('installations');
+        installRef.transaction(snapshot => {
+            snapshot[teamID] = null;
+            return snapshot;
+        }).catch(err => {
+            console.log(err);
+        });
 
+        // Remove the tags index
+        var tagsRef = database.ref('tags');
+        tagsRef.transaction(data => {
+            data[teamID] = null;
+            return data;
+        }).catch(err => {
+            console.log(err);
+        });
+
+        // Remove the workspaces index
+        var workspacessRef = database.ref('workspaces');
+        workspacessRef.transaction(data => {
+            data[teamID] = null;
+            return data;
+        }).catch(err => {
+            console.log(err);
+        });
+
+        // Remove team id from user id lists.
+        var usersRef = database.ref('users');
+        var teamUsersArray = [];
+        usersRef.once('value').then(snapshot => {
+            snapshot.forEach(user => {
+                // Check to see if the user belongs to the team migrating.
+                var data = user.val();
+                var teams = data.teams;
+                var pos = teams.indexOf(teamID);
+                if (pos !== -1) {
+                    teamUsersArray.push(user.key);
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+
+            // Take all the users who have this team in their teams list and update.
+            teamUsersArray.forEach(user => {
+                var ref = database.ref('users/' + user);
+                ref.once('value').then(snapshot => {
+                    var data = snapshot.val();
+                    // Clone array then alter it to include new enterprise id.
+                    var update = {}
+                    var newTeams = data.teams.splice(0);
+                    var pos = newTeams.indexOf(teamID);
+                    newTeams.splice(pos, 1);
+                    update['teams'] = newTeams;
+
+                    return ref.update(update);
+
+                }).catch(err => {
+                    console.log(err);
+                });
+            });
+            return;
+        }).catch(err => {
+            console.log(err);
+        });
     }
 }

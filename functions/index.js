@@ -206,8 +206,8 @@ exports.menu_options_dev = functions.https.onRequest((req, res) => {
 
 //Add tag command. For the response example see add.addCommand function comments.
 exports.addTag_dev = functions.https.onRequest((req, res) => {
-    var teamID = req.body.team_id;
-    util.validateTeamAccess(teamID, res, hasAccess => {
+    var id = util.checkForCorrectID(req)
+    util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Add command').send();
         add.addCommand(req, res);
     });
@@ -217,8 +217,8 @@ exports.addTag_dev = functions.https.onRequest((req, res) => {
  * This command is the initial response when a user wants to remove a tag from their profile.
  */
 exports.removeTag_dev = functions.https.onRequest((req, res) => {
-    var teamID = req.body.team_id;
-    util.validateTeamAccess(teamID, res, hasAccess => {
+    var id = util.checkForCorrectID(req)
+    util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Remove command').send();
         remove.removeCommand(req, res);
     });
@@ -226,8 +226,8 @@ exports.removeTag_dev = functions.https.onRequest((req, res) => {
 
 // View Profile Command
 exports.profile_dev = functions.https.onRequest((req, res) => {
-    var teamID = req.body.team_id;
-    util.validateTeamAccess(teamID, res, hasAccess => {
+    var id = util.checkForCorrectID(req)
+    util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Profile command').send();
         profile.profileCommand(req, res)
     });
@@ -235,8 +235,8 @@ exports.profile_dev = functions.https.onRequest((req, res) => {
 
 // High-Five Command
 exports.hi_five_dev = functions.https.onRequest((req, res) => {
-    var teamID = req.body.team_id;
-    util.validateTeamAccess(teamID, res, hasAccess => {
+    var id = util.checkForCorrectID(req)
+    util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'High_Five command').send();
         hiFive.hiFiveCommand(req, res);
     });
@@ -244,8 +244,8 @@ exports.hi_five_dev = functions.https.onRequest((req, res) => {
 
 // Search Command
 exports.search_dev = functions.https.onRequest((req, res) => {
-    var teamID = req.body.team_id;
-    util.validateTeamAccess(teamID, res, hasAccess => {
+    var id = util.checkForCorrectID(req)
+    util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Search command').send();
         search.searchCommand(req, res);
     });
@@ -257,10 +257,10 @@ exports.search_dev = functions.https.onRequest((req, res) => {
  * from which the request came from. An interactive button will be present to request the next 10 listed in alphabetic.
  */
 exports.tags_dev = functions.https.onRequest((req, res) => {
-    var teamID = req.body.team_id;
-    util.validateTeamAccess(teamID, res, hasAccess => {
+    var id = util.checkForCorrectID(req)
+    util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Tags command').send();
-        tags.tagsCommand(req, res);
+        tags.tagsCommand(req, res, id);
     });
 });
 
