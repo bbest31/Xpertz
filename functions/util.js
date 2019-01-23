@@ -281,4 +281,12 @@ module.exports = {
         });
     },
 
+    checkForCorrectID: function(req){
+        if(req.body.enterprise_id){
+            return req.body.enterprise_id;
+        } else {
+            return req.body.team_id;
+        }
+    },
+
 };
