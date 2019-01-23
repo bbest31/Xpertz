@@ -5,7 +5,7 @@ const sha256 = require('js-sha256');
 const config = {
     apiKey: 'AIzaSyDm6i6hnoJbFO-cPb_6gTV9EmE1g5WqexA',
     authDomain: 'xpertz-178c0.firebaseapp.com',
-    databaseURL: 'https://xpertz-178c0.firebaseio.com/'
+    databaseURL: 'https://xpertz-178c0-dev.firebaseio.com/'
 };
 firebase.initializeApp(config);
 
@@ -111,7 +111,7 @@ module.exports = {
         // const hmac = crypto.createHmac('sha256', "5002f9a3a9540f85d0a88be5f7bc2e7c");
         const [version, hash] = requestSignature.split('=');
         // hmac.update(`${version}:${requestTimestamp}:${requestBody}`);
-        var hashSha = sha256.hmac.create(SIGNING_SECRET);
+        var hashSha = sha256.hmac.create(SIGNING_SECRET_DEV);
         hashSha.update(`${version}:${requestTimestamp}:${requestBody}`);
 
         if (!crypto.timingSafeEqual(Buffer.from(hash, 'utf8'), Buffer.from(hashSha.hex(), 'utf8'))) {
