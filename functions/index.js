@@ -52,7 +52,7 @@ ex. firebase deploy --only functions:func1,functions:func2
 
 
 //==========XPERTZ EVENT SUBSCRIPTION=====================
-exports.events_dev = functions.https.onRequest((req, res) => {
+exports.events = functions.https.onRequest((req, res) => {
 
     // Get the JSON payload object
     let body = req.body;
@@ -95,8 +95,8 @@ exports.events_dev = functions.https.onRequest((req, res) => {
 
 //==========ACTION BUTTON FUNCTION==========
 
-exports.actions_dev = functions.https.onRequest((req, res) => {
-    if (req.body.heartbeat) {
+exports.actions = functions.https.onRequest((req, res) => {
+	if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else {    //Get the JSON payload object
         const payload = JSON.parse(req.body.payload);
@@ -170,7 +170,7 @@ exports.actions_dev = functions.https.onRequest((req, res) => {
 /**
  *This export holds all the menu options for vaious select buttons in interactive messages.
  */
-exports.menu_options_dev = functions.https.onRequest((req, res) => {
+exports.menu_options = functions.https.onRequest((req, res) => {
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else {
@@ -205,7 +205,7 @@ exports.menu_options_dev = functions.https.onRequest((req, res) => {
 //==========SLASH COMMAND FUNCTIONS==========
 
 //Add tag command. For the response example see add.addCommand function comments.
-exports.addTag_dev = functions.https.onRequest((req, res) => {
+exports.addTag = functions.https.onRequest((req, res) => {
     var id = util.checkForCorrectID(req)
     util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Add command').send();
@@ -216,7 +216,7 @@ exports.addTag_dev = functions.https.onRequest((req, res) => {
 /**
  * This command is the initial response when a user wants to remove a tag from their profile.
  */
-exports.removeTag_dev = functions.https.onRequest((req, res) => {
+exports.removeTag = functions.https.onRequest((req, res) => {
     var id = util.checkForCorrectID(req)
     util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Remove command').send();
@@ -225,7 +225,7 @@ exports.removeTag_dev = functions.https.onRequest((req, res) => {
 });
 
 // View Profile Command
-exports.profile_dev = functions.https.onRequest((req, res) => {
+exports.profile = functions.https.onRequest((req, res) => {
     var id = util.checkForCorrectID(req)
     util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Profile command').send();
@@ -234,7 +234,7 @@ exports.profile_dev = functions.https.onRequest((req, res) => {
 });
 
 // High-Five Command
-exports.hi_five_dev = functions.https.onRequest((req, res) => {
+exports.hi_five = functions.https.onRequest((req, res) => {
     var id = util.checkForCorrectID(req)
     util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'High_Five command').send();
@@ -243,7 +243,7 @@ exports.hi_five_dev = functions.https.onRequest((req, res) => {
 });
 
 // Search Command
-exports.search_dev = functions.https.onRequest((req, res) => {
+exports.search = functions.https.onRequest((req, res) => {
     var id = util.checkForCorrectID(req)
     util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Search command').send();
@@ -256,7 +256,7 @@ exports.search_dev = functions.https.onRequest((req, res) => {
  * Command returns a message containing the first 10 tags being used in the workspace
  * from which the request came from. An interactive button will be present to request the next 10 listed in alphabetic.
  */
-exports.tags_dev = functions.https.onRequest((req, res) => {
+exports.tags = functions.https.onRequest((req, res) => {
     var id = util.checkForCorrectID(req)
     util.validateTeamAccess(id, res, hasAccess => {
         visitor.event('Slash command', 'Tags command').send();
@@ -268,7 +268,7 @@ exports.tags_dev = functions.https.onRequest((req, res) => {
 /**
  * This helper command returns a description of all the slash-commands Xpertz provides.
  */
-exports.commands_dev = functions.https.onRequest((req, res) => {
+exports.commands = functions.https.onRequest((req, res) => {
     visitor.event('Slash command', 'Helper command').send();
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
@@ -321,7 +321,7 @@ exports.commands_dev = functions.https.onRequest((req, res) => {
 
 
 //Function to handle oauth redirect
-exports.oauth_redirect_dev = functions.https.onRequest((req, res) => {
+exports.oauth_redirect = functions.https.onRequest((req, res) => {
     visitor.event('Oauth', 'Add app to Slack').send();
     oauth.oauthRedirect(req, res);
 });
