@@ -15,18 +15,18 @@ module.exports = {
      * @param {Object} res 
      */
     onboardMsg: function (user, teamId, res) {
-        
+
         var token = undefined;
         database.ref('installations/' + teamId).once('value').then(snapshot => {
             token = snapshot.val().bot_token;
             //Get DM id
             request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + user.id, (err, res, body) => {
                 if (err) {
-                    return console.log(err);
+                    return console.log("Get DM id Err: " + err);
                 } else {
 
                     let payload = JSON.parse(body);
-                    console.log(body);
+                    console.log('JSON payload body: ' + body);
                     let dmId = payload.channel.id;
                     var msg = '*Welcome to the team* <@' + user.id + ">! Let's show your new colleagues what skills you bring to the team using Xpertz. You can start by using the `/xpertz-help` command to get started.";
 
@@ -60,7 +60,7 @@ module.exports = {
      * @param {*} res 
      */
     onboardInstallerMsg: function (userId, teamId) {
-        
+
         var token = undefined;
         database.ref('installations/' + teamId).once('value').then(snapshot => {
             token = snapshot.val().bot_token;

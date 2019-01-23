@@ -22,7 +22,6 @@ module.exports = {
         } else if (teamID) {
             id = teamID;
         }
-        console.log('About to validate the team Access');
         // Not a bot user joined
         if (user.is_bot === false) {
             util.validateTeamAccess(id, res, hasAccess => {
