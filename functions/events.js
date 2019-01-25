@@ -24,9 +24,12 @@ module.exports = {
         }
         // Not a bot user joined
         if (user.is_bot === false) {
+            console.log('Non-bot team_join');
             util.validateTeamAccess(id, res, hasAccess => {
                 bot.onboardMsg(user, id, res);
             });
+        } else {
+            res.status(OK).send();
         }
     },
 

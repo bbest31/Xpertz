@@ -20,7 +20,8 @@ module.exports = {
         database.ref('installations/' + teamId).once('value').then(snapshot => {
             token = snapshot.val().bot_token;
             //Get DM id
-            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + user.id, (err, res, body) => {
+            console.log("Bot token: " + token + " | snapshot.val() = " + snapshot.val());
+            request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + user.id + '&return_im=true', (err, res, body) => {
                 if (err) {
                     return console.log("Get DM id Err: " + err);
                 } else {
