@@ -20,14 +20,12 @@ module.exports = {
         database.ref('installations/' + teamId).once('value').then(snapshot => {
             token = snapshot.val().bot_token;
             //Get DM id
-            console.log("Bot token: " + token + " | snapshot.val() = " + snapshot.val());
             request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + user.id + '&return_im=true', (err, res, body) => {
                 if (err) {
                     return console.log("Get DM id Err: " + err);
                 } else {
 
                     let payload = JSON.parse(body);
-                    console.log('JSON payload body: ' + body);
                     let dmId = payload.channel.id;
                     var msg = '*Welcome to the team* <@' + user.id + ">! Let's show your new colleagues what skills you bring to the team using Xpertz. You can start by using the `/xpertz-help` command to get started.";
 
