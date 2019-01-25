@@ -56,7 +56,7 @@ exports.events_dev = functions.https.onRequest((req, res) => {
 
     // Get the JSON payload object
     let body = req.body;
-    console.log(body);
+    // console.log(body);
     // Event API verification hook (used once).
     if (body.type === 'url_verification') {
         var challenge = body.challenge;
