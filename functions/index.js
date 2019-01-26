@@ -206,49 +206,59 @@ exports.menu_options = functions.https.onRequest((req, res) => {
 
 //Add tag command. For the response example see add.addCommand function comments.
 exports.addTag = functions.https.onRequest((req, res) => {
-    var id = util.checkForCorrectID(req)
-    util.validateTeamAccess(id, res, hasAccess => {
-        visitor.event('Slash command', 'Add command').send();
-        add.addCommand(req, res);
-    });
+    if (util.validateRequest(req, res)) {
+        var id = util.checkForCorrectID(req)
+        util.validateTeamAccess(id, res, hasAccess => {
+            visitor.event('Slash command', 'Add command').send();
+            add.addCommand(req, res);
+        });
+    }
 });
 
 /**
  * This command is the initial response when a user wants to remove a tag from their profile.
  */
 exports.removeTag = functions.https.onRequest((req, res) => {
-    var id = util.checkForCorrectID(req)
-    util.validateTeamAccess(id, res, hasAccess => {
-        visitor.event('Slash command', 'Remove command').send();
-        remove.removeCommand(req, res);
-    });
+    if (util.validateRequest(req, res)) {   
+        var id = util.checkForCorrectID(req)
+        util.validateTeamAccess(id, res, hasAccess => {
+            visitor.event('Slash command', 'Remove command').send();
+            remove.removeCommand(req, res);
+        });
+    }
 });
 
 // View Profile Command
 exports.profile = functions.https.onRequest((req, res) => {
-    var id = util.checkForCorrectID(req)
-    util.validateTeamAccess(id, res, hasAccess => {
-        visitor.event('Slash command', 'Profile command').send();
-        profile.profileCommand(req, res)
-    });
+    if (util.validateRequest(req, res)) {   
+        var id = util.checkForCorrectID(req)
+        util.validateTeamAccess(id, res, hasAccess => {
+            visitor.event('Slash command', 'Profile command').send();
+            profile.profileCommand(req, res)
+        });
+    }
 });
 
 // High-Five Command
 exports.hi_five = functions.https.onRequest((req, res) => {
-    var id = util.checkForCorrectID(req)
-    util.validateTeamAccess(id, res, hasAccess => {
-        visitor.event('Slash command', 'High_Five command').send();
-        hiFive.hiFiveCommand(req, res);
-    });
+    if (util.validateRequest(req, res)) {   
+        var id = util.checkForCorrectID(req)
+        util.validateTeamAccess(id, res, hasAccess => {
+            visitor.event('Slash command', 'High_Five command').send();
+            hiFive.hiFiveCommand(req, res);
+        });
+    }
 });
 
 // Search Command
 exports.search = functions.https.onRequest((req, res) => {
-    var id = util.checkForCorrectID(req)
-    util.validateTeamAccess(id, res, hasAccess => {
-        visitor.event('Slash command', 'Search command').send();
-        search.searchCommand(req, res);
-    });
+    if (util.validateRequest(req, res)) {   
+        var id = util.checkForCorrectID(req)
+        util.validateTeamAccess(id, res, hasAccess => {
+            visitor.event('Slash command', 'Search command').send();
+            search.searchCommand(req, res);
+        });
+    }
 });
 
 // View Tags Command
@@ -257,11 +267,13 @@ exports.search = functions.https.onRequest((req, res) => {
  * from which the request came from. An interactive button will be present to request the next 10 listed in alphabetic.
  */
 exports.tags = functions.https.onRequest((req, res) => {
-    var id = util.checkForCorrectID(req)
-    util.validateTeamAccess(id, res, hasAccess => {
-        visitor.event('Slash command', 'Tags command').send();
-        tags.tagsCommand(req, res, id);
-    });
+    if (util.validateRequest(req, res)) {   
+        var id = util.checkForCorrectID(req)
+        util.validateTeamAccess(id, res, hasAccess => {
+            visitor.event('Slash command', 'Tags command').send();
+            tags.tagsCommand(req, res, id);
+        });
+    }
 });
 
 // Xpertz Command List

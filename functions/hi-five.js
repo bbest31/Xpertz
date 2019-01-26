@@ -16,27 +16,25 @@ module.exports = {
     hiFiveCommand: function (req, res) {
         var text = req.body.text;
 
-        if (util.validateRequest(req, res)) {
-            if (!text) {
+        if (!text) {
+            res.contentType('json').status(OK).send({
+                'text': '_Must provide a mentioned user!_'
+            });
+        } else {
+            var userId = text.substring(text.indexOf('<@') + 2, text.indexOf('|'));
+            var userName = text.substring(text.indexOf('|') + 1, text.indexOf('>'));
+            if (userId && userName) {
+                if (userId === req.body.user_id) {
+                    res.contentType('json').status(OK).send({
+                        'text': "_You can't high-five yourself!_"
+                    });
+                } else {
+                    this.sendHiFiveMessage(res, userName, userId, req.body.team_id, req.body.enterprise_id);
+                }
+            } else {
                 res.contentType('json').status(OK).send({
                     'text': '_Must provide a mentioned user!_'
                 });
-            } else {
-                var userId = text.substring(text.indexOf('<@') + 2, text.indexOf('|'));
-                var userName = text.substring(text.indexOf('|') + 1, text.indexOf('>'));
-                if (userId && userName) {
-                    if (userId === req.body.user_id) {
-                        res.contentType('json').status(OK).send({
-                            'text': "_You can't high-five yourself!_"
-                        });
-                    } else {
-                        this.sendHiFiveMessage(res, userName, userId, req.body.team_id, req.body.enterprise_id);
-                    }
-                } else {
-                    res.contentType('json').status(OK).send({
-                        'text': '_Must provide a mentioned user!_'
-                    });
-                }
             }
         }
     },

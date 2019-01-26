@@ -10,10 +10,7 @@ const OK = 200;
 module.exports = {
 
     tagsCommand: function (req, res, id) {
-        //Validations
-        if (util.validateRequest(req, res)) {
-            this.sendTagListMessage(res,id);
-        }
+        this.sendTagListMessage(res,id);
     },
 
 
