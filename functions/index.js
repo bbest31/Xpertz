@@ -96,7 +96,7 @@ exports.events_dev = functions.https.onRequest((req, res) => {
 //==========ACTION BUTTON FUNCTION==========
 
 exports.actions_dev = functions.https.onRequest((req, res) => {
-	if (req.body.heartbeat) {
+    if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else {    //Get the JSON payload object
         const payload = JSON.parse(req.body.payload);
@@ -206,7 +206,9 @@ exports.menu_options_dev = functions.https.onRequest((req, res) => {
 
 //Add tag command. For the response example see add.addCommand function comments.
 exports.addTag_dev = functions.https.onRequest((req, res) => {
-    if (util.validateRequest(req, res)) {
+    if (req.body.heartbeat) {
+        util.heartbeatResponse(res);
+    } else if (util.validateRequest(req, res)) {
         var id = util.checkForCorrectID(req)
         util.validateTeamAccess(id, res, hasAccess => {
             visitor.event('Slash command', 'Add command').send();
@@ -219,7 +221,9 @@ exports.addTag_dev = functions.https.onRequest((req, res) => {
  * This command is the initial response when a user wants to remove a tag from their profile.
  */
 exports.removeTag_dev = functions.https.onRequest((req, res) => {
-    if (util.validateRequest(req, res)) {
+    if (req.body.heartbeat) {
+        util.heartbeatResponse(res);
+    } else if (util.validateRequest(req, res)) {
         var id = util.checkForCorrectID(req)
         util.validateTeamAccess(id, res, hasAccess => {
             visitor.event('Slash command', 'Remove command').send();
@@ -230,7 +234,9 @@ exports.removeTag_dev = functions.https.onRequest((req, res) => {
 
 // View Profile Command
 exports.profile_dev = functions.https.onRequest((req, res) => {
-    if (util.validateRequest(req, res)) {
+    if (req.body.heartbeat) {
+        util.heartbeatResponse(res);
+    } else if (util.validateRequest(req, res)) {
         var id = util.checkForCorrectID(req)
         util.validateTeamAccess(id, res, hasAccess => {
             visitor.event('Slash command', 'Profile command').send();
@@ -241,7 +247,9 @@ exports.profile_dev = functions.https.onRequest((req, res) => {
 
 // High-Five Command
 exports.hi_five_dev = functions.https.onRequest((req, res) => {
-    if (util.validateRequest(req, res)) {
+    if (req.body.heartbeat) {
+        util.heartbeatResponse(res);
+    } else if (util.validateRequest(req, res)) {
         var id = util.checkForCorrectID(req)
         util.validateTeamAccess(id, res, hasAccess => {
             visitor.event('Slash command', 'High_Five command').send();
@@ -252,7 +260,9 @@ exports.hi_five_dev = functions.https.onRequest((req, res) => {
 
 // Search Command
 exports.search_dev = functions.https.onRequest((req, res) => {
-    if (util.validateRequest(req, res)) {
+    if (req.body.heartbeat) {
+        util.heartbeatResponse(res);
+    } else if (util.validateRequest(req, res)) {
         var id = util.checkForCorrectID(req)
         util.validateTeamAccess(id, res, hasAccess => {
             visitor.event('Slash command', 'Search command').send();
@@ -267,7 +277,9 @@ exports.search_dev = functions.https.onRequest((req, res) => {
  * from which the request came from. An interactive button will be present to request the next 10 listed in alphabetic.
  */
 exports.tags_dev = functions.https.onRequest((req, res) => {
-    if (util.validateRequest(req, res)) {
+    if (req.body.heartbeat) {
+        util.heartbeatResponse(res);
+    } else if (util.validateRequest(req, res)) {
         var id = util.checkForCorrectID(req)
         util.validateTeamAccess(id, res, hasAccess => {
             visitor.event('Slash command', 'Tags command').send();
