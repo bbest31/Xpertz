@@ -97,7 +97,7 @@ module.exports = {
             req.rawBody !== null && req.rawBody !== undefined &&
             req.headers['x-slack-request-timestamp'] !== null && req.headers['x-slack-request-timestamp'] !== undefined &&
             req.headers['x-slack-signature'] !== null && req.headers['x-slack-signature'] !== undefined) {
-            
+
             const requestBody = req.rawBody.toString('utf8');
             const requestTimestamp = req.headers['x-slack-request-timestamp'];
             const requestSignature = req.headers['x-slack-signature'];
@@ -116,6 +116,7 @@ module.exports = {
             // const hmac = crypto.createHmac('sha256', "5002f9a3a9540f85d0a88be5f7bc2e7c");
             const [version, hash] = requestSignature.split('=');
             // hmac.update(`${version}:${requestTimestamp}:${requestBody}`);
+
             var hashSha = sha256.hmac.create(SIGNING_SECRET);
             hashSha.update(`${version}:${requestTimestamp}:${requestBody}`);
 

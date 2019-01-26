@@ -95,7 +95,9 @@ exports.events = functions.https.onRequest((req, res) => {
 
 //==========ACTION BUTTON FUNCTION==========
 
+
 exports.actions = functions.https.onRequest((req, res) => {
+
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else {    //Get the JSON payload object
@@ -206,6 +208,7 @@ exports.menu_options = functions.https.onRequest((req, res) => {
 
 //Add tag command. For the response example see add.addCommand function comments.
 exports.addTag = functions.https.onRequest((req, res) => {
+
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else if (util.validateRequest(req, res)) {
@@ -221,6 +224,7 @@ exports.addTag = functions.https.onRequest((req, res) => {
  * This command is the initial response when a user wants to remove a tag from their profile.
  */
 exports.removeTag = functions.https.onRequest((req, res) => {
+
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else if (util.validateRequest(req, res)) {
@@ -234,6 +238,7 @@ exports.removeTag = functions.https.onRequest((req, res) => {
 
 // View Profile Command
 exports.profile = functions.https.onRequest((req, res) => {
+
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else if (util.validateRequest(req, res)) {
@@ -247,6 +252,7 @@ exports.profile = functions.https.onRequest((req, res) => {
 
 // High-Five Command
 exports.hi_five = functions.https.onRequest((req, res) => {
+
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else if (util.validateRequest(req, res)) {
@@ -260,6 +266,7 @@ exports.hi_five = functions.https.onRequest((req, res) => {
 
 // Search Command
 exports.search = functions.https.onRequest((req, res) => {
+
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else if (util.validateRequest(req, res)) {
@@ -277,6 +284,7 @@ exports.search = functions.https.onRequest((req, res) => {
  * from which the request came from. An interactive button will be present to request the next 10 listed in alphabetic.
  */
 exports.tags = functions.https.onRequest((req, res) => {
+
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else if (util.validateRequest(req, res)) {
