@@ -264,27 +264,30 @@ module.exports = {
     appUninstalled: function (teamID) {
         // Remove the installations index.
         var installRef = database.ref('installations');
-        installRef.transaction(snapshot => {
-            snapshot[teamID] = null;
-            return snapshot;
+        installRef.child(teamID).once('value').then(snapshot => {
+            var update = {};
+            update[teamID] = null;
+            return installRef.update(update);
         }).catch(err => {
             console.log(err);
         });
 
         // Remove the tags index
         var tagsRef = database.ref('tags');
-        tagsRef.transaction(data => {
-            data[teamID] = null;
-            return data;
+        tagsRef.child(teamID).once('value').then(data => {
+            var update = {};
+            update[teamID] = null;
+            return tagsRef.update(update);
         }).catch(err => {
             console.log(err);
         });
 
         // Remove the workspaces index
-        var workspacessRef = database.ref('workspaces');
-        workspacessRef.transaction(data => {
-            data[teamID] = null;
-            return data;
+        var workspaceRef = database.ref('workspaces');
+        workspaceRef.child(teamID).once('value').then(data => {
+            var update = {};
+            update[teamID] = null;
+            return workspaceRef.update(update);
         }).catch(err => {
             console.log(err);
         });
