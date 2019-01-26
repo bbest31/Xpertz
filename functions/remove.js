@@ -13,10 +13,7 @@ const OK = 200;
 module.exports = {
 
   removeCommand: function (req, res) {
-    //Validations
-    if (util.validateRequest(req, res)) {
-        this.sendRemoveTagMessage(res);
-    }
+    this.sendRemoveTagMessage(res);
   },
 
   sendRemoveTagMessage: function (res) {

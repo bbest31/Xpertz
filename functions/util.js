@@ -93,36 +93,45 @@ module.exports = {
      */
     validateRequest: function (req, res) {
 
-        const requestBody = req.rawBody.toString('utf8');
-        const requestTimestamp = req.headers['x-slack-request-timestamp'];
-        const requestSignature = req.headers['x-slack-signature'];
+        if (req !== null && req !== undefined &&
+            req.rawBody !== null && req.rawBody !== undefined &&
+            req.headers['x-slack-request-timestamp'] !== null && req.headers['x-slack-request-timestamp'] !== undefined &&
+            req.headers['x-slack-signature'] !== null && req.headers['x-slack-signature'] !== undefined) {
 
-        // The request timestamp is more than five minutes from local time.
-        // It could be a replay attack, so let's ignore it.
-        // convert current time from milliseconds to seconds
-        const time = Math.floor(new Date().getTime()/1000);
-        
-        if (Math.abs(time - requestTimestamp) > 60 * 5) {
-            console.log("More than 5 minutes has passed");
+            const requestBody = req.rawBody.toString('utf8');
+            const requestTimestamp = req.headers['x-slack-request-timestamp'];
+            const requestSignature = req.headers['x-slack-signature'];
+
+            // The request timestamp is more than five minutes from local time.
+            // It could be a replay attack, so let's ignore it.
+            // convert current time from milliseconds to seconds
+            const time = Math.floor(new Date().getTime()/1000);
+            
+            if (Math.abs(time - requestTimestamp) > 60 * 5) {
+                console.log("More than 5 minutes has passed");
+                res.send(UNAUTHORIZED);
+                return false;
+            }
+
+            // const hmac = crypto.createHmac('sha256', "5002f9a3a9540f85d0a88be5f7bc2e7c");
+            const [version, hash] = requestSignature.split('=');
+            // hmac.update(`${version}:${requestTimestamp}:${requestBody}`);
+            var hashSha = sha256.hmac.create(SIGNING_SECRET_DEV);
+            hashSha.update(`${version}:${requestTimestamp}:${requestBody}`);
+
+            if (!crypto.timingSafeEqual(Buffer.from(hash, 'utf8'), Buffer.from(hashSha.hex(), 'utf8'))) {
+                console.log("Failed verification comparison");
+                res.send(UNAUTHORIZED);
+                return false;
+            }
+
+            //hooray, the request came from Slack!
+            console.log("Verification success");
+            return true;
+        } else {
             res.send(UNAUTHORIZED);
             return false;
         }
-
-        // const hmac = crypto.createHmac('sha256', "5002f9a3a9540f85d0a88be5f7bc2e7c");
-        const [version, hash] = requestSignature.split('=');
-        // hmac.update(`${version}:${requestTimestamp}:${requestBody}`);
-        var hashSha = sha256.hmac.create(SIGNING_SECRET_DEV);
-        hashSha.update(`${version}:${requestTimestamp}:${requestBody}`);
-
-        if (!crypto.timingSafeEqual(Buffer.from(hash, 'utf8'), Buffer.from(hashSha.hex(), 'utf8'))) {
-            console.log("Failed verification comparison");
-            res.send(UNAUTHORIZED);
-            return false;
-        }
-
-        //hooray, the request came from Slack!
-        console.log("Verification success");
-        return true;
     },
 
     validateTeamAccess: function (teamID, response, callback) {

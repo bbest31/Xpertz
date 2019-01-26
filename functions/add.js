@@ -74,26 +74,23 @@ module.exports = {
         }
         ref += 'users/' + userID + '/tags';
 
-        //Validations
-        if (util.validateRequest(req, res)) {
-            database.ref(ref).once('value')
-                .then(snapshot => {
-                    if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_TAGS)) {
-                        this.sendAddOrCreateTagMessage(res);
-                    } else {
-                        res.contentType('json').status(OK).send({
-                            'response_type': 'ephemeral',
-                            'replace_original': true,
-                            'text': '*Max number of expertise tags already reached!*'
-                        });
-                    }
-                    return;
-                })
-                .catch(err => {
-                    if (err) console.log(err);
+        database.ref(ref).once('value')
+            .then(snapshot => {
+                if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_TAGS)) {
                     this.sendAddOrCreateTagMessage(res);
-                });
-        }
+                } else {
+                    res.contentType('json').status(OK).send({
+                        'response_type': 'ephemeral',
+                        'replace_original': true,
+                        'text': '*Max number of expertise tags already reached!*'
+                    });
+                }
+                return;
+            })
+            .catch(err => {
+                if (err) console.log(err);
+                this.sendAddOrCreateTagMessage(res);
+            });
     },
 
     /**
