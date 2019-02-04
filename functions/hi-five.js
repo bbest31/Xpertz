@@ -98,7 +98,7 @@ module.exports = {
                 snapshot.forEach(childSnapshot => {
                     options.options.push({
                         'text': util.groomKeyFromFirebase(childSnapshot.key),
-                        'value': childSnapshot.key + '|' + userName + '|' + userID
+                        'value': util.groomKeyFromFirebase(childSnapshot.key) + '|' + userName + '|' + userID
                     });
                 });
 
@@ -168,7 +168,7 @@ module.exports = {
                 snapshot.forEach(childSnapshot => {
                     options.options.push({
                         'text': util.groomKeyFromFirebase(childSnapshot.key),
-                        'value': childSnapshot.key + '|' + userName + '|' + userID
+                        'value': util.groomKeyFromFirebase(childSnapshot.key) + '|' + userName + '|' + userID
                     });
                 });
 
@@ -191,7 +191,7 @@ module.exports = {
                                     'options': options.options,
                                     'selected_options': [
                                         {
-                                            'text': selectedTag,
+                                            'text': util.groomKeyFromFirebase(selectedTag),
                                             'value': selectedOption
                                         }
                                     ]
@@ -260,7 +260,7 @@ module.exports = {
                                     tagNode.hi_five_count++;
                                     // Call async function to send rank up DM if appropriate
                                     if(util.rankUpCheck(tagNode.hi_five_count)){
-                                        bot.tagRankUp(colleagueID,colleagueTag, id);
+                                        bot.tagRankUp(colleagueID, util.groomKeyFromFirebase(childSnapshot.key), id);
                                     }
                                 }
                                 return tagNode;
@@ -313,7 +313,7 @@ module.exports = {
                         {
                             'fallback': 'Confirmation that the high-five was successfully given',
                             'callback_id': 'h5',
-                            'text': '*<@' + userID + '> gave <@' + colleagueID + '> a high-five towards their ' + colleagueTag + ' expertise* :+1:',
+                            'text': '*<@' + userID + '> gave <@' + colleagueID + '> a high-five towards their ' + util.groomKeyFromFirebase(colleagueTag) + ' expertise* :+1:',
                             'color': '#20BA42',
                             'attachment_type': 'default',
                         }
