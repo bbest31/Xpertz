@@ -320,7 +320,7 @@ module.exports = {
                                     'label': 'Tag Title',
                                     'name': 'tag_title',
                                     'placeholder': 'Enter tag title',
-                                    'hint': 'Consult your policy team on tag creation and check already in use tags with the /tags command'
+                                    'hint': 'Consult your policy team on tag creation and check already in use tags with the /xpertz-tagslist command'
                                 },
                                 {
                                     'type': 'textarea',
