@@ -161,7 +161,7 @@ module.exports = {
                                 } else {
                                     let payload = JSON.parse(body);
                                     let dmId = payload.channel.id;
-                                    let presets = presetTagList.presetOptions;
+                                    let presets = presetTagList.generalPresets;
                                     let options = {
                                         method: 'POST',
                                         uri: 'https://slack.com/api/chat.postMessage',
