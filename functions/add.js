@@ -886,13 +886,13 @@ module.exports = {
      * @param {*} id 
      * @param {*} res 
      */
-    createNewTagFromDialog: function (title, description, code, ref, payload, id, res) {
+    createNewTagFromDialog: function (tag_title, description, tag_code, ref, payload, id, res) {
 
         database.ref(ref).once('value').then(snapshot => {
             if (!snapshot.val()) {
                 database.ref(ref).set({
-                    title,
-                    code,
+                    tag_title,
+                    tag_code,
                     description,
                     count: 0
                 }).then(ref => {
