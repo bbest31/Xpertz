@@ -15,6 +15,7 @@ const events = require('./events');
 const oauth = require('./oauth');
 const feedback = require('./feedback');
 const bot = require('./bot');
+const presetTags = require('./preset_tags');
 
 // Get a reference to the database service
 var database = firebase.database();
@@ -197,7 +198,7 @@ exports.menu_options = functions.https.onRequest((req, res) => {
                 visitor.event('Menu Selection', 'User Tags menu').send();
                 tags.userTagsMenu(teamID, userID, enterpriseID, res);
             } else if (menuName === 'preset_tags_menu_button') {
-                //TODO
+                presetTags.generalPresets(res);
             }
         }
     }

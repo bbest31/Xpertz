@@ -4,7 +4,7 @@ const firebase = require('firebase');
 const request = require('request');
 const ua = require('universal-analytics');
 var visitor = ua('UA-120285659-1', { https: true });
-
+const presets = require('./preset_tags');
 // Get a reference to the database service
 const database = firebase.database();
 
@@ -110,7 +110,7 @@ module.exports = {
         if (text !== null) {
             var ref = 'tags/' + teamID + '/';
             database.ref(ref).orderByChild('tag_code').once('value').then(snapshot => {
-                
+
                 if (snapshot.hasChild(util.groomKeyToFirebase(text))) {
                     res.contentType('json').status(OK).send({
                         'response_type': 'ephemeral',
@@ -316,10 +316,19 @@ module.exports = {
                             'notify_on_cancel': true,
                             'elements': [
                                 {
+                                    'label': 'Preset Expertise Option',
+                                    'name': 'preset_tags_menu_button',
+                                    'type': 'select',
+                                    'hint': 'Choose from one of our premade options.',
+                                    'optional': true,
+                                    'data_source': 'external'
+                                },
+                                {
                                     'type': 'text',
                                     'label': 'Tag Title',
                                     'name': 'tag_title',
                                     'placeholder': 'Enter tag title',
+                                    'optional': true,
                                     'hint': 'Consult your policy team on tag creation and check already in use tags with the /xpertz-tagslist command'
                                 },
                                 {
@@ -328,6 +337,7 @@ module.exports = {
                                     'name': 'description',
                                     'max_length': 220,
                                     'min_length': 10,
+                                    'optional': true,
                                     'hint': "Please, notice that creation of a new tag doesn't add it to your profile. You need to add tag after you have created it."
                                 }
                             ]
@@ -420,116 +430,89 @@ module.exports = {
     addNewTagDialog: function (payload, res) {
         const token = payload.token;
         const teamID = payload.team.id;
-        const tag_title = payload.submission.tag_title;
-        const description = payload.submission.description;
         const enterprise_id = payload.team.enterprise_id;
-        const tag_code = tag_title.toLowerCase();
 
-        var ref = 'tags/';
+        var preset_tag = payload.submission.preset_tags_menu_button;
+        var tag_title = payload.submission.tag_title;
+        var description = payload.submission.description;
+        var tag_code = undefined;
+        var ref = '';
+
+        var id = null;
         if (enterprise_id) {
-            ref += enterprise_id + '/';
+            id = enterprise_id;
         } else {
-            ref += teamID + '/';
+            id = teamID;
         }
-        ref += util.groomKeyToFirebase(tag_title);
 
-        database.ref(ref).once('value').then(snapshot => {
-            if (!snapshot.val()) {
-                database.ref(ref).set({
-                    tag_title,
-                    tag_code,
-                    description,
-                    count: 0
-                }).then(ref => {
-                    //Success!!!
-                    res.status(OK).send();
-
-                    util.retrieveAccessToken(teamID, token => {
-                        if (token) {
-                            let options = {
-                                method: 'POST',
-                                uri: payload.response_url,
-                                headers: {
-                                    'Content-Type': 'application/json; charset=utf-8',
-                                },
-                                body: {
-                                    'response_type': 'ephemeral',
-                                    'replace_original': true,
-                                    'text': '*Expertise tag was successfully added* :raised_hands:',
-                                    'attachments': [
-                                        {
-                                            'fallback': 'Confirmation of successful tag addition',
-                                            'callback_id': 'create_new_tag_success',
-                                            'text': 'Tag has been created successfully',
-                                            'color': '#00D68F',
-                                            'attachment_type': 'default',
-                                        },
-                                        {
-                                            'fallback': 'Interactive menu to add a workspace tag or create a new one',
-                                            'callback_id': 'add_tag',
-                                            'text': 'Select a tag to add or create a new one! *(max. ' + MAX_TAGS + ')*',
-                                            'color': '#3AA3E3',
-                                            'attachment_type': 'default',
-                                            'actions': [
-                                                {
-                                                    'name': 'team_tags_menu_button',
-                                                    'text': 'Pick a tag...',
-                                                    'type': 'select',
-                                                    'data_source': 'external',
-                                                    'min_query_length': 1
-                                                },
-                                                {
-                                                    'name': 'create_tag_button',
-                                                    'text': 'Create New',
-                                                    'type': 'button',
-                                                    'value': 'create'
-                                                },
-                                                {
-                                                    'name': 'cancel_add_button',
-                                                    'text': 'Cancel',
-                                                    'type': 'button',
-                                                    'value': 'cancel'
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                json: true
-                            }
-
-                            util.makeRequestWithOptions(options);
+        if (preset_tag) {
+            if (tag_title || description) {
+                //Error response
+                return res.contentType('application/json').status(OK).send({
+                    'errors': [
+                        {
+                            'name': 'preset_tags_menu_button',
+                            'error': 'Please clear this selection if you wish to make a brand new tag.'
                         }
-                    });
-                    return;
-                }).catch(err => {
-                    if (err) console.log(err);
-                    res.status(OK).send();
-                    util.retrieveAccessToken(teamID, token => {
-                        if (token) {
-                            this.failedToCreateTag(token, payload, 'Tag has failed to be created');
-                        }
-                    });
-                    return;
+                    ]
                 });
             } else {
-                res.status(OK).send();
-                util.retrieveAccessToken(teamID, token => {
-                    if (token) {
-                        this.failedToCreateTag(token, payload, 'Tag already exists');
-                    }
+                tag_title = preset_tag;
+                description = presets.getTechJSON()[util.groomKeyToFirebase(tag_title)].description;
+                tag_code = tag_title.toLowerCase();
+                ref = 'tags/' + id + '/';
+                ref += util.groomKeyToFirebase(tag_title);
+                this.createNewTagFromDialog(tag_title, description, tag_code, ref, payload, id, res);
+
+            }
+
+        } else if (tag_title && description) {
+
+            tag_code = tag_title.toLowerCase();
+            ref = 'tags/' + id + '/';
+            ref += util.groomKeyToFirebase(tag_title);
+            this.createNewTagFromDialog(tag_title, description, tag_code, ref, payload, id, res);
+
+        } else {
+            //Error responses
+            if (!tag_title && !description) {
+                //Error response
+                return res.contentType('application/json').status(OK).send({
+                    'errors': [
+                        {
+                            'name': 'tag_title',
+                            'error': 'Please enter a valid expertise title.'
+                        },
+                        {
+                            'name': 'description',
+                            'error': 'Please enter a valid expertise description.'
+                        }
+                    ]
+                });
+            } else if (!tag_title) {
+                //Error response
+                return res.contentType('application/json').status(OK).send({
+                    'errors': [
+                        {
+                            'name': 'tag_title',
+                            'error': 'Please enter a valid expertise title.'
+                        },
+                    ]
+                });
+            } else if (!description) {
+                //Error response
+                return res.contentType('application/json').status(OK).send({
+                    'errors': [
+                        {
+                            'name': 'description',
+                            'error': 'Please enter a valid expertise description.'
+                        }
+                    ]
                 });
             }
-            return;
-        }).catch(err => {
-            if (err) console.log(err);
-            res.status(OK).send();
-            util.retrieveAccessToken(teamID, token => {
-                if (token) {
-                    this.failedToCreateTag(token, payload, 'Tag has failed to be created');
-                }
-            });
-            return;
-        });
+
+        }
+
     },
     /**
      * Gives the initial add expertise tag workflow after the add tag dialog has been cancelled.
@@ -889,6 +872,117 @@ module.exports = {
             return;
         }).catch(err => {
             if (err) console.log(err);
+            return;
+        });
+    },
+
+    /**
+     * Creates the new tag for a workspace given the payload from the Create New dialog submission.
+     * @param {*} title 
+     * @param {*} description 
+     * @param {*} code 
+     * @param {*} ref 
+     * @param {*} payload 
+     * @param {*} id 
+     * @param {*} res 
+     */
+    createNewTagFromDialog: function (title, description, code, ref, payload, id, res) {
+
+        database.ref(ref).once('value').then(snapshot => {
+            if (!snapshot.val()) {
+                database.ref(ref).set({
+                    title,
+                    code,
+                    description,
+                    count: 0
+                }).then(ref => {
+                    //Success!!!
+                    res.status(OK).send();
+
+                    util.retrieveAccessToken(id, token => {
+                        if (token) {
+                            let options = {
+                                method: 'POST',
+                                uri: payload.response_url,
+                                headers: {
+                                    'Content-Type': 'application/json; charset=utf-8',
+                                },
+                                body: {
+                                    'response_type': 'ephemeral',
+                                    'replace_original': true,
+                                    'text': '*Expertise tag was successfully added* :raised_hands:',
+                                    'attachments': [
+                                        {
+                                            'fallback': 'Confirmation of successful tag addition',
+                                            'callback_id': 'create_new_tag_success',
+                                            'text': 'Tag has been created successfully',
+                                            'color': '#00D68F',
+                                            'attachment_type': 'default',
+                                        },
+                                        {
+                                            'fallback': 'Interactive menu to add a workspace tag or create a new one',
+                                            'callback_id': 'add_tag',
+                                            'text': 'Select a tag to add or create a new one! *(max. ' + MAX_TAGS + ')*',
+                                            'color': '#3AA3E3',
+                                            'attachment_type': 'default',
+                                            'actions': [
+                                                {
+                                                    'name': 'team_tags_menu_button',
+                                                    'text': 'Pick a tag...',
+                                                    'type': 'select',
+                                                    'data_source': 'external',
+                                                    'min_query_length': 1
+                                                },
+                                                {
+                                                    'name': 'create_tag_button',
+                                                    'text': 'Create New',
+                                                    'type': 'button',
+                                                    'value': 'create'
+                                                },
+                                                {
+                                                    'name': 'cancel_add_button',
+                                                    'text': 'Cancel',
+                                                    'type': 'button',
+                                                    'value': 'cancel'
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                json: true
+                            }
+
+                            util.makeRequestWithOptions(options);
+                        }
+                    });
+                    return;
+                }).catch(err => {
+                    if (err) console.log(err);
+                    res.status(OK).send();
+                    util.retrieveAccessToken(id, token => {
+                        if (token) {
+                            this.failedToCreateTag(token, payload, 'Tag has failed to be created');
+                        }
+                    });
+                    return;
+                });
+            } else {
+                res.status(OK).send();
+                util.retrieveAccessToken(id, token => {
+                    if (token) {
+                        this.failedToCreateTag(token, payload, 'Tag already exists');
+                    }
+                });
+            }
+            return;
+        }).catch(err => {
+            if (err) console.log(err);
+            res.status(OK).send();
+            util.retrieveAccessToken(id, token => {
+                if (token) {
+                    this.failedToCreateTag(token, payload, 'Tag has failed to be created');
+                }
+            });
             return;
         });
     }

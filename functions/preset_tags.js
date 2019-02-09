@@ -59,7 +59,7 @@ const TECH_PRESET_TAGS = {
         tag_code: 'angular',
         tag_title: 'Angular'
     },
-    'React JS': {
+    'React': {
         count: 0,
         description: 'In computing, React (also known as React.js or ReactJS) is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies.',
         tag_code: 'react js',
@@ -221,7 +221,7 @@ const TECH_PRESET_TAGS = {
         tag_code: 'nosql databases',
         tag_title: 'NoSQL Databases'
     },
-    'MySQL Databases': {
+    'MySQL': {
         count: 0,
         description: 'MySQL is an open-source relational database management system (RDBMS).',
         tag_code: 'mysql databases',
@@ -233,7 +233,7 @@ const TECH_PRESET_TAGS = {
         tag_code: 'slack',
         tag_title: 'Slack'
     },
-    'Apache Kafka': {
+    'Kafka': {
         count: 0,
         description: 'Apache Kafka is an open-source stream-processing software platform developed by the Apache Software Foundation, written in Scala and Java. The project aims to provide a unified, high-throughput, low-latency platform for handling real-time data feeds.',
         tag_code: 'apache kafka',
@@ -328,11 +328,265 @@ const TECH_PRESET_TAGS = {
         description: 'DevOps is a software development methodology that combines software development (Dev) with information technology operations (Ops). The goal of DevOps is to shorten the systems development life cycle while also delivering features, fixes, and updates frequently in close alignment with business objectives.',
         tag_code: 'devops',
         tag_title: 'DevOps'
+    },
+    'Ruby': {
+        count: 0,
+        description: 'A dynamic, open source programming language with a focus on simplicity and productivity. It has an elegant syntax that is natural to read and easy to write.',
+        tag_code: 'ruby',
+        'tag_title': 'Ruby'
+    },
+    'Swift': {
+        count: 0,
+        description: 'Swift is a general-purpose programming language built using a modern approach to safety, performance, and software design patterns.',
+        tag_code: 'swift',
+        tag_title: 'swift'
+    },
+    'MongoDB': {
+        count: 0,
+        description: 'MongoDB is a free and open-source cross-platform document-oriented database program. Classified as a NoSQL database program, MongoDB uses JSON-like documents with schemas.',
+        tag_code: 'mongodb',
+        tag_title: 'mongodb'
+    },
+    'Node&1111js': {
+        count: 0,
+        description: 'Node.js is an open-source, cross-platform JavaScript run-time environment that executes JavaScript code server-side. ',
+        tag_code: 'node.js',
+        tag_title: 'node.js'
+    },
+    'jQuery': {
+        count: 0,
+        description: 'jQuery is a cross-platform JavaScript library designed to simplify the client-side scripting of HTML.',
+        tag_code: 'jquery',
+        tag_title: 'jquery'
     }
+}
+
+const GENERAL_PRESET_TAGS = {
+    'Java': {
+        count: 0,
+        description: 'Java is a general-purpose computer-programming language that is concurrent, class-based, object-oriented,and specifically designed to have as few implementation dependencies as possible. ',
+        tag_code: 'java',
+        tag_title: 'Java'
+    },
+    'C++': {
+        count: 0,
+        description: 'C++ is a general-purpose programming language. It has imperative, object-oriented and generic programming features, while also providing facilities for low-level memory manipulation.',
+        tag_code: 'c++',
+        tag_title: 'C++'
+    },
+    'Javascript': {
+        count: 0,
+        description: 'JavaScript often abbreviated as JS, is a high-level, interpreted programming language. It is a language which is also characterized as dynamic, weakly typed, prototype-based and multi-paradigm.',
+        tag_code: 'javascript',
+        tag_title: 'Javascript'
+    },
+    'Python': {
+        count: 0,
+        description: 'Python is an interpreted high-level programming language for general-purpose programming. Created by Guido van Rossum and first released in 1991, Python has a design philosophy that emphasizes code readability, notably using significant whitespace.',
+        tag_code: 'python',
+        tag_title: 'Python'
+    },
+    'SQL': {
+        count: 0,
+        description: 'SQL (Standard Query Language) is a domain-specific language used in programming and designed for managing data held in a relational database management system (RDBMS), or for stream processing in a relational data stream management system (RDSMS).',
+        tag_code: 'sql',
+        tag_title: 'SQL'
+    },
+    'HTML': {
+        count: 0,
+        description: 'Hypertext Markup Language (HTML) is the standard markup language for creating web pages and web applications.',
+        tag_code: 'html',
+        tag_title: 'HTML'
+    },
+    'CSS': {
+        count: 0,
+        description: 'Cascading Style Sheets (CSS) is a style sheet language used for describing the presentation of a document written in a markup language like HTML.',
+        tag_code: 'css',
+        tag_title: 'CSS'
+    },
+    'Angular': {
+        count: 0,
+        description: 'Angular is a TypeScript-based open-source front-end web application platform led by the Angular Team at Google and by a community of individuals and corporations.',
+        tag_code: 'angular',
+        tag_title: 'Angular'
+    },
+    'React': {
+        count: 0,
+        description: 'In computing, React (also known as React.js or ReactJS) is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies.',
+        tag_code: 'react js',
+        tag_title: 'React JS'
+    },
+    'Project Management': {
+        count: 0,
+        description: 'Project management is the practice of initiating, planning, executing, controlling, and closing the work of a team to achieve specific goals and meet specific success criteria at the specified time.',
+        tag_code: 'project management',
+        tag_title: 'Project Management'
+    },
+    'Trello': {
+        count: 0,
+        description: 'Trello is a web-based project management application originally made by Fog Creek Software in 2011, that was spun out to form the basis of a separate company in 2014 and later sold to Atlassian in January 2017.',
+        tag_code: 'trello',
+        tag_title: 'Trello'
+    },
+    'JIRA': {
+        count: 0,
+        description: 'Jira is a proprietary issue tracking product developed by Atlassian which allows bug tracking and agile project management.',
+        tag_code: 'jira',
+        tag_title: 'JIRA'
+    },
+    'R': {
+        count: 0,
+        description: 'R is a programming language and free software environment for statistical computing and graphics supported by the R Foundation for Statistical Computing. The R language is widely used among statisticians and data miners for developing statistical software and data analysis.',
+        tag_code: 'r',
+        tag_title: 'R'
+    },
+}
+const starting_options = {
+    'option_groups': [
+        {
+            'label': 'Application and Data',
+            'options': [
+                {
+                    'label': 'Python',
+                    'value': 'Python',
+                },
+                {
+                    'label': 'Java',
+                    'value': 'Java',
+                },
+                {
+                    'label': 'Javascript',
+                    'value': 'Javascript',
+                },
+                {
+                    'label': 'PHP',
+                    'value': 'PHP',
+                },
+                {
+                    'label': 'Rubv',
+                    'value': 'Ruby',
+                },
+                {
+                    'label': 'C++',
+                    'value': 'C++',
+                },
+                {
+                    'label': 'Matlab',
+                    'value': 'Matlab',
+                },
+                {
+                    'label': 'Swift',
+                    'value': 'Swift',
+                },
+                {
+                    'label': 'R',
+                    'value': 'R',
+                },
+                {
+                    'label': 'SQL',
+                    'value': 'SQL',
+                },
+                {
+                    'label': 'MySQL',
+                    'value': 'MySQL',
+                },
+                {
+                    'label': 'MongoDB',
+                    'value': 'MongoDB',
+                },
+                {
+                    'label': 'Node.js',
+                    'value': 'Node.js',
+                },
+                {
+                    'label': 'React',
+                    'value': 'React',
+                },
+                {
+                    'label': 'Angular',
+                    'value': 'Anuglar',
+                },
+                {
+                    'label': 'jQuery',
+                    'value': 'jQuery',
+                },
+                {
+                    'label': 'Kafka',
+                    'value': 'Kafka',
+                },
+                {
+                    'label': 'HTML',
+                    'value': 'HTML',
+                },
+                {
+                    'label': 'CSS',
+                    'value': 'CSS',
+                },
+                {
+                    'label': 'Vue.js',
+                    'value': 'Vue.js',
+                },
+
+            ]
+        },
+        {
+            'label': 'DevOps',
+            'options': [
+                {
+                    'label': 'Github',
+                    'value': 'Github'
+                },
+                {
+                    'label': 'Bitbucket',
+                    'value': 'Bitbucket'
+                },
+                {
+                    'label': 'Git',
+                    'value': 'Git'
+                },
+                {
+                    'label': 'Jenkins',
+                    'value': 'Jenkins'
+                },
+            ]
+        },
+        {
+            'label': 'Business Tools',
+            'options': [
+                {
+                    'label': 'Slack',
+                    'value': 'Slack'
+                },
+                {
+                    'label': 'Microsoft Excel',
+                    'value': 'Microsoft Excel'
+                },
+                {
+                    'label': 'JIRA',
+                    'value': 'JIRA'
+                },
+                {
+                    'label': 'Trello',
+                    'value': 'Trello'
+                },
+                {
+                    'label': 'Project Management',
+                    'value': 'Project Management'
+                },
+            ]
+        },
+
+    ]
 }
 module.exports = {
 
-    presetOptions : function(){
-        return [TECH_PRESET_TAGS];
+    generalPresets: function (res) {
+        return res.contentType('json').status(200).send(starting_options);
+    },
+    getGeneralJSON : function(){
+        return GENERAL_PRESET_TAGS;
+    },
+    getTechJSON: function(){
+        return TECH_PRESET_TAGS;
     }
 }
