@@ -379,6 +379,10 @@ const GENERAL_PRESET_TAGS = {
     }
 }
 
+/**
+ * JSON object holding the premade options groupings.
+ * Current count = 44/100
+ */
 const starting_options = {
     'option_groups': [
         {
