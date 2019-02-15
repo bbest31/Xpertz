@@ -458,7 +458,7 @@ module.exports = {
                 });
             } else {
                 tag_title = preset_tag;
-                description = presets.getTechJSON()[util.groomKeyToFirebase(tag_title)].description;
+                description = presets.getGeneralJSON()[util.groomKeyToFirebase(tag_title)].description;
                 tag_code = tag_title.toLowerCase();
                 ref = 'tags/' + id + '/';
                 ref += util.groomKeyToFirebase(tag_title);

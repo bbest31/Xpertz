@@ -1,7 +1,7 @@
-const TECH_PRESET_TAGS = {
-    'Android Developer': {
+const GENERAL_PRESET_TAGS = {
+    'Android Development': {
         count: 0,
-        description: 'Software developer for the Android mobile platform developed by Google.',
+        description: 'Software development for the Android mobile platform developed by Google.',
         tag_code: 'android developer',
         tag_title: 'Android Developer'
     },
@@ -185,7 +185,7 @@ const TECH_PRESET_TAGS = {
         tag_code: 'graphic design',
         tag_title: 'Graphic Design'
     },
-    'iOS Developer': {
+    'iOS Development': {
         count: 0,
         description: 'Software developer for the iOS software platform developed by Apple.',
         tag_code: 'ios developer',
@@ -323,12 +323,6 @@ const TECH_PRESET_TAGS = {
         tag_code: 'vue.js',
         tag_title: 'Vue.js'
     },
-    'DevOps': {
-        count: 0,
-        description: 'DevOps is a software development methodology that combines software development (Dev) with information technology operations (Ops). The goal of DevOps is to shorten the systems development life cycle while also delivering features, fixes, and updates frequently in close alignment with business objectives.',
-        tag_code: 'devops',
-        tag_title: 'DevOps'
-    },
     'Ruby': {
         count: 0,
         description: 'A dynamic, open source programming language with a focus on simplicity and productivity. It has an elegant syntax that is natural to read and easy to write.',
@@ -339,108 +333,56 @@ const TECH_PRESET_TAGS = {
         count: 0,
         description: 'Swift is a general-purpose programming language built using a modern approach to safety, performance, and software design patterns.',
         tag_code: 'swift',
-        tag_title: 'swift'
+        tag_title: 'Swift'
     },
     'MongoDB': {
         count: 0,
         description: 'MongoDB is a free and open-source cross-platform document-oriented database program. Classified as a NoSQL database program, MongoDB uses JSON-like documents with schemas.',
         tag_code: 'mongodb',
-        tag_title: 'mongodb'
+        tag_title: 'MongoDB'
     },
     'Node&1111js': {
         count: 0,
         description: 'Node.js is an open-source, cross-platform JavaScript run-time environment that executes JavaScript code server-side. ',
         tag_code: 'node.js',
-        tag_title: 'node.js'
+        tag_title: 'Node.js'
     },
     'jQuery': {
         count: 0,
         description: 'jQuery is a cross-platform JavaScript library designed to simplify the client-side scripting of HTML.',
         tag_code: 'jquery',
-        tag_title: 'jquery'
+        tag_title: 'jQuery'
+    },
+    'SCRUM': {
+        count: 0,
+        description: 'Scrum is an agile framework for managing work with an emphasis on software development.',
+        tag_code: 'scrum',
+        tag_title: 'SCRUM'
+    },   
+    'UI&1116UX': {
+        count: 0,
+        description: 'Design practices about enhancing the accessability and usability of a user interface, and the user experience overall.',
+        tag_code: 'ui/ux',
+        tag_title: 'UI/UX'
+    },
+    'Business Scaling' : {
+        count : 0,
+        description : 'The goal of expanding and growing the profit, sales, user base, or general business presence of a company.',
+        tag_code : 'business scaling',
+        tag_title : 'Business Scaling',
+    },
+    'QA Testing' : {
+        count : 0,
+        description : 'Quality assurance is a way of preventing mistakes and defects in manufactured products and avoiding problems when delivering solutions or services to customers.',
+        tag_code : 'qa testing',
+        tag_title : 'QA Testing',
     }
 }
 
-const GENERAL_PRESET_TAGS = {
-    'Java': {
-        count: 0,
-        description: 'Java is a general-purpose computer-programming language that is concurrent, class-based, object-oriented,and specifically designed to have as few implementation dependencies as possible. ',
-        tag_code: 'java',
-        tag_title: 'Java'
-    },
-    'C++': {
-        count: 0,
-        description: 'C++ is a general-purpose programming language. It has imperative, object-oriented and generic programming features, while also providing facilities for low-level memory manipulation.',
-        tag_code: 'c++',
-        tag_title: 'C++'
-    },
-    'Javascript': {
-        count: 0,
-        description: 'JavaScript often abbreviated as JS, is a high-level, interpreted programming language. It is a language which is also characterized as dynamic, weakly typed, prototype-based and multi-paradigm.',
-        tag_code: 'javascript',
-        tag_title: 'Javascript'
-    },
-    'Python': {
-        count: 0,
-        description: 'Python is an interpreted high-level programming language for general-purpose programming. Created by Guido van Rossum and first released in 1991, Python has a design philosophy that emphasizes code readability, notably using significant whitespace.',
-        tag_code: 'python',
-        tag_title: 'Python'
-    },
-    'SQL': {
-        count: 0,
-        description: 'SQL (Standard Query Language) is a domain-specific language used in programming and designed for managing data held in a relational database management system (RDBMS), or for stream processing in a relational data stream management system (RDSMS).',
-        tag_code: 'sql',
-        tag_title: 'SQL'
-    },
-    'HTML': {
-        count: 0,
-        description: 'Hypertext Markup Language (HTML) is the standard markup language for creating web pages and web applications.',
-        tag_code: 'html',
-        tag_title: 'HTML'
-    },
-    'CSS': {
-        count: 0,
-        description: 'Cascading Style Sheets (CSS) is a style sheet language used for describing the presentation of a document written in a markup language like HTML.',
-        tag_code: 'css',
-        tag_title: 'CSS'
-    },
-    'Angular': {
-        count: 0,
-        description: 'Angular is a TypeScript-based open-source front-end web application platform led by the Angular Team at Google and by a community of individuals and corporations.',
-        tag_code: 'angular',
-        tag_title: 'Angular'
-    },
-    'React': {
-        count: 0,
-        description: 'In computing, React (also known as React.js or ReactJS) is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies.',
-        tag_code: 'react js',
-        tag_title: 'React JS'
-    },
-    'Project Management': {
-        count: 0,
-        description: 'Project management is the practice of initiating, planning, executing, controlling, and closing the work of a team to achieve specific goals and meet specific success criteria at the specified time.',
-        tag_code: 'project management',
-        tag_title: 'Project Management'
-    },
-    'Trello': {
-        count: 0,
-        description: 'Trello is a web-based project management application originally made by Fog Creek Software in 2011, that was spun out to form the basis of a separate company in 2014 and later sold to Atlassian in January 2017.',
-        tag_code: 'trello',
-        tag_title: 'Trello'
-    },
-    'JIRA': {
-        count: 0,
-        description: 'Jira is a proprietary issue tracking product developed by Atlassian which allows bug tracking and agile project management.',
-        tag_code: 'jira',
-        tag_title: 'JIRA'
-    },
-    'R': {
-        count: 0,
-        description: 'R is a programming language and free software environment for statistical computing and graphics supported by the R Foundation for Statistical Computing. The R language is widely used among statisticians and data miners for developing statistical software and data analysis.',
-        tag_code: 'r',
-        tag_title: 'R'
-    },
-}
+/**
+ * JSON object holding the premade options groupings.
+ * Current count = 44/100
+ */
 const starting_options = {
     'option_groups': [
         {
@@ -469,6 +411,10 @@ const starting_options = {
                 {
                     'label': 'C++',
                     'value': 'C++',
+                },
+                {
+                    'label': 'C',
+                    'value': 'C',
                 },
                 {
                     'label': 'Matlab',
@@ -503,6 +449,10 @@ const starting_options = {
                     'value': 'React',
                 },
                 {
+                    'label' : 'Android Development',
+                    'value' : 'Android Development'
+                },
+                {
                     'label': 'Angular',
                     'value': 'Anuglar',
                 },
@@ -526,6 +476,19 @@ const starting_options = {
                     'label': 'Vue.js',
                     'value': 'Vue.js',
                 },
+                {
+                    'label' : 'Microservices',
+                    'value' : 'Microservices'
+                },
+                {
+                    'label' : 'Machine Learning',
+                    'value' : 'Machine Learning'
+                },
+                {
+                    'label' : 'Docker',
+                    'value' : 'Docker'
+                },
+
 
             ]
         },
@@ -562,6 +525,10 @@ const starting_options = {
                     'value': 'Microsoft Excel'
                 },
                 {
+                    'label' : 'Microsoft Access',
+                    'value' : 'Microsoft Access'
+                },
+                {
                     'label': 'JIRA',
                     'value': 'JIRA'
                 },
@@ -573,8 +540,49 @@ const starting_options = {
                     'label': 'Project Management',
                     'value': 'Project Management'
                 },
+                {
+                    'label' : 'AWS',
+                    'value' : 'AWS'
+                },
+                {
+                    'label' : 'Google Firebase',
+                    'value' : 'Google Firebase'
+                }
             ]
         },
+        {
+            'label' : 'Business Practices',
+            'options' : [
+                {
+                    'label' : 'Agile Methodology',
+                    'value' : 'Agile Methodology'
+                },
+                {
+                    'label' : 'Design Thinking',
+                    'value' : 'Design Thinking'
+                },
+                {
+                    'label' : 'Data Visualization',
+                    'value' : 'Data Visualization',
+                },
+                {
+                    'label' : 'SCRUM',
+                    'value' : 'SCRUM'
+                },
+                {
+                    'label' : 'UI/UX',
+                    'value' : 'UI/UX'
+                },
+                {
+                    'label' : 'Business Scaling',
+                    'value' : 'Business Scaling'
+                },
+                {
+                    'label' : 'QA Testing',
+                    'value' : 'QA Testing'
+                },
+            ]
+        }
 
     ]
 }
@@ -585,8 +593,5 @@ module.exports = {
     },
     getGeneralJSON : function(){
         return GENERAL_PRESET_TAGS;
-    },
-    getTechJSON: function(){
-        return TECH_PRESET_TAGS;
     }
 }
