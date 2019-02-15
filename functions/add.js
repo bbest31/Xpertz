@@ -910,7 +910,7 @@ module.exports = {
                                 body: {
                                     'response_type': 'ephemeral',
                                     'replace_original': true,
-                                    'text': '*Expertise tag was successfully added* :raised_hands:',
+                                    'text': '*Expertise tag was successfully created* :raised_hands:',
                                     'attachments': [
                                         {
                                             'fallback': 'Confirmation of successful tag addition',
@@ -931,7 +931,21 @@ module.exports = {
                                                     'text': 'Pick a tag...',
                                                     'type': 'select',
                                                     'data_source': 'external',
-                                                    'min_query_length': 1
+                                                    'min_query_length': 1,
+                                                    'selected_options': [
+                                                        {
+                                                            'text': tag_title,
+                                                            'value': tag_title
+                                                        }
+                                                    ]
+
+                                                },
+                                                {
+                                                    'name': 'add_tag_confirm_button',
+                                                    'text': 'Add',
+                                                    'type': 'button',
+                                                    'value': tag_title,
+                                                    'style': 'primary'
                                                 },
                                                 {
                                                     'name': 'create_tag_button',
