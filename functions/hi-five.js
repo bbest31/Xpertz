@@ -259,11 +259,20 @@ module.exports = {
                                 if (tagNode) {
                                     tagNode.hi_five_count++;
                                     // Call async function to send rank up DM if appropriate
-                                    if(util.rankUpCheck(tagNode.hi_five_count)){
+                                    if (util.rankUpCheck(tagNode.hi_five_count)) {
                                         bot.tagRankUp(colleagueID, util.groomKeyFromFirebase(childSnapshot.key), id);
                                     }
                                 }
                                 return tagNode;
+                            });
+                            
+                            // Increment global high-five count
+                            database.ref('globals').transaction(globalNode => {
+                                if (globalNode) {
+                                    globalNode.h5++;
+                                }
+
+                                return globalNode;
                             });
                         } else {
                             throw new Error;
@@ -307,7 +316,7 @@ module.exports = {
 
                 // Confirmation response
                 res.contentType('json').status(OK).send({
-                    'response_type' : 'in_channel',
+                    'response_type': 'in_channel',
                     'replace_original': false,
                     'attachments': [
                         {
