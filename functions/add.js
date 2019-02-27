@@ -863,6 +863,15 @@ module.exports = {
                                     teams: [teamID],
                                 }
 
+                                // Increment global user count
+                                database.ref('globals').transaction(globalNode => {
+                                    if (globalNode) {
+                                        globalNode.users++;
+                                    }
+
+                                    return globalNode;
+                                });
+
                             }
                             return userRef;
                         });
@@ -898,6 +907,15 @@ module.exports = {
                 }).then(ref => {
                     //Success!!!
                     res.status(OK).send();
+
+                    // Increment global expertise count
+                    database.ref('globals').transaction(globalNode => {
+                        if (globalNode) {
+                            globalNode.expertise++;
+                        }
+
+                        return globalNode;
+                    });
 
                     util.retrieveAccessToken(id, token => {
                         if (token) {

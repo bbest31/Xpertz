@@ -262,6 +262,15 @@ module.exports = {
      * @param {*} teamID 
      */
     appUninstalled: function (teamID) {
+        // Increment global user count
+        database.ref('globals').transaction(globalNode => {
+            if (globalNode) {
+                globalNode.teams--;
+            }
+
+            return globalNode;
+        });
+
         // Remove the installations index.
         var installRef = database.ref('installations');
         installRef.child(teamID).once('value').then(snapshot => {
@@ -319,6 +328,17 @@ module.exports = {
                     var pos = newTeams.indexOf(teamID);
                     newTeams.splice(pos, 1);
                     update['teams'] = newTeams;
+
+                    if (newTeams.length < 1) {
+                        // Decrement global user count
+                        database.ref('globals').transaction(globalNode => {
+                            if (globalNode) {
+                                globalNode.users--;
+                            }
+
+                            return globalNode;
+                        });
+                    }
 
                     return ref.update(update);
 

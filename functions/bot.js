@@ -60,6 +60,15 @@ module.exports = {
      */
     onboardInstallerMsg: function (userId, teamId) {
 
+        // Increment global team count
+        database.ref('globals').transaction(globalNode => {
+            if (globalNode) {
+                globalNode.teams++;
+            }
+
+            return globalNode;
+        });
+
         var token = undefined;
         database.ref('installations/' + teamId).once('value').then(snapshot => {
             token = snapshot.val().bot_token;
