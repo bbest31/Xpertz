@@ -90,24 +90,46 @@ module.exports = {
     },
 
     saveWorkspaceAsANewInstallation: function (slackResponse, response) {
-        //console.log("slackResponse: " + JSON.stringify(slackResponse));
+        // console.log("slackResponse: " + JSON.stringify(slackResponse));
 
         database.ref('installations/' + slackResponse.team_id).once('value').then(snapshot => {
             if (!snapshot.val()) {
-                //Add the entry to the database
+                // Add the entry to the database
                 database.ref('installations/' + slackResponse.team_id).set({
                     token: slackResponse.access_token,
                     bot_token: slackResponse.bot.bot_access_token,
                     team: slackResponse.team_id,
+                    name: 'unknown',
+                    enterprise: 'none',
                     access: {
                         startedTrial: Date.now(),
                         tier: 0
                     }
                 }).then(ref => {
-                    //Success!!!
+                    // Success!!!
                     response.redirect('http://xpertzsoftware.com?integration=success');
-                    //DM the primary owner with an onboarding message.
+                    // DM the primary owner with an onboarding message.
                     bot.onboardInstallerMsg(slackResponse.user_id, slackResponse.team_id);
+                    // Get the workspace name and enterprise name to store.
+                    request.get('https://slack.com/api/team.info?token=' + slackResponse.bot.bot_access_token, (err, res, body) => {
+                        if (err) {
+                            return console.log(err);
+                        } else {
+
+                            var payload = JSON.parse(body);
+                            if (payload.ok) {
+                                database.ref('installations/' + slackResponse.team_id).transaction(teamNode => {
+                                    teamNode.name = payload.team.name;;
+                                    if (payload.enterprise_name) {
+                                        teamNode.enterprise = payload.enterprise_name;
+                                    }
+                                    return teamNode;
+                                });
+                            } else {
+                                console.log(payload.error);
+                            }
+                        }
+                    });
                     return;
                 }).catch(err => {
                     if (err) console.log(err);
