@@ -119,7 +119,7 @@ module.exports = {
                             var payload = JSON.parse(body);
                             if (payload.ok) {
                                 database.ref('installations/' + slackResponse.team_id).transaction(teamNode => {
-                                    teamNode.name = payload.team.name;;
+                                    teamNode.name = payload.team.name;
                                     if (payload.enterprise_name) {
                                         teamNode.enterprise = payload.enterprise_name;
                                     }
