@@ -111,7 +111,7 @@ module.exports = {
                     // Increment installation count
                     database.ref('globals').transaction(globalNode => {
                         if(globalNode){
-                            globalNode.installations++;
+                            globalNode.teams++;
                         };
                         return globalNode;
                     });
