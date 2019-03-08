@@ -117,6 +117,7 @@ module.exports = {
                         } else {
 
                             var payload = JSON.parse(body);
+                            console.log(payload)
                             if (payload.ok) {
                                 database.ref('installations/' + slackResponse.team_id).transaction(teamNode => {
                                     teamNode.name = payload.team.name;
