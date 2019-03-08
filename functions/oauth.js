@@ -108,6 +108,13 @@ module.exports = {
                 }).then(ref => {
                     // Success!!!
                     response.redirect('http://xpertzsoftware.com?integration=success');
+                    // Increment installation count
+                    database.ref('globals').transaction(globalNode => {
+                        if(globalNode){
+                            globalNode.teams++;
+                        };
+                        return globalNode;
+                    });
                     // DM the primary owner with an onboarding message.
                     bot.onboardInstallerMsg(slackResponse.user_id, slackResponse.team_id);
                     // Get the workspace name and enterprise name to store.
@@ -117,6 +124,7 @@ module.exports = {
                         } else {
 
                             var payload = JSON.parse(body);
+                            console.log(payload)
                             if (payload.ok) {
                                 database.ref('installations/' + slackResponse.team_id).transaction(teamNode => {
                                     teamNode.name = payload.team.name;
