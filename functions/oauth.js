@@ -112,7 +112,7 @@ module.exports = {
                     database.ref('globals').transaction(globalNode => {
                         if(globalNode){
                             globalNode.teams++;
-                        };
+                        }
                         return globalNode;
                     });
                     // DM the primary owner with an onboarding message.
