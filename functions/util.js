@@ -50,13 +50,13 @@ module.exports = {
      * @param {string} teamID
      */
     retrieveTeamDoc: function (teamID, res) {
-        database.ref('installations/' + teamID).once('value').then(snapshot => {
-            if (!snapshot.val()) {
-                //No team with that id found
-                res(false);
-            } else {
+        database.ref('installations').orderByChild('team').startAt(teamId).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
                 // Existing document with that team id
                 res(true);
+            } else {
+                res(false);
             }
             return;
         }).catch(err => {
@@ -71,13 +71,13 @@ module.exports = {
      * @param {string} teamID
      */
     retrieveAccessToken: function (teamID, res) {
-        database.ref('installations/' + teamID).once('value').then(snapshot => {
-            if (!snapshot.val()) {
-                //No team with that id found
-                res(false);
-            } else {
+        database.ref('installations').orderByChild('team').startAt(teamID).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
                 // Existing document with that team id
-                res(snapshot.val().token);
+                res(Object.values(snapshot.val())[0].token);
+            } else {
+                res(false);
             }
             return;
         }).catch(err => {
@@ -136,8 +136,8 @@ module.exports = {
     },
 
     validateTeamAccess: function (teamID, response, callback) {
-        database.ref('installations/' + teamID).once('value').then(snapshot => {
-            if (!snapshot.val()) {
+        database.ref('installations').orderByChild('team').startAt(teamID).once('value').then(snapshot => {
+            if (!snapshot.val() && Object.values(snapshot.val()).length > 0) {
                 //No team with that id found
                 response.contentType('json').status(OK).send({
                     'response_type': 'ephemeral',
@@ -145,10 +145,11 @@ module.exports = {
                     'text': 'Request has failed. If this keeps happening, please, contact us at xpertz.software@gmail.com'
                 });
             } else {
-                //If tier is trial and date it has been more than 30 days after trial started, than team doesn't have access anymore {}
-                if (snapshot.val().access.tier === 0) {
+                var installation = Object.values(snapshot.val())[0];
+                //If tier is trial and date it has been more than 30 days after trial started, then team doesn't have access anymore {}
+                if (installation.access.tier === 0) {
                     var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                    var diffDays = Math.round(Math.abs((snapshot.val().access.startedTrial - Date.now()) / (oneDay)));
+                    var diffDays = Math.round(Math.abs((installation.access.startedTrial - Date.now()) / (oneDay)));
                     // console.log(diffDays);
                     if (diffDays < TRIAL_DAYS) {
                         callback(true);

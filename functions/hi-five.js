@@ -82,69 +82,95 @@ module.exports = {
      * @param {string} userID
      */
     sendHiFiveMessage: function (res, userName, userID, teamID, enterpriseID) {
-        var ref = 'workspaces/';
+        var id = '';
         if (enterpriseID) {
-            ref += enterpriseID + '/';
+            id = enterpriseID;
+        } else {
+            id = teamID;
         }
-        ref += teamID + '/users/' + userID + '/tags';
+        database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                var workspaceId = Object.keys(snapshot.val())[0];
+                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').startAt(userID).once('value')
+                .then(userSnapshot => {
+                    if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
+                        var userId = Object.keys(userSnapshot.val())[0];
+                        return database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/').once('value')
+                        .then(tagsSnapshot => {
+                            if (tagsSnapshot.val() && Object.values(tagsSnapshot.val()).length > 0) {
+                                var options = {
+                                    options: []
+                                };
+                                // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
+                                Object.values(tagsSnapshot.val()).forEach(childSnapshot => {
+                                    options.options.push({
+                                        'text': childSnapshot.tag,
+                                        'value': childSnapshot.tag + '|' + userName + '|' + userID
+                                    });
+                                });
 
-        database.ref(ref)
-            .once('value').then(snapshot => {
+                                if (options.options.length > 0) {
+                                    return res.contentType('json').status(OK).send({
+                                        'response_type': 'ephemeral',
+                                        'replace_original': true,
+                                        'text': '*Choose one of <@' + userID + ">'s expertise to high-five!* :clap:",
+                                        'attachments': [
+                                            {
+                                                'fallback': 'Select one of their expertise they used to help you out',
+                                                'callback_id': 'h5',
+                                                'text': 'Choose the expertise they used to help',
+                                                'color': '#20BA42',
+                                                'attachment_type': 'default',
+                                                'actions': [
+                                                    {
+                                                        'name': 'h5_tag_menu_button',
+                                                        'text': 'Choose expertise',
+                                                        'type': 'select',
+                                                        'options': options.options,
+                                                    },
+                                                    {
+                                                        'name': 'cancel_h5_button',
+                                                        'text': 'Close',
+                                                        'value': 'cancel',
+                                                        'type': 'button'
+                                                    }
 
-                var options = {
-                    options: []
-                };
-                // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
-                snapshot.forEach(childSnapshot => {
-                    options.options.push({
-                        'text': util.groomKeyFromFirebase(childSnapshot.key),
-                        'value': util.groomKeyFromFirebase(childSnapshot.key) + '|' + userName + '|' + userID
-                    });
-                });
-
-                if (options.options.length > 0) {
-                    return res.contentType('json').status(OK).send({
-                        'response_type': 'ephemeral',
-                        'replace_original': true,
-                        'text': '*Choose one of <@' + userID + ">'s expertise to high-five!* :clap:",
-                        'attachments': [
-                            {
-                                'fallback': 'Select one of their expertise they used to help you out',
-                                'callback_id': 'h5',
-                                'text': 'Choose the expertise they used to help',
-                                'color': '#20BA42',
-                                'attachment_type': 'default',
-                                'actions': [
-                                    {
-                                        'name': 'h5_tag_menu_button',
-                                        'text': 'Choose expertise',
-                                        'type': 'select',
-                                        'options': options.options,
-                                    },
-                                    {
-                                        'name': 'cancel_h5_button',
-                                        'text': 'Close',
-                                        'value': 'cancel',
-                                        'type': 'button'
-                                    }
-
-                                ]
+                                                ]
+                                            }
+                                        ]
+                                    });
+                                } else {
+                                    return res.contentType('json').status(OK).send({
+                                        'response_type': 'ephemeral',
+                                        'replace_original': true,
+                                        'text': '*Looks like <@' + userID + "> doesn't have any expertise to high-five at the moment!*",
+                                    });
+                                }
+                            } else {
+                                throw new Error;
                             }
-                        ]
-                    });
-                } else {
-                    return res.contentType('json').status(OK).send({
-                        'response_type': 'ephemeral',
-                        'replace_original': true,
-                        'text': '*Looks like <@' + userID + "> doesn't have any expertise to high-five at the moment!*",
-                    });
-                }
-            })
-            .catch(err => {
-                if (err) console.log(err);
-                return;
-            });
-
+                        })
+                        .catch(err => {
+                            if (err) console.log(err);
+                            return;
+                        });
+                    } else {
+                        throw new Error;
+                    }
+                })
+                .catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
+            } else {
+                throw new Error;
+            }
+        })
+        .catch(err => {
+            if (err) console.log(err);
+            return;
+        });
     },
 
     sendHiFiveSelectedTagMessage: function (res, selectedOption, teamID, enterpriseID) {
@@ -152,80 +178,108 @@ module.exports = {
         var userName = selectedOption.substring(selectedOption.indexOf('|') + 1, selectedOption.lastIndexOf('|'));
         var selectedTag = selectedOption.substring(0, selectedOption.indexOf('|'));
 
-        var ref = 'workspaces/';
+        var id = '';
         if (enterpriseID) {
-            ref += enterpriseID + '/';
+            id = enterpriseID;
+        } else {
+            id = teamID;
         }
-        ref += teamID + '/users/' + userID + '/tags';
+        database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                var workspaceId = Object.keys(snapshot.val())[0];
+                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').startAt(userID).once('value')
+                .then(userSnapshot => {
+                    if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
+                        var userId = Object.keys(userSnapshot.val())[0];
+                        return database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/').once('value')
+                        .then(tagsSnapshot => {
+                            if (tagsSnapshot.val() && Object.values(tagsSnapshot.val()).length > 0) {
 
-        database.ref(ref)
-            .once('value').then(snapshot => {
+                                var options = {
+                                    options: []
+                                };
+                                // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
+                                Object.values(tagsSnapshot.val()).forEach(childSnapshot => {
+                                    options.options.push({
+                                        'text': childSnapshot.tag,
+                                        'value': childSnapshot.tag + '|' + userName + '|' + userID
+                                    });
+                                });
 
-                var options = {
-                    options: []
-                };
-                // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
-                snapshot.forEach(childSnapshot => {
-                    options.options.push({
-                        'text': util.groomKeyFromFirebase(childSnapshot.key),
-                        'value': util.groomKeyFromFirebase(childSnapshot.key) + '|' + userName + '|' + userID
-                    });
-                });
-
-                return res.contentType('json').status(OK).send({
-                    'response_type': 'ephemeral',
-                    'replace_original': true,
-                    'text': '*Choose one of <@' + userID + ">'s expertise to high-five!* :clap:",
-                    'attachments': [
-                        {
-                            'fallback': 'Select one of their expertise they used to help you out',
-                            'callback_id': 'h5',
-                            'text': 'Choose the expertise they used to help',
-                            'color': '#20BA42',
-                            'attachment_type': 'default',
-                            'actions': [
-                                {
-                                    'name': 'h5_tag_menu_button',
-                                    'text': 'Choose expertise',
-                                    'type': 'select',
-                                    'options': options.options,
-                                    'selected_options': [
+                                return res.contentType('json').status(OK).send({
+                                    'response_type': 'ephemeral',
+                                    'replace_original': true,
+                                    'text': '*Choose one of <@' + userID + ">'s expertise to high-five!* :clap:",
+                                    'attachments': [
                                         {
-                                            'text': util.groomKeyFromFirebase(selectedTag),
-                                            'value': selectedOption
+                                            'fallback': 'Select one of their expertise they used to help you out',
+                                            'callback_id': 'h5',
+                                            'text': 'Choose the expertise they used to help',
+                                            'color': '#20BA42',
+                                            'attachment_type': 'default',
+                                            'actions': [
+                                                {
+                                                    'name': 'h5_tag_menu_button',
+                                                    'text': 'Choose expertise',
+                                                    'type': 'select',
+                                                    'options': options.options,
+                                                    'selected_options': [
+                                                        {
+                                                            'text': selectedTag,
+                                                            'value': selectedOption
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    'name': 'h5_button',
+                                                    'type': 'button',
+                                                    'text': 'High-Five!',
+                                                    'value': selectedOption,
+                                                    'style': 'primary'
+                                                },
+                                                {
+                                                    'name': 'cancel_h5_button',
+                                                    'text': 'Close',
+                                                    'value': 'cancel',
+                                                    'type': 'button'
+                                                }
+
+                                            ]
                                         }
                                     ]
-                                },
-                                {
-                                    'name': 'h5_button',
-                                    'type': 'button',
-                                    'text': 'High-Five!',
-                                    'value': selectedOption,
-                                    'style': 'primary'
-                                },
-                                {
-                                    'name': 'cancel_h5_button',
-                                    'text': 'Close',
-                                    'value': 'cancel',
-                                    'type': 'button'
-                                }
-
-                            ]
-                        }
-                    ]
+                                });
+                            } else {
+                                throw new Error;
+                            }
+                        })
+                        .catch(err => {
+                            if (err) console.log(err);
+                            return;
+                        });
+                    } else {
+                        throw new Error;
+                    }
+                })
+                .catch(err => {
+                    if (err) console.log(err);
+                    return;
                 });
-            })
-            .catch(err => {
-                if (err) console.log(err);
-                return;
-            });
+            } else {
+                throw new Error;
+            }
+        })
+        .catch(err => {
+            if (err) console.log(err);
+            return;
+        });
     },
 
     hiFiveAction: function (payload, res) {
         const teamID = payload.team.id;
         const enterpriseID = payload.team.enterprise_id;
         const userID = payload.user.id;
-        var id = false;
+        var id = '';
         if (enterpriseID) {
             id = enterpriseID;
         } else {
@@ -248,71 +302,146 @@ module.exports = {
                 var colleagueID = optionValue.substring(optionValue.lastIndexOf('|') + 1);
                 var colleagueTag = optionValue.substring(0, optionValue.indexOf('|'));
 
-                var refUsers = 'workspaces/' + id + '/';
-                refUsers += 'users/' + colleagueID + '/tags/' + util.groomKeyToFirebase(colleagueTag);
+                // var refUsers = 'workspaces/' + id + '/';
+                // refUsers += 'users/' + colleagueID + '/tags/' + util.groomKeyToFirebase(colleagueTag);
 
                 // Increment the hi_five count
-                database.ref(refUsers).once('value')
-                    .then(snapshot => {
-                        if (snapshot.val()) {
-                            database.ref(refUsers).transaction(tagNode => {
-                                if (tagNode) {
-                                    tagNode.hi_five_count++;
-                                    // Call async function to send rank up DM if appropriate
-                                    if (util.rankUpCheck(tagNode.hi_five_count)) {
-                                        bot.tagRankUp(colleagueID, util.groomKeyFromFirebase(childSnapshot.key), teamID);
+                database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+                .then(snapshot => {
+                    if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                        var workspaceId = Object.keys(snapshot.val())[0];
+                        return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').startAt(colleagueID).once('value')
+                        .then(userSnapshot => {
+                            if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
+                                var userId = Object.keys(userSnapshot.val())[0];
+                                return database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/').orderByChild('tag').startAt(colleagueTag).once('value')
+                                .then(tagsSnapshot => {
+                                    if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]) {
+                                        var tagObject = Object.values(tagsSnapshot.val())[0];
+                                        var tagId = Object.keys(tagsSnapshot.val())[0];
+                                        database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/'+tagId).transaction(tagNode => {
+                                            if (tagNode) {
+                                                tagNode.hi_five_count++;
+                                                // Call async function to send rank up DM if appropriate
+                                                if (util.rankUpCheck(tagNode.hi_five_count)) {
+                                                    bot.tagRankUp(colleagueID, util.groomKeyFromFirebase(childSnapshot.key), teamID);
+                                                }
+                                            }
+                                            return tagNode;
+                                        });
+                                        
+                                        // Increment global high-five count
+                                        database.ref('globals').transaction(globalNode => {
+                                            if (globalNode) {
+                                                globalNode.h5++;
+                                            }
+
+                                            return globalNode;
+                                        });
+                                        return;
+                                    } else {
+                                        throw new Error;
                                     }
-                                }
-                                return tagNode;
+                                })
+                                .catch(err => {
+                                    if (err) console.log(err)
+                                    res.contentType('json').status(OK).send({
+                                        'response_type': 'ephemeral',
+                                        'replace_original': true,
+                                        'text': 'Oops! Something went wrong on our side :confused: Try again...'
+                                    });
+                                    return;
+                                });
+                            } else {
+                                throw new Error;
+                            }
+                        })
+                        .catch(err => {
+                            if (err) console.log(err)
+                            res.contentType('json').status(OK).send({
+                                'response_type': 'ephemeral',
+                                'replace_original': true,
+                                'text': 'Oops! Something went wrong on our side :confused: Try again...'
                             });
-                            
-                            // Increment global high-five count
-                            database.ref('globals').transaction(globalNode => {
-                                if (globalNode) {
-                                    globalNode.h5++;
-                                }
-
-                                return globalNode;
-                            });
-                        } else {
-                            throw new Error;
-                        }
-                        return;
-                    }).catch(err => {
-                        if (err) console.log(err)
-                        res.contentType('json').status(OK).send({
-                            'response_type': 'ephemeral',
-                            'replace_original': true,
-                            'text': 'Oops! Something went wrong on our side :confused: Try again...'
+                            return;
                         });
-                        return;
+                    } else {
+                        throw new Error;
+                    }
+                })
+                .catch(err => {
+                    if (err) console.log(err)
+                    res.contentType('json').status(OK).send({
+                        'response_type': 'ephemeral',
+                        'replace_original': true,
+                        'text': 'Oops! Something went wrong on our side :confused: Try again...'
                     });
+                    return;
+                });
 
-                var refTags = 'workspaces/' + id + '/';
-                refTags += 'tags/' + util.groomKeyToFirebase(colleagueTag) + '/users/' + colleagueID;
+                // var refTags = 'workspaces/' + id + '/';
+                // refTags += 'tags/' + util.groomKeyToFirebase(colleagueTag) + '/users/' + colleagueID;
 
-                database.ref(refTags).once('value')
-                    .then(snapshot => {
-                        if (snapshot.val()) {
-                            database.ref(refTags).transaction(tagNode => {
-                                if (tagNode) {
-                                    tagNode.hi_five_count++;
-                                }
-                                return tagNode;
+
+                database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+                .then(snapshot => {
+                    if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                        var workspaceId = Object.keys(snapshot.val())[0];
+                        return database.ref('workspaces/'+workspaceId+'/tags/').orderByChild('tag').startAt(colleagueTag).once('value')
+                        .then(tagSnapshot => {
+                            if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
+                                var tagId = Object.keys(tagSnapshot.val())[0];
+                                return database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/').orderByChild('user_id').startAt(colleagueID).once('value')
+                                .then(userSnapshot => {
+                                    if (userSnapshot.val() && Object.values(userSnapshot.val())[0]) {
+                                        var userObject = Object.values(userSnapshot.val())[0];
+                                        var userId = Object.keys(userSnapshot.val())[0];
+                                        database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/'+userId).transaction(userNode => {
+                                            if (userNode) {
+                                                userNode.hi_five_count++;
+                                            }
+                                            return userNode;
+                                        });
+                                        return;
+                                    } else {
+                                        throw new Error;
+                                    }
+                                })
+                                .catch(err => {
+                                    if (err) console.log(err)
+                                    res.contentType('json').status(OK).send({
+                                        'response_type': 'ephemeral',
+                                        'replace_original': true,
+                                        'text': 'Oops! Something went wrong on our side :confused: Try again...'
+                                    });
+                                    return;
+                                });
+                            } else {
+                                throw new Error;
+                            }
+                        })
+                        .catch(err => {
+                            if (err) console.log(err)
+                            res.contentType('json').status(OK).send({
+                                'response_type': 'ephemeral',
+                                'replace_original': true,
+                                'text': 'Oops! Something went wrong on our side :confused: Try again...'
                             });
-                        } else {
-                            throw new Error;
-                        }
-                        return;
-                    }).catch(err => {
-                        if (err) console.log(err)
-                        res.contentType('json').status(OK).send({
-                            'response_type': 'ephemeral',
-                            'replace_original': true,
-                            'text': 'Oops! Something went wrong on our side :confused: Try again...'
+                            return;
                         });
-                        return;
+                    } else {
+                        throw new Error;
+                    }
+                })
+                .catch(err => {
+                    if (err) console.log(err)
+                    res.contentType('json').status(OK).send({
+                        'response_type': 'ephemeral',
+                        'replace_original': true,
+                        'text': 'Oops! Something went wrong on our side :confused: Try again...'
                     });
+                    return;
+                });
 
                 // Confirmation response
                 res.contentType('json').status(OK).send({

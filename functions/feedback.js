@@ -59,19 +59,19 @@ module.exports = {
       const username = payload.user.name;
       const token = payload.token;
       const enterpriseID = payload.team.enterprise_id;
-
-      var ref = 'feedback/';
-      if (enterpriseID) {
-         ref += enterpriseID + '/';
-      }
-      ref += teamID;
-
-      database.ref(ref).push().set({
+      var feedbackDict = {
         'feedback': feedbackText,
         'user_id': userID,
         'username': username,
-        'date': new Date()
-      }).then(ref => {
+        'date': new Date(),
+        "team": teamID
+      };
+      if (enterpriseID) {
+        feedbackDict["enterpriseID"] = enterpriseID;
+      }
+      var ref = 'feedback/';
+
+      database.ref(ref).push(feedbackDict).then(ref => {
         res.status(OK).send();
         util.retrieveAccessToken(teamID, token => {
             if (token) {
