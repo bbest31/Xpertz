@@ -50,7 +50,7 @@ module.exports = {
      * @param {string} teamID
      */
     retrieveTeamDoc: function (teamID, res) {
-        database.ref('installations').orderByChild('team').startAt(teamId).once('value')
+        database.ref('installations').orderByChild('team').equalTo(teamId).once('value')
         .then(snapshot => {
             if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
                 // Existing document with that team id
@@ -71,7 +71,7 @@ module.exports = {
      * @param {string} teamID
      */
     retrieveAccessToken: function (teamID, res) {
-        database.ref('installations').orderByChild('team').startAt(teamID).once('value')
+        database.ref('installations').orderByChild('team').equalTo(teamID).once('value')
         .then(snapshot => {
             if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
                 // Existing document with that team id
@@ -136,7 +136,7 @@ module.exports = {
     },
 
     validateTeamAccess: function (teamID, response, callback) {
-        database.ref('installations').orderByChild('team').startAt(teamID).once('value').then(snapshot => {
+        database.ref('installations').orderByChild('team').equalTo(teamID).once('value').then(snapshot => {
             if (!snapshot.val() && Object.values(snapshot.val()).length > 0) {
                 //No team with that id found
                 response.contentType('json').status(OK).send({

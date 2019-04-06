@@ -35,7 +35,7 @@ module.exports = {
         } else {
             id = teamID;
         }
-        database.ref('tags').orderByChild('team').startAt(id).once('value')
+        database.ref('tags').orderByChild('team').equalTo(id).once('value')
         .then(snapshot => {
             if (snapshot.exists()) {
                 this.tagListResponse(response, id, selectedTag);
@@ -82,11 +82,11 @@ module.exports = {
             });
         } else {
 
-            database.ref('tags').orderByChild('team').startAt(id).once('value')
+            database.ref('tags').orderByChild('team').equalTo(id).once('value')
             .then(snapshot => {
                 if (snapshot.val() && Object.keys(snapshot.val())[0]) {
                     var workspaceId = Object.keys(snapshot.val())[0];
-                    return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').startAt(selectedTag).once('value')
+                    return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').equalTo(selectedTag).once('value')
                     .then(tagSnapshot => {
                         if (tagSnapshot.val() && Object.values(tagSnapshot.val())[0]) {
                             var tagObject = Object.values(tagSnapshot.val())[0];
@@ -213,11 +213,11 @@ module.exports = {
             });
         } else {
 
-            database.ref('tags').orderByChild('team').startAt(id).once('value')
+            database.ref('tags').orderByChild('team').equalTo(id).once('value')
             .then(snapshot => {
                 if (snapshot.val() && Object.keys(snapshot.val())[0]) {
                     var workspaceId = Object.keys(snapshot.val())[0];
-                    return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').startAt(selectedTag).once('value')
+                    return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').equalTo(selectedTag).once('value')
                     .then(tagSnapshot => {
                         if (tagSnapshot.val() && Object.values(tagSnapshot.val())[0]) {
                             var tagObject = Object.values(tagSnapshot.val())[0];
@@ -296,7 +296,37 @@ module.exports = {
                         return;
                     });
                 } else {
-                    throw new Error;
+                    // Couldn't get tag information.
+                    return response.contentType('json').status(OK).send({
+                        'response_type': 'ephemeral',
+                        'replace_original': true,
+                        'text': '*Look up expertise in your workspace* :scroll:',
+                        'attachments': [
+                            {
+                                'fallback': 'Trouble displaying buttons. Delete message to close.',
+                                'callback_id': 'tags_list',
+                                'attachment_type': 'default',
+                                'actions': [
+                                    {
+                                        'name': 'search_tag_menu_button',
+                                        'type': 'select',
+                                        'text': 'Search tag...',
+                                        'data_source': 'external'
+                                    },
+                                    {
+                                        'name': 'tags_list_done_button',
+                                        'text': 'Done',
+                                        'value': 'cancel',
+                                        'type': 'button'
+                                    }
+                                ]
+                            },
+                            {
+                                'title': 'Trouble getting tag information!',
+                                'color': '#FF0000'
+                            }
+                        ]
+                    });
                 }
             }).catch(err => {
                 if (err) console.log(err);
@@ -313,7 +343,7 @@ module.exports = {
             id = teamID;
         }
 
-        database.ref('tags').orderByChild('team').startAt(id).once('value')
+        database.ref('tags').orderByChild('team').equalTo(id).once('value')
             .then(snapshot => {
                 if (snapshot.val() && Object.keys(snapshot.val())[0]) {
                     var workspaceId = Object.keys(snapshot.val())[0];
@@ -336,7 +366,9 @@ module.exports = {
 
                             return res.contentType('json').status(OK).send(options);
                         } else {
-                            throw new Error;
+                            return res.contentType('json').status(OK).send({
+                                options: []
+                            });
                         }
                     })
                     .catch(err => {
@@ -344,7 +376,9 @@ module.exports = {
                         res.contentType('json').status(404).send('Error');
                     });
                 } else {
-                    throw new Error;
+                    return res.contentType('json').status(OK).send({
+                        options: []
+                    });
                 }
             })
             .catch(err => {
@@ -361,11 +395,11 @@ module.exports = {
             id = teamID;
         }
 
-        database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+        database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
         .then(snapshot => {
             if (snapshot.val() && Object.keys(snapshot.val())[0]) {
                 var workspaceId = Object.keys(snapshot.val())[0];
-                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').startAt(userID).once('value')
+                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
                 .then(userSnapshot => {
                     if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
                         var userId = Object.keys(userSnapshot.val())[0];
@@ -378,8 +412,8 @@ module.exports = {
                                 // Loop through tag child nodes and add each node key as text and value as the lower case of the key for option items in the response.
                                 Object.values(tagSnapshot.val()).forEach(childSnapshot => {
                                     options.options.push({
-                                        'text': childSnapshot.tag_title,
-                                        'value': childSnapshot.tag_title
+                                        'text': childSnapshot.tag,
+                                        'value': childSnapshot.tag
                                     })
                                 });
 
@@ -393,7 +427,9 @@ module.exports = {
                             return;
                         });
                     } else {
-                        throw new Error;
+                        return res.contentType('json').status(OK).send({
+                            options: []
+                        });
                     }
                 })
                 .catch(err => {
@@ -401,7 +437,9 @@ module.exports = {
                     return;
                 });
             } else {
-                throw new Error;
+                return res.contentType('json').status(OK).send({
+                    options: []
+                });
             }
         })
         .catch(err => {

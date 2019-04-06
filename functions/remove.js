@@ -112,54 +112,115 @@ module.exports = {
             //Remove the tag node from the user and decrement workplace count of that tag.
             var tagToRemoveConfirm = payload.actions[0]['value'];
 
-            var refUser = 'workspaces/';
-            var refTag = 'tags/';
+            var id = '';
             if (enterpriseID) {
-               refUser += enterpriseID + '/';
-               refTag += enterpriseID + '/';
+              id = enterpriseID;
             } else {
-              refUser += teamID + '/';
-              refTag += teamID + '/';
+              id = teamID;
             }
-            refUser += 'users/' + userID + '/tags/' + util.groomKeyToFirebase(tagToRemoveConfirm);
-            refTag += util.groomKeyToFirebase(tagToRemoveConfirm);
+            database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
+            .then(snapshot => {
+                if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                    var workspaceId = Object.keys(snapshot.val())[0];
+                    return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
+                    .then(userSnapshot => {
+                        if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
+                          var userId = Object.keys(userSnapshot.val())[0];
+                          return database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/').orderByChild('tag').equalTo(tagToRemoveConfirm).once('value')
+                          .then(tagsSnapshot => {
+                              if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]){
+                                  return database.ref('tags').orderByChild('team').equalTo(id).once('value')
+                                  .then(teamSnapshot => {
+                                      if (teamSnapshot.val() && Object.keys(teamSnapshot.val())[0]) {
+                                          var workspaceId = Object.keys(teamSnapshot.val())[0];
+                                          return database.ref('tags/'+workspaceId+'/tags').orderByChild('tag_title').equalTo(tagToRemoveConfirm).once('value')
+                                          .then(tagSnapshot => {
+                                              if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
+                                                  var tagIdInUsers = Object.values(tagsSnapshot.val())[0];
+                                                  var tagIdInTags = Object.keys(tagSnapshot.val())[0];
+                                                  database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/'+tagIdInUsers).remove();
+                                                  database.ref('tags/'+workspaceId+'/tags'+tagIdInTags).transaction(tagValue => {
+                                                      if (tagValue) {
+                                                          if (tagValue.count > 0) {
+                                                              tagValue.count--;
+                                                          } else {
+                                                              tagValue.count = 0;
+                                                          }
+                                                      } else {
+                                                          tagValue = {
+                                                              'tag_title': tagToRemoveConfirm,
+                                                              'tag_code': tagToRemoveConfirm.toLowerCase(),
+                                                              'count': 0
+                                                          };
+                                                      }
+                                                      return tagValue;
+                                                  });
+                                              } else {
+                                                  throw new Error;
+                                              }
+                                          })
+                                          .catch(err => {
+                                              if (err) console.log(err);
+                                              return;
+                                          });
+                                      } else {
+                                          throw new Error;
+                                      }
+                                  })
+                                  .catch(err => {
+                                      if (err) console.log(err);
+                                      return;
+                                  });
+                              } else {
+                                  throw new Error;
+                              }
+                          })
+                          .catch(err => {
+                            if (err) console.log(err);
+                            return;
+                          });
+                        } else {
+                            throw new Error;
+                        }
+                    })
+                    .catch(err => {
+                        if (err) console.log(err);
+                        return;
+                    });
+                } else {
+                    throw new Error;
+                }
+            })
+            .catch(err => {
+                if (err) console.log(err);
+                return;
+            });
 
-            database.ref(refUser).once('value')
-                .then(snapshot => {
-                    if (snapshot.val()) {
-                        database.ref(refUser).remove();
-                        database.ref(refTag).transaction(tagValue => {
-                            if (tagValue) {
-                                if (tagValue.count > 0) {
-                                    tagValue.count--;
-                                } else {
-                                    tagValue.count = 0;
-                                }
-                            } else {
-                                tagValue = {
-                                    'tag_title': tagToRemoveConfirm,
-                                    'tag_code': tagToRemoveConfirm.toLowerCase(),
-                                    'count': 0
-                                };
-                            }
-                            return tagValue;
-                        });
-                    }
-                    return;
-                })
-                .catch(err => {
-                    if (err) console.log(err);
-                    return;
-                });
-
-            var refWorkspaceTag = 'workspaces/';
-            if (enterpriseID) {
-               refWorkspaceTag += enterpriseID + '/';
-            } else {
-              refWorkspaceTag += teamID + '/';
-            }
-            refWorkspaceTag += 'tags/' + util.groomKeyToFirebase(tagToRemoveConfirm) + '/users/' + userID;
-            database.ref(refWorkspaceTag).remove();
+            database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
+            .then(snapshot => {
+                if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                    var workspaceId = Object.keys(snapshot.val())[0];
+                    return database.ref('workspaces/'+workspaceId+'/tags/').orderByChild('tag').equalTo(tagToRemoveConfirm).once('value')
+                    .then(tagSnapshot => {
+                        if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
+                            var tagId = Object.keys(tagSnapshot.val())[0];
+                            return database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/').orderByChild('user_id').equalTo(userID).remove();
+                        } else {
+                            throw new Error;
+                        }
+                    })
+                    .catch(err => {
+                        if (err) console.log(err);
+                        return;
+                    });
+                } else {
+                    throw new Error;
+                }
+            })
+            .catch(err => {
+                if (err) console.log(err);
+                return;
+            });
 
             res.contentType('json').status(OK).send({
                 'response_type': 'ephemeral',

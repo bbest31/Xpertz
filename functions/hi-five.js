@@ -88,11 +88,11 @@ module.exports = {
         } else {
             id = teamID;
         }
-        database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+        database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
         .then(snapshot => {
             if (snapshot.val() && Object.keys(snapshot.val())[0]) {
                 var workspaceId = Object.keys(snapshot.val())[0];
-                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').startAt(userID).once('value')
+                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
                 .then(userSnapshot => {
                     if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
                         var userId = Object.keys(userSnapshot.val())[0];
@@ -148,7 +148,11 @@ module.exports = {
                                     });
                                 }
                             } else {
-                                throw new Error;
+                                return res.contentType('json').status(OK).send({
+                                    'response_type': 'ephemeral',
+                                    'replace_original': true,
+                                    'text': '*Looks like <@' + userID + "> doesn't have any expertise to high-five at the moment!*",
+                                });
                             }
                         })
                         .catch(err => {
@@ -156,7 +160,11 @@ module.exports = {
                             return;
                         });
                     } else {
-                        throw new Error;
+                        return res.contentType('json').status(OK).send({
+                            'response_type': 'ephemeral',
+                            'replace_original': true,
+                            'text': '*Looks like <@' + userID + "> doesn't have any expertise to high-five at the moment!*",
+                        });
                     }
                 })
                 .catch(err => {
@@ -164,7 +172,11 @@ module.exports = {
                     return;
                 });
             } else {
-                throw new Error;
+               return res.contentType('json').status(OK).send({
+                    'response_type': 'ephemeral',
+                    'replace_original': true,
+                    'text': '*Looks like <@' + userID + "> doesn't have any expertise to high-five at the moment!*",
+                });
             }
         })
         .catch(err => {
@@ -184,11 +196,11 @@ module.exports = {
         } else {
             id = teamID;
         }
-        database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+        database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
         .then(snapshot => {
             if (snapshot.val() && Object.keys(snapshot.val())[0]) {
                 var workspaceId = Object.keys(snapshot.val())[0];
-                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').startAt(userID).once('value')
+                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
                 .then(userSnapshot => {
                     if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
                         var userId = Object.keys(userSnapshot.val())[0];
@@ -306,15 +318,15 @@ module.exports = {
                 // refUsers += 'users/' + colleagueID + '/tags/' + util.groomKeyToFirebase(colleagueTag);
 
                 // Increment the hi_five count
-                database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+                database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
                 .then(snapshot => {
                     if (snapshot.val() && Object.keys(snapshot.val())[0]) {
                         var workspaceId = Object.keys(snapshot.val())[0];
-                        return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').startAt(colleagueID).once('value')
+                        return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').equalTo(colleagueID).once('value')
                         .then(userSnapshot => {
                             if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
                                 var userId = Object.keys(userSnapshot.val())[0];
-                                return database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/').orderByChild('tag').startAt(colleagueTag).once('value')
+                                return database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/').orderByChild('tag').equalTo(colleagueTag).once('value')
                                 .then(tagsSnapshot => {
                                     if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]) {
                                         var tagObject = Object.values(tagsSnapshot.val())[0];
@@ -383,15 +395,15 @@ module.exports = {
                 // refTags += 'tags/' + util.groomKeyToFirebase(colleagueTag) + '/users/' + colleagueID;
 
 
-                database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+                database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
                 .then(snapshot => {
                     if (snapshot.val() && Object.keys(snapshot.val())[0]) {
                         var workspaceId = Object.keys(snapshot.val())[0];
-                        return database.ref('workspaces/'+workspaceId+'/tags/').orderByChild('tag').startAt(colleagueTag).once('value')
+                        return database.ref('workspaces/'+workspaceId+'/tags/').orderByChild('tag').equalTo(colleagueTag).once('value')
                         .then(tagSnapshot => {
                             if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
                                 var tagId = Object.keys(tagSnapshot.val())[0];
-                                return database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/').orderByChild('user_id').startAt(colleagueID).once('value')
+                                return database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/').orderByChild('user_id').equalTo(colleagueID).once('value')
                                 .then(userSnapshot => {
                                     if (userSnapshot.val() && Object.values(userSnapshot.val())[0]) {
                                         var userObject = Object.values(userSnapshot.val())[0];

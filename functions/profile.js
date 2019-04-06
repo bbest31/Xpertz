@@ -54,11 +54,11 @@ module.exports = {
             id = teamID;
         }
 
-        database.ref('workspaces').orderByChild('team').startAt(id).once('value')
+        database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
         .then(snapshot => {
             if (snapshot.val() && Object.keys(snapshot.val())[0]) {
                 var workspaceId = Object.keys(snapshot.val())[0];
-                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').startAt(userID).once('value')
+                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
                 .then(userSnapshot => {
                     if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
                         var userId = Object.keys(userSnapshot.val())[0];

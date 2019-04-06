@@ -66,6 +66,7 @@ module.exports = {
         //Execute request to Slack API
         rp(options)
             .then(slackResponse => {
+                console.log(JSON.stringify(slackResponse));
                 //Check the response value
                 if (!slackResponse.ok) {
                     console.error("The request was not ok: " + JSON.stringify(slackResponse));
@@ -90,20 +91,22 @@ module.exports = {
     },
 
     saveWorkspaceAsANewInstallation: function (slackResponse, response) {
-        // console.log("slackResponse: " + JSON.stringify(slackResponse));
 
-        database.ref('installations/' + slackResponse.team_id).once('value').then(snapshot => {
-            if (!snapshot.val()) {
-                // Add the entry to the database
-                database.ref('installations/' + slackResponse.team_id).set({
-                    token: slackResponse.access_token,
-                    bot_token: slackResponse.bot.bot_access_token,
-                    team: slackResponse.team_id,
-                    name: 'unknown',
-                    enterprise: 'none',
-                    access: {
-                        startedTrial: Date.now(),
-                        tier: 0
+        database.ref('installations').orderByChild('team').equalTo(slackResponse.team_id).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
+                console.log("Existing team!");
+                response.redirect('http://xpertzsoftware.com?integration=alreadyinstalled');
+            } else {
+                database.ref('installations/').push({
+                    'token': slackResponse.access_token,
+                    'bot_token': slackResponse.bot.bot_access_token,
+                    'team': slackResponse.team_id,
+                    'name': 'unknown',
+                    'enterprise': 'none',
+                    'access': {
+                        'startedTrial': Date.now(),
+                        'tier': 0
                     }
                 }).then(ref => {
                     // Success!!!
@@ -126,7 +129,7 @@ module.exports = {
                             var payload = JSON.parse(body);
                             console.log(payload)
                             if (payload.ok) {
-                                database.ref('installations/' + slackResponse.team_id).transaction(teamNode => {
+                                database.ref('installations').orderByChild('team').equalTo(slackResponse.team_id).transaction(teamNode => {
                                     teamNode.name = payload.team.name;
                                     if (payload.enterprise_name) {
                                         teamNode.enterprise = payload.enterprise_name;
@@ -147,19 +150,9 @@ module.exports = {
                     response.redirect('http://xpertzsoftware.com?integration=failure');
                     return;
                 });
-
-
-
-            } else {
-                console.log("Existing team!");
-                response.redirect('http://xpertzsoftware.com?integration=alreadyinstalled');
-
-                // response.contentType('json').status(UNAUTHORIZED).send({
-                //     "Failure": "This team is already connected to Xpertz"
-                // });
             }
-            return;
-        }).catch(err => {
+        })
+        .catch(err => {
             if (err) console.log(err);
             response.redirect('http://xpertzsoftware.com?integration=failure');
             // response.contentType('json').status(UNAUTHORIZED).send({
