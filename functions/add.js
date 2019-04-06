@@ -66,40 +66,111 @@ module.exports = {
      */
     checkAndFireAddCommandIsAvailable: function (teamID, userID, enterpriseID, req, res) {
 
-        var ref = 'workspaces/';
+        var ref = 'workspaces';
         var id = '';
         if (enterpriseID) {
-            id = enterpriseID
+            id = enterpriseID;
         } else {
             id = teamID;
         }
-        ref += id + '/users/' + userID + '/tags';
 
-        database.ref(ref).once('value')
-            .then(snapshot => {
-                if (!snapshot.val() || (snapshot.val() && Object.keys(snapshot.val()).length < MAX_TAGS)) {
-                    let text = null;
-                    if (req.body.text) {
-                        text = req.body.text;
+        database.ref(ref).orderByChild('team').equalTo(id).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                var workspaceId = Object.keys(snapshot.val())[0];
+                return database.ref(ref+'/'+workspaceId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
+                .then(userSnapshot => {
+                    if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
+                        var userId = Object.keys(userSnapshot.val())[0];
+                        return database.ref(ref+'/'+workspaceId+'/users/'+userId+'/tags/').once('value')
+                        .then(tagsSnapshot => {
+                            if (tagsSnapshot.val() && Object.values(tagsSnapshot.val()).length > 0) {
+                                if (Object.values(tagsSnapshot.val()).length >= MAX_TAGS) {
+                                    res.contentType('json').status(OK).send({
+                                        'response_type': 'ephemeral',
+                                        'replace_original': true,
+                                        'text': '*Max number of expertise tags already reached!*'
+                                    });
+                                } else {
+                                    let text = null;
+                                    if (req.body.text) {
+                                        text = req.body.text;
+                                    }
+                                    this.sendAddOrCreateTagMessage(text, id, res);
+                                }
+                            } else {
+                                response.contentType('json').status(OK).send({
+                                    'response_type': 'ephemeral',
+                                    'replace_original': true,
+                                    'text': 'Request has failed. If this keeps happening, please, contact us at xpertz.software@gmail.com'
+                                });
+                            }
+                            return;
+                        })
+                        .catch(err => {
+                            if (err) {
+                                console.log(err);
+                                response.contentType('json').status(OK).send({
+                                    'response_type': 'ephemeral',
+                                    'replace_original': true,
+                                    'text': 'Request has failed. If this keeps happening, please, contact us at xpertz.software@gmail.com'
+                                });
+                            } else {
+                                let text = null;
+                                if (req.body.text) {
+                                    text = req.body.text;
+                                }
+                                this.sendAddOrCreateTagMessage(text, id, res);
+                            }
+                        });
+                    } else {
+                        let text = null;
+                        if (req.body.text) {
+                            text = req.body.text;
+                        }
+                        this.sendAddOrCreateTagMessage(text, id, res);
                     }
-                    this.sendAddOrCreateTagMessage(text, id, res);
-                } else {
-                    res.contentType('json').status(OK).send({
-                        'response_type': 'ephemeral',
-                        'replace_original': true,
-                        'text': '*Max number of expertise tags already reached!*'
-                    });
-                }
-                return;
-            })
-            .catch(err => {
-                if (err) console.log(err);
+                })
+                .catch(err => {
+                    if (err) {
+                        console.log(err);
+                        response.contentType('json').status(OK).send({
+                            'response_type': 'ephemeral',
+                            'replace_original': true,
+                            'text': 'Request has failed. If this keeps happening, please, contact us at xpertz.software@gmail.com'
+                        });
+                    } else {
+                        let text = null;
+                        if (req.body.text) {
+                            text = req.body.text;
+                        }
+                        this.sendAddOrCreateTagMessage(text, id, res);
+                    }
+                });
+            } else {
                 let text = null;
                 if (req.body.text) {
                     text = req.body.text;
                 }
                 this.sendAddOrCreateTagMessage(text, id, res);
-            });
+            }
+        })
+        .catch(err => {
+            if (err) {
+                console.log(err);
+                response.contentType('json').status(OK).send({
+                    'response_type': 'ephemeral',
+                    'replace_original': true,
+                    'text': 'Request has failed. If this keeps happening, please, contact us at xpertz.software@gmail.com'
+                });
+            } else {
+                let text = null;
+                if (req.body.text) {
+                    text = req.body.text;
+                }
+                this.sendAddOrCreateTagMessage(text, id, res);
+            }
+        });
     },
 
     /**
@@ -108,102 +179,113 @@ module.exports = {
      */
     sendAddOrCreateTagMessage: function (text, teamID, res) {
         if (text !== null) {
-            var ref = 'tags/' + teamID + '/';
-            database.ref(ref).orderByChild('tag_code').once('value').then(snapshot => {
-
-                if (snapshot.hasChild(util.groomKeyToFirebase(text))) {
-                    res.contentType('json').status(OK).send({
-                        'response_type': 'ephemeral',
-                        'replace_original': true,
-                        'text': '*Add an expertise tag* :brain:',
-                        'attachments': [
-                            {
-                                'fallback': 'Interactive menu to add a workspace tag or create a new one',
-                                'callback_id': 'add_tag',
-                                'text': 'Select a tag to add or create a new one! *(max. ' + MAX_TAGS + ')*',
-                                'color': '#3AA3E3',
-                                'attachment_type': 'default',
-                                'actions': [
+            var ref = 'tags';
+            database.ref(ref).orderByChild('team').equalTo(teamID).once('value')
+            .then(workspaceSnapshot => {
+                if (workspaceSnapshot.val() && Object.keys(workspaceSnapshot.val())[0]) {
+                    var workspaceId = Object.keys(workspaceSnapshot.val())[0];
+                    return database.ref(ref+'/'+workspaceId+'/tags/').orderByChild('tag_code').once('value')
+                    .then(snapshot => {
+                        if (snapshot.hasChild(util.groomKeyToFirebase(text))) {
+                            res.contentType('json').status(OK).send({
+                                'response_type': 'ephemeral',
+                                'replace_original': true,
+                                'text': '*Add an expertise tag* :brain:',
+                                'attachments': [
                                     {
-                                        'name': 'team_tags_menu_button',
-                                        'text': 'Pick a tag...',
-                                        'type': 'select',
-                                        'data_source': 'external',
-                                        'min_query_length': 1,
-                                        'selected_options': [
+                                        'fallback': 'Interactive menu to add a workspace tag or create a new one',
+                                        'callback_id': 'add_tag',
+                                        'text': 'Select a tag to add or create a new one! *(max. ' + MAX_TAGS + ')*',
+                                        'color': '#3AA3E3',
+                                        'attachment_type': 'default',
+                                        'actions': [
                                             {
-                                                'text': text,
-                                                'value': text
+                                                'name': 'team_tags_menu_button',
+                                                'text': 'Pick a tag...',
+                                                'type': 'select',
+                                                'data_source': 'external',
+                                                'min_query_length': 1,
+                                                'selected_options': [
+                                                    {
+                                                        'text': text,
+                                                        'value': text
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                'name': 'add_tag_confirm_button',
+                                                'text': 'Add',
+                                                'type': 'button',
+                                                'value': text,
+                                                'style': 'primary'
+                                            },
+                                            {
+                                                'name': 'create_tag_button',
+                                                'text': 'Create New',
+                                                'type': 'button',
+                                                'value': 'create'
+                                            },
+                                            {
+                                                'name': 'cancel_add_button',
+                                                'text': 'Cancel',
+                                                'type': 'button',
+                                                'value': 'cancel'
                                             }
                                         ]
-                                    },
-                                    {
-                                        'name': 'add_tag_confirm_button',
-                                        'text': 'Add',
-                                        'type': 'button',
-                                        'value': text,
-                                        'style': 'primary'
-                                    },
-                                    {
-                                        'name': 'create_tag_button',
-                                        'text': 'Create New',
-                                        'type': 'button',
-                                        'value': 'create'
-                                    },
-                                    {
-                                        'name': 'cancel_add_button',
-                                        'text': 'Cancel',
-                                        'type': 'button',
-                                        'value': 'cancel'
                                     }
                                 ]
-                            }
-                        ]
-                    });
-                } else {
-                    res.contentType('json').status(OK).send({
-                        'response_type': 'ephemeral',
-                        'replace_original': true,
-                        'text': '*Add an expertise tag* :brain:',
-                        'attachments': [
-                            {
-                                'fallback': 'Interactive menu to add a workspace tag or create a new one',
-                                'callback_id': 'add_tag',
-                                'text': 'Select a tag to add or create a new one! *(max. ' + MAX_TAGS + ')* \n *That expertise tag does not currently exist!*',
-                                'color': '#3AA3E3',
-                                'attachment_type': 'default',
-                                'actions': [
+                            });
+                        } else {
+                            res.contentType('json').status(OK).send({
+                                'response_type': 'ephemeral',
+                                'replace_original': true,
+                                'text': '*Add an expertise tag* :brain:',
+                                'attachments': [
                                     {
-                                        'name': 'team_tags_menu_button',
-                                        'text': 'Pick a tag...',
-                                        'type': 'select',
-                                        'data_source': 'external',
-                                        'min_query_length': 1,
-                                        'selected_options': [
+                                        'fallback': 'Interactive menu to add a workspace tag or create a new one',
+                                        'callback_id': 'add_tag',
+                                        'text': 'Select a tag to add or create a new one! *(max. ' + MAX_TAGS + ')* \n *That expertise tag does not currently exist!*',
+                                        'color': '#3AA3E3',
+                                        'attachment_type': 'default',
+                                        'actions': [
                                             {
-                                                'text': text,
-                                                'value': text
+                                                'name': 'team_tags_menu_button',
+                                                'text': 'Pick a tag...',
+                                                'type': 'select',
+                                                'data_source': 'external',
+                                                'min_query_length': 1,
+                                                'selected_options': [
+                                                    {
+                                                        'text': text,
+                                                        'value': text
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                'name': 'create_tag_button',
+                                                'text': 'Create New',
+                                                'type': 'button',
+                                                'value': 'create'
+                                            },
+                                            {
+                                                'name': 'cancel_add_button',
+                                                'text': 'Cancel',
+                                                'type': 'button',
+                                                'value': 'cancel'
                                             }
                                         ]
-                                    },
-                                    {
-                                        'name': 'create_tag_button',
-                                        'text': 'Create New',
-                                        'type': 'button',
-                                        'value': 'create'
-                                    },
-                                    {
-                                        'name': 'cancel_add_button',
-                                        'text': 'Cancel',
-                                        'type': 'button',
-                                        'value': 'cancel'
                                     }
                                 ]
-                            }
-                        ]
+                            });
+                        }
+                        return;
+                    })
+                    .catch(err => {
+                        console.log(err);
                     });
+                }  else {
+                    throw new Error;
                 }
-                return;
             }).catch(err => {
                 console.log(err);
                 res.contentType('json').status(OK).send({
