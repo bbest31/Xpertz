@@ -124,22 +124,28 @@ module.exports = {
                     var workspaceId = Object.keys(snapshot.val())[0];
                     return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
                     .then(userSnapshot => {
+                      console.log('AA0');
                         if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
                           var userId = Object.keys(userSnapshot.val())[0];
                           return database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/').orderByChild('tag').equalTo(tagToRemoveConfirm).once('value')
                           .then(tagsSnapshot => {
-                              if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]){
+                            console.log('AA1');
+                              if (tagsSnapshot.val() && Object.keys(tagsSnapshot.val())[0]){
                                   return database.ref('tags').orderByChild('team').equalTo(id).once('value')
                                   .then(teamSnapshot => {
+                                    console.log('AA2');
                                       if (teamSnapshot.val() && Object.keys(teamSnapshot.val())[0]) {
-                                          var workspaceId = Object.keys(teamSnapshot.val())[0];
-                                          return database.ref('tags/'+workspaceId+'/tags').orderByChild('tag_title').equalTo(tagToRemoveConfirm).once('value')
+                                          var workspaceIdInTags = Object.keys(teamSnapshot.val())[0];
+                                          return database.ref('tags/'+workspaceIdInTags+'/tags').orderByChild('tag_title').equalTo(tagToRemoveConfirm).once('value')
                                           .then(tagSnapshot => {
+                                            console.log('AA3');
                                               if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
-                                                  var tagIdInUsers = Object.values(tagsSnapshot.val())[0];
+                                                console.log('AA4');
+                                                  var tagIdInUsers = Object.keys(tagsSnapshot.val())[0];
                                                   var tagIdInTags = Object.keys(tagSnapshot.val())[0];
                                                   database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/'+tagIdInUsers).remove();
-                                                  database.ref('tags/'+workspaceId+'/tags'+tagIdInTags).transaction(tagValue => {
+                                                  database.ref('tags/'+workspaceIdInTags+'/tags/'+tagIdInTags).transaction(tagValue => {
+                                                    console.log('AA5');
                                                       if (tagValue) {
                                                           if (tagValue.count > 0) {
                                                               tagValue.count--;
@@ -204,7 +210,18 @@ module.exports = {
                     .then(tagSnapshot => {
                         if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
                             var tagId = Object.keys(tagSnapshot.val())[0];
-                            return database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/').orderByChild('user_id').equalTo(userID).remove();
+                            return database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
+                            .then(userSnapshot => {
+                                if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
+                                    var userId = Object.keys(userSnapshot.val())[0];
+                                    return database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/'+userId).remove();
+                                }
+                                return;
+                            })
+                            .catch(err => {
+                                if (err) console.log(err);
+                                return;
+                            });
                         } else {
                             throw new Error;
                         }

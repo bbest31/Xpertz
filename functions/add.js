@@ -540,20 +540,21 @@ module.exports = {
                 });
             } else {
                 tag_title = preset_tag;
-                description = presets.getGeneralJSON()[util.groomKeyToFirebase(tag_title)].description;
+                // description = presets.getGeneralJSON()[util.groomKeyToFirebase(tag_title)].description;
+                description = presets.getGeneralJSON()[tag_title].description;
                 tag_code = tag_title.toLowerCase();
-                ref = 'tags/' + id + '/';
-                ref += util.groomKeyToFirebase(tag_title);
-                this.createNewTagFromDialog(tag_title, description, tag_code, ref, payload, id, res);
+                // ref = 'tags/' + id + '/';
+                // ref += util.groomKeyToFirebase(tag_title);
+                this.createNewTagFromDialog(tag_title, description, tag_code, payload, id, res);
 
             }
 
         } else if (tag_title && description) {
 
             tag_code = tag_title.toLowerCase();
-            ref = 'tags/' + id + '/';
-            ref += util.groomKeyToFirebase(tag_title);
-            this.createNewTagFromDialog(tag_title, description, tag_code, ref, payload, id, res);
+            // ref = 'tags/' + id + '/';
+            // ref += util.groomKeyToFirebase(tag_title);
+            this.createNewTagFromDialog(tag_title, description, tag_code, payload, id, res);
 
         } else {
             //Error responses
@@ -784,95 +785,486 @@ module.exports = {
     addTagConfirm: function (teamID, userID, enterpriseID, username, payload, res) {
         var tagToAddConfirm = payload.actions[0]['value'];
 
-        var refUser = 'workspaces/';
-        var refTags = 'tags/';
-        var id = undefined;
+        // var refUser = 'workspaces/';
+        // var refTags = 'tags/';
+        var id = '';
         if (enterpriseID) {
-            refUser += enterpriseID + '/';
-            refTags += enterpriseID + '/';
+            // refUser += enterpriseID + '/';
+            // refTags += enterpriseID + '/';
             id = enterpriseID;
         } else {
-            refUser += teamID + '/';
-            refTags += teamID + '/';
+            // refUser += teamID + '/';
+            // refTags += teamID + '/';
             id = teamID;
         }
-        refUser += 'users/' + userID;
-        var refUsersTag = refUser + '/tags/' + util.groomKeyToFirebase(tagToAddConfirm);
-        refTags += util.groomKeyToFirebase(tagToAddConfirm);
 
-        // Set the user as active
-        database.ref(refUser).child('active').set(true);
         // Add this team to the user email index and create an index for them if necessary.
         this.updateEmailIndex(id, userID);
 
-        database.ref(refUsersTag).once('value')
-            .then(snapshot => {
-                if (!snapshot.val()) {
-                    //adds the tag to the user in the workspace index
-                    database.ref(refUsersTag).set({
-                        'tag': tagToAddConfirm,
-                        'hi_five_count': 0
-                    }).then(snap => {
-                        database.ref(refTags).transaction(tagValue => {
-                            if (tagValue) {
-                                //increment user count for that tag
-                                tagValue.count++;
+        // refUser += 'users/' + userID;
+        // var refUsersTag = refUser + '/tags/' + util.groomKeyToFirebase(tagToAddConfirm);
+        // refTags += util.groomKeyToFirebase(tagToAddConfirm);
+
+        // Set the user as active
+        database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                var workspaceId = Object.keys(snapshot.val())[0];
+                return database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
+                .then(userSnapshot => {
+                    if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
+                        var userId = Object.keys(userSnapshot.val())[0];
+                        return database.ref('workspaces/'+workspaceId+'/users/'+userId).child('active').set(true);
+                    } else {
+                        return;
+                    }
+                })
+                .catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
+            } else {
+                return;
+            }
+        })
+        .catch(err => {
+            if (err) console.log(err);
+            return;
+        });
+
+
+        database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                var workspaceId = Object.keys(snapshot.val())[0];
+                database.ref('workspaces/'+workspaceId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
+                .then(userSnapshot => {
+                    if (userSnapshot.val() && Object.keys(userSnapshot.val())[0]) {
+                        var userId = Object.keys(userSnapshot.val())[0];
+                        return database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/').orderByChild('tag').equalTo(tagToAddConfirm).once('value')
+                        .then(tagsSnapshot => {
+                            if (!tagsSnapshot.val()) {
+                                //adds the tag to the user in the workspace index
+                                return database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/').push({
+                                    'tag': tagToAddConfirm,
+                                    'hi_five_count': 0
+                                }).then(snap => {
+                                    return database.ref('tags').orderByChild('team').equalTo(id).once('value')
+                                    .then(snapshot => {
+                                        if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                                            var workspaceId = Object.keys(snapshot.val())[0];
+                                            return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').equalTo(tagToAddConfirm).once('value')
+                                            .then(tagsSnapshot => {
+                                                if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]) {
+                                                    var tagId = Object.keys(tagsSnapshot.val())[0];
+                                                    return database.ref('tags/'+workspaceId+'/tags/'+tagId)
+                                                    .transaction(tagValue => {
+                                                        if (tagValue) {
+                                                            //increment user count for that tag
+                                                            tagValue.count++;
+                                                        } else {
+                                                            // Just in case this tag no longer exists we initialize it.
+                                                            // This should never happen however.
+                                                            tagValue = {
+                                                                'tag_title': tagToAddConfirm,
+                                                                'tag_code': tagToAddConfirm.toLowerCase(),
+                                                                'count': 1
+                                                            };
+                                                        }
+                                                        return tagValue;
+                                                    });
+                                                } else {
+                                                    // Just in case this tag no longer exists we initialize it.
+                                                    // This should never happen however.
+                                                    return database.ref('tags/'+workspaceId+'/tags/').push({
+                                                        'tag_title': tagToAddConfirm,
+                                                        'tag_code': tagToAddConfirm.toLowerCase(),
+                                                        'count': 1
+                                                    });
+                                                }
+                                            }).catch(err => {
+                                                if (err) console.log(err);
+                                                return;
+                                            });
+                                        } else {
+                                            return database.ref('tags').push({
+                                                'team': id
+                                            }).then(snap => {
+                                                return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').equalTo(tagToAddConfirm).once('value')
+                                                .then(tagsSnapshot => {
+                                                    if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]) {
+                                                        var tagId = Object.keys(tagsSnapshot.val())[0];
+                                                        return database.ref('tags/'+workspaceId+'/tags/'+tagId)
+                                                        .transaction(tagValue => {
+                                                            if (tagValue) {
+                                                                //increment user count for that tag
+                                                                tagValue.count++;
+                                                            } else {
+                                                                // Just in case this tag no longer exists we initialize it.
+                                                                // This should never happen however.
+                                                                tagValue = {
+                                                                    'tag_title': tagToAddConfirm,
+                                                                    'tag_code': tagToAddConfirm.toLowerCase(),
+                                                                    'count': 1
+                                                                };
+                                                            }
+                                                            return tagValue;
+                                                        });
+                                                    } else {
+                                                        // Just in case this tag no longer exists we initialize it.
+                                                        // This should never happen however.
+                                                        return database.ref('tags/'+workspaceId+'/tags/').push({
+                                                            'tag_title': tagToAddConfirm,
+                                                            'tag_code': tagToAddConfirm.toLowerCase(),
+                                                            'count': 1
+                                                        });
+                                                    }
+                                                })
+                                                .catch(err => {
+                                                    if (err) console.log(err);
+                                                    return;
+                                                });
+                                            }).catch(err => {
+                                                if (err) console.log(err);
+                                                return;
+                                            });
+                                        }
+                                        return;
+                                    }).catch(err => {
+                                        if (err) console.log(err);
+                                        return;
+                                    });
+                                });
                             } else {
-                                // Just in case this tag no longer exists we initialize it.
-                                // This should never happen however.
-                                tagValue = {
-                                    'tag_title': tagToAddConfirm,
-                                    'tag_code': tagToAddConfirm.toLowerCase(),
-                                    'count': 1
-                                };
+                                return;
                             }
-                            return tagValue;
+                        })
+                        .catch(err => {
+                            if (err) console.log(err);
+                            return;
                         });
-                        return;
-                    }).catch(err => {
-                        if (err) console.log(err);
-                        return;
-                    });
-                }
+                    } else {
+                        return database.ref('workspaces/'+workspaceId+'/users/').push({
+                            'user_id': userID,
+                            'active': true
+                        }).then(userSnap => {
+                            //adds the tag to the user in the workspace index
+                            return database.ref('workspaces/'+workspaceId+'/users/'+userSnap.key+'/tags/').push({
+                                'tag': tagToAddConfirm,
+                                'hi_five_count': 0
+                            }).then(snap => {
+                                return database.ref('tags').orderByChild('team').equalTo(id).once('value')
+                                .then(snapshot => {
+                                    if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                                        var workspaceId = Object.keys(snapshot.val())[0];
+                                        return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').equalTo(tagToAddConfirm).once('value')
+                                        .then(tagsSnapshot => {
+                                            if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]) {
+                                                var tagId = Object.keys(tagsSnapshot.val())[0];
+                                                return database.ref('tags/'+workspaceId+'/tags/'+tagId)
+                                                .transaction(tagValue => {
+                                                    if (tagValue) {
+                                                        //increment user count for that tag
+                                                        tagValue.count++;
+                                                    } else {
+                                                        // Just in case this tag no longer exists we initialize it.
+                                                        // This should never happen however.
+                                                        tagValue = {
+                                                            'tag_title': tagToAddConfirm,
+                                                            'tag_code': tagToAddConfirm.toLowerCase(),
+                                                            'count': 1
+                                                        };
+                                                    }
+                                                    return tagValue;
+                                                });
+                                            } else {
+                                                // Just in case this tag no longer exists we initialize it.
+                                                // This should never happen however.
+                                                return database.ref('tags/'+workspaceId+'/tags/').push({
+                                                    'tag_title': tagToAddConfirm,
+                                                    'tag_code': tagToAddConfirm.toLowerCase(),
+                                                    'count': 1
+                                                });
+                                            }
+                                        })
+                                        .catch(err => {
+                                            if (err) console.log(err);
+                                            return;
+                                        });
+                                    } else {
+                                        return database.ref('tags').push({
+                                            'team': id
+                                        }).then(snap => {
+                                            return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').equalTo(tagToAddConfirm).once('value')
+                                            .then(tagsSnapshot => {
+                                                if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]) {
+                                                    var tagId = Object.keys(tagsSnapshot.val())[0];
+                                                    return database.ref('tags/'+workspaceId+'/tags/'+tagId)
+                                                    .transaction(tagValue => {
+                                                        if (tagValue) {
+                                                            //increment user count for that tag
+                                                            tagValue.count++;
+                                                        } else {
+                                                            // Just in case this tag no longer exists we initialize it.
+                                                            // This should never happen however.
+                                                            tagValue = {
+                                                                'tag_title': tagToAddConfirm,
+                                                                'tag_code': tagToAddConfirm.toLowerCase(),
+                                                                'count': 1
+                                                            };
+                                                        }
+                                                        return tagValue;
+                                                    });
+                                                } else {
+                                                    // Just in case this tag no longer exists we initialize it.
+                                                    // This should never happen however.
+                                                    return database.ref('tags/'+workspaceId+'/tags/').push({
+                                                        'tag_title': tagToAddConfirm,
+                                                        'tag_code': tagToAddConfirm.toLowerCase(),
+                                                        'count': 1
+                                                    });
+                                                }
+                                            })
+                                            .catch(err => {
+                                                if (err) console.log(err);
+                                                return;
+                                            });
+                                        }).catch(err => {
+                                            if (err) console.log(err);
+                                            return;
+                                        });
+                                    }
+                                    return;
+                                }).catch(err => {
+                                    if (err) console.log(err);
+                                    return;
+                                });
+                            }).catch(err => {
+                                if (err) console.log(err);
+                                return;
+                            });
+                        }).catch(err => {
+                            if (err) console.log(err);
+                            return;
+                        });
+                    }
+                })
+                .catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
+
+                database.ref('workspaces/'+workspaceId+'/tags/').orderByChild('tag').equalTo(tagToAddConfirm).once('value')
+                .then(tagSnapshot => {
+                    if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
+                        var tagId = Object.keys(tagSnapshot.val())[0];
+                        return database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
+                        .then(userSnapshot => {
+                            if (!userSnapshot.val()) {
+                                return database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/').push({
+                                    'user_id': userID,
+                                    'username': username,
+                                    'hi_five_count': 0
+                                }).catch(err => {
+                                    if (err) console.log(err);
+                                    return;
+                                });
+                            }
+                            return;
+                        })
+                        .catch(err => {
+                            if (err) console.log(err);
+                            return;
+                        });
+                    } else {
+                        return database.ref('workspaces/'+workspaceId+'/tags/').push({
+                            'tag': tagToAddConfirm
+                        }).then(tagSnap => {
+                            return database.ref('workspaces/'+workspaceId+'/tags/'+tagSnap.key+'/users/').push({
+                                'user_id': userID,
+                                'username': username,
+                                'hi_five_count': 0
+                            }).catch(err => {
+                                if (err) console.log(err);
+                                return;
+                            });
+                        })
+                        .catch(err => {
+                            if (err) console.log(err);
+                            return;
+                        });
+                    }
+                })
+                .catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
+
                 return;
-            })
-            .catch(err => {
-                if (err) console.log(err);
-                return;
-            });
-
-
-
-        //=======================================================================
-        //MAY BE REDUNANT CODE NEED TO GO OVER AND MAY DELETE.
-        // Update the user reference index and update team child with this team id
-        //var userRef = 'users/' + user_id;
-        var ref = 'workspaces/';
-        if (enterpriseID) {
-            ref += enterpriseID + '/';
-        } else {
-            ref += teamID + '/';
-        }
-        ref += 'tags/' + util.groomKeyToFirebase(tagToAddConfirm) + '/users/' + userID;
-
-        database.ref(ref).once('value')
-            .then(snapshot => {
-                if (!snapshot.val()) {
-                    database.ref(ref).set({
+            } else {
+                return database.ref('workspaces/').push({
+                    'team': id
+                }).then(snap => {
+                    database.ref('workspaces/'+snap.key+'/users/').push({
                         'user_id': userID,
-                        'username': username,
-                        'hi_five_count': 0
+                        'active': true
+                    }).then(userSnap => {
+                        //adds the tag to the user in the workspace index
+                        return database.ref('workspaces/'+snap.key+'/users/'+userSnap.key+'/tags/').push({
+                            'tag': tagToAddConfirm,
+                            'hi_five_count': 0
+                        }).then(snap => {
+                            return database.ref('tags').orderByChild('team').equalTo(id).once('value')
+                            .then(snapshot => {
+                                if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                                    var workspaceId = Object.keys(snapshot.val())[0];
+                                    return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').equalTo(tagToAddConfirm).once('value')
+                                    .then(tagsSnapshot => {
+                                        if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]) {
+                                            var tagId = Object.keys(tagsSnapshot.val())[0];
+                                            return database.ref('tags/'+workspaceId+'/tags/'+tagId)
+                                            .transaction(tagValue => {
+                                                if (tagValue) {
+                                                    //increment user count for that tag
+                                                    tagValue.count++;
+                                                } else {
+                                                    // Just in case this tag no longer exists we initialize it.
+                                                    // This should never happen however.
+                                                    tagValue = {
+                                                        'tag_title': tagToAddConfirm,
+                                                        'tag_code': tagToAddConfirm.toLowerCase(),
+                                                        'count': 1
+                                                    };
+                                                }
+                                                return tagValue;
+                                            });
+                                        } else {
+                                            // Just in case this tag no longer exists we initialize it.
+                                            // This should never happen however.
+                                            return database.ref('tags/'+workspaceId+'/tags/').push({
+                                                'tag_title': tagToAddConfirm,
+                                                'tag_code': tagToAddConfirm.toLowerCase(),
+                                                'count': 1
+                                            });
+                                        }
+                                    })
+                                    .catch(err => {
+                                        if (err) console.log(err);
+                                        return;
+                                    });
+                                } else {
+                                    return database.ref('tags').push({
+                                        'team': id
+                                    }).then(snap => {
+                                        return database.ref('tags/'+workspaceId+'/tags/').orderByChild('tag_title').equalTo(tagToAddConfirm).once('value')
+                                        .then(tagsSnapshot => {
+                                            if (tagsSnapshot.val() && Object.values(tagsSnapshot.val())[0]) {
+                                                var tagId = Object.keys(tagsSnapshot.val())[0];
+                                                return database.ref('tags/'+workspaceId+'/tags/'+tagId)
+                                                .transaction(tagValue => {
+                                                    if (tagValue) {
+                                                        //increment user count for that tag
+                                                        tagValue.count++;
+                                                    } else {
+                                                        // Just in case this tag no longer exists we initialize it.
+                                                        // This should never happen however.
+                                                        tagValue = {
+                                                            'tag_title': tagToAddConfirm,
+                                                            'tag_code': tagToAddConfirm.toLowerCase(),
+                                                            'count': 1
+                                                        };
+                                                    }
+                                                    return tagValue;
+                                                });
+                                            } else {
+                                                // Just in case this tag no longer exists we initialize it.
+                                                // This should never happen however.
+                                                return database.ref('tags/'+workspaceId+'/tags/').push({
+                                                    'tag_title': tagToAddConfirm,
+                                                    'tag_code': tagToAddConfirm.toLowerCase(),
+                                                    'count': 1
+                                                });
+                                            }
+                                        })
+                                        .catch(err => {
+                                            if (err) console.log(err);
+                                            return;
+                                        });
+                                    }).catch(err => {
+                                        if (err) console.log(err);
+                                        return;
+                                    });
+                                }
+                                return;
+                            }).catch(err => {
+                                if (err) console.log(err);
+                                return;
+                            });
+                        }).catch(err => {
+                            if (err) console.log(err);
+                            return;
+                        });
                     }).catch(err => {
                         if (err) console.log(err);
                         return;
                     });
-                }
-                return;
-            })
-            .catch(err => {
-                if (err) console.log(err);
-                return;
-            });
+
+                    database.ref('workspaces/'+snap.key+'/tags/').orderByChild('tag').equalTo(tagToAddConfirm).once('value')
+                    .then(tagSnapshot => {
+                        if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
+                            var tagId = Object.keys(tagSnapshot.val())[0];
+                            return database.ref('workspaces/'+snap.key+'/tags/'+tagId+'/users/').orderByChild('user_id').equalTo(userID).once('value')
+                            .then(userSnapshot => {
+                                if (!userSnapshot.val()) {
+                                    return database.ref('workspaces/'+snap.key+'/tags/'+tagId+'/users/').push({
+                                        'user_id': userID,
+                                        'username': username,
+                                        'hi_five_count': 0
+                                    }).catch(err => {
+                                        if (err) console.log(err);
+                                        return;
+                                    });
+                                }
+                                return;
+                            })
+                            .catch(err => {
+                                if (err) console.log(err);
+                                return;
+                            });
+                        } else {
+                            return database.ref('workspaces/'+snap.key+'/tags/').push({
+                                'tag': tagToAddConfirm
+                            }).then(tagSnap => {
+                                return database.ref('workspaces/'+snap.key+'/tags/'+tagSnap.key+'/users/').push({
+                                    'user_id': userID,
+                                    'username': username,
+                                    'hi_five_count': 0
+                                }).catch(err => {
+                                    if (err) console.log(err);
+                                    return;
+                                });
+                            })
+                            .catch(err => {
+                                if (err) console.log(err);
+                                return;
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        if (err) console.log(err);
+                        return;
+                    });
+                    return;
+                }).catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
+            }
+        })
+        .catch(err => {
+            if (err) console.log(err);
+            return;
+        });
 
         res.contentType('json').status(OK).send({
             'response_type': 'ephemeral',
@@ -903,8 +1295,20 @@ module.exports = {
                 }
             ]
         });
-        //=======================================================================
     },
+
+    // addWorkspaceToWorkspaces: function (id) {
+    //     return database.ref('workspaces/').push({
+    //         'team': id
+    //     }).then(snap => {
+    //         return;
+    //     }).catch(err => {
+    //         if (err) console.log(err);
+    //         return;
+    //     });
+    // }
+
+
 
     /**
      * This function updates the user index in the database. It will add a new team to their teams list if necessary or initialize their index.
@@ -912,56 +1316,82 @@ module.exports = {
      * @param {*} userID 
      */
     updateEmailIndex: function (teamID, userID) {
-        var ref = 'users/';
-        database.ref('installations/' + teamID).once('value').then(snapshot => {
-            var token = snapshot.val().bot_token;
-            // Get the email of the user using the web api.
-            request.get('https://slack.com/api/users.info?token=' + token + '&users=' + userID, (err, res, body) => {
-                if (err) {
-                    return console.log(err);
-                } else {
-                    let payload = JSON.parse(body);
-                    let profile = payload.users[0].profile;
-                    var email = profile.email;
-                    //If we have email permission it will be in the payload.
-                    if (email) {
-                        ref += util.groomKeyToFirebase(email);
-                        database.ref(ref).transaction(userRef => {
-                            if (userRef) {
-                                //user index exists
-                                var teamsList = userRef.teams;
-                                var duplicate = false;
-                                for (var i in teamsList) {
-                                    if (teamsList[i] === teamID) {
-                                        duplicate = true;
-                                    }
-                                }
-                                if (!duplicate) {
-                                    teamsList.push(teamID);
-                                }
+        database.ref('installations').orderByChild('team').equalTo(teamID).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                var workspaceId = Object.keys(snapshot.val())[0];
+                return database.ref('installations/'+workspaceId).once('value')
+                .then(workspaceSnapshot => {
+                    if (workspaceSnapshot.val() && Object.values(workspaceSnapshot.val()).length > 0) {
+                        var token = Object.values(workspaceSnapshot.val()).bot_token;
+                        // Get the email of the user using the web api.
+                        request.get('https://slack.com/api/users.info?token=' + token + '&users=' + userID, (err, res, body) => {
+                            if (err) {
+                                return console.log(err);
                             } else {
-                                //init index
-                                userRef = {
-                                    teams: [teamID],
+                                let payload = JSON.parse(body);
+                                let profile = payload.users[0].profile;
+                                var email = profile.email;
+                                //If we have email permission it will be in the payload.
+                                if (email) {
+                                    database.ref('users').orderByChild('email').equalTo(email).once('value')
+                                    .then(snapshot => {
+                                        if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                                            var userId = Object.keys(snapshot.val())[0];
+                                            return database.ref('users/'+userId)
+                                            .transaction(userRef => {
+                                                if (userRef) {
+                                                    //user index exists
+                                                    var teamsList = userRef.teams;
+                                                    var duplicate = false;
+                                                    for (var i in teamsList) {
+                                                        if (teamsList[i] === teamID) {
+                                                            duplicate = true;
+                                                        }
+                                                    }
+                                                    if (!duplicate) {
+                                                        teamsList.push(teamID);
+                                                    }
+                                                } else {
+                                                    //init index
+                                                    userRef = {
+                                                        teams: [teamID],
+                                                    }
+
+                                                    // Increment global user count
+                                                    database.ref('globals').transaction(globalNode => {
+                                                        if (globalNode) {
+                                                            globalNode.users++;
+                                                        }
+
+                                                        return globalNode;
+                                                    });
+
+                                                }
+                                                return userRef;
+                                            })
+                                            .catch(err => {
+                                                if (err) console.log(err);
+                                                return;
+                                            });
+                                        }
+                                    })
+                                    .catch(err => {
+                                        if (err) console.log(err);
+                                        return;
+                                    });
                                 }
-
-                                // Increment global user count
-                                database.ref('globals').transaction(globalNode => {
-                                    if (globalNode) {
-                                        globalNode.users++;
-                                    }
-
-                                    return globalNode;
-                                });
-
                             }
-                            return userRef;
                         });
                     }
-                }
-            });
-            return;
-        }).catch(err => {
+                })
+                .catch(err => {
+                    if (err) console.log(err);
+                    return;
+                });
+            }
+        })
+        .catch(err => {
             if (err) console.log(err);
             return;
         });
@@ -977,100 +1407,126 @@ module.exports = {
      * @param {*} id 
      * @param {*} res 
      */
-    createNewTagFromDialog: function (tag_title, description, tag_code, ref, payload, id, res) {
+    createNewTagFromDialog: function (tag_title, description, tag_code, payload, id, res) {
+        // ref = 'tags/' + id + '/';
+        // ref += util.groomKeyToFirebase(tag_title);
+        database.ref('tags').orderByChild('team').equalTo(id).once('value')
+        .then(snapshot => {
+            if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+                var workspaceId = Object.keys(snapshot.val())[0];
+                return database.ref('tags/'+workspaceId+'/tags').orderByChild('tag_title').equalTo(tag_title).once('value')
+                .then(tagSnapshot => {
+                    if (!tagSnapshot.val()) {
+                        return database.ref('tags/'+workspaceId+'/tags').push({
+                            tag_title,
+                            tag_code,
+                            description,
+                            count: 0
+                        })
+                        .then(ref => {
+                            //Success!!!
+                            res.status(OK).send();
 
-        database.ref(ref).once('value').then(snapshot => {
-            if (!snapshot.val()) {
-                database.ref(ref).set({
-                    tag_title,
-                    tag_code,
-                    description,
-                    count: 0
-                }).then(ref => {
-                    //Success!!!
-                    res.status(OK).send();
+                            // Increment global expertise count
+                            database.ref('globals').transaction(globalNode => {
+                                if (globalNode) {
+                                    globalNode.expertise++;
+                                }
 
-                    // Increment global expertise count
-                    database.ref('globals').transaction(globalNode => {
-                        if (globalNode) {
-                            globalNode.expertise++;
-                        }
+                                return globalNode;
+                            });
 
-                        return globalNode;
-                    });
-
-                    util.retrieveAccessToken(id, token => {
-                        if (token) {
-                            let options = {
-                                method: 'POST',
-                                uri: payload.response_url,
-                                headers: {
-                                    'Content-Type': 'application/json; charset=utf-8',
-                                },
-                                body: {
-                                    'response_type': 'ephemeral',
-                                    'replace_original': true,
-                                    'text': '*Expertise tag was successfully created* :raised_hands:',
-                                    'attachments': [
-                                        {
-                                            'fallback': 'Confirmation of successful tag addition',
-                                            'callback_id': 'create_new_tag_success',
-                                            'text': 'Tag has been created successfully',
-                                            'color': '#00D68F',
-                                            'attachment_type': 'default',
+                            util.retrieveAccessToken(id, token => {
+                                if (token) {
+                                    let options = {
+                                        method: 'POST',
+                                        uri: payload.response_url,
+                                        headers: {
+                                            'Content-Type': 'application/json; charset=utf-8',
                                         },
-                                        {
-                                            'fallback': 'Interactive menu to add a workspace tag or create a new one',
-                                            'callback_id': 'add_tag',
-                                            'text': 'Select a tag to add or create a new one! *(max. ' + MAX_TAGS + ')*',
-                                            'color': '#3AA3E3',
-                                            'attachment_type': 'default',
-                                            'actions': [
+                                        body: {
+                                            'response_type': 'ephemeral',
+                                            'replace_original': true,
+                                            'text': '*Expertise tag was successfully created* :raised_hands:',
+                                            'attachments': [
                                                 {
-                                                    'name': 'team_tags_menu_button',
-                                                    'text': 'Pick a tag...',
-                                                    'type': 'select',
-                                                    'data_source': 'external',
-                                                    'min_query_length': 1,
-                                                    'selected_options': [
+                                                    'fallback': 'Confirmation of successful tag addition',
+                                                    'callback_id': 'create_new_tag_success',
+                                                    'text': 'Tag has been created successfully',
+                                                    'color': '#00D68F',
+                                                    'attachment_type': 'default',
+                                                },
+                                                {
+                                                    'fallback': 'Interactive menu to add a workspace tag or create a new one',
+                                                    'callback_id': 'add_tag',
+                                                    'text': 'Select a tag to add or create a new one! *(max. ' + MAX_TAGS + ')*',
+                                                    'color': '#3AA3E3',
+                                                    'attachment_type': 'default',
+                                                    'actions': [
                                                         {
-                                                            'text': tag_title,
-                                                            'value': tag_title
+                                                            'name': 'team_tags_menu_button',
+                                                            'text': 'Pick a tag...',
+                                                            'type': 'select',
+                                                            'data_source': 'external',
+                                                            'min_query_length': 1,
+                                                            'selected_options': [
+                                                                {
+                                                                    'text': tag_title,
+                                                                    'value': tag_title
+                                                                }
+                                                            ]
+
+                                                        },
+                                                        {
+                                                            'name': 'add_tag_confirm_button',
+                                                            'text': 'Add',
+                                                            'type': 'button',
+                                                            'value': tag_title,
+                                                            'style': 'primary'
+                                                        },
+                                                        {
+                                                            'name': 'create_tag_button',
+                                                            'text': 'Create New',
+                                                            'type': 'button',
+                                                            'value': 'create'
+                                                        },
+                                                        {
+                                                            'name': 'cancel_add_button',
+                                                            'text': 'Cancel',
+                                                            'type': 'button',
+                                                            'value': 'cancel'
                                                         }
                                                     ]
-
-                                                },
-                                                {
-                                                    'name': 'add_tag_confirm_button',
-                                                    'text': 'Add',
-                                                    'type': 'button',
-                                                    'value': tag_title,
-                                                    'style': 'primary'
-                                                },
-                                                {
-                                                    'name': 'create_tag_button',
-                                                    'text': 'Create New',
-                                                    'type': 'button',
-                                                    'value': 'create'
-                                                },
-                                                {
-                                                    'name': 'cancel_add_button',
-                                                    'text': 'Cancel',
-                                                    'type': 'button',
-                                                    'value': 'cancel'
                                                 }
                                             ]
-                                        }
-                                    ]
-                                },
-                                json: true
-                            }
+                                        },
+                                        json: true
+                                    }
 
-                            util.makeRequestWithOptions(options);
-                        }
-                    });
-                    return;
-                }).catch(err => {
+                                    util.makeRequestWithOptions(options);
+                                }
+                            });
+                            return;
+                        }).catch(err => {
+                            if (err) console.log(err);
+                            res.status(OK).send();
+                            util.retrieveAccessToken(id, token => {
+                                if (token) {
+                                    this.failedToCreateTag(token, payload, 'Tag has failed to be created');
+                                }
+                            });
+                            return;
+                        });
+                    } else {
+                        res.status(OK).send();
+                        util.retrieveAccessToken(id, token => {
+                            if (token) {
+                                this.failedToCreateTag(token, payload, 'Tag already exists');
+                            }
+                        });
+                    }
+                })
+                .catch(err => {
                     if (err) console.log(err);
                     res.status(OK).send();
                     util.retrieveAccessToken(id, token => {
@@ -1081,15 +1537,122 @@ module.exports = {
                     return;
                 });
             } else {
-                res.status(OK).send();
-                util.retrieveAccessToken(id, token => {
-                    if (token) {
-                        this.failedToCreateTag(token, payload, 'Tag already exists');
-                    }
+                return database.ref('tags').push({
+                    'team': id
+                }).then(snap => {
+                    return database.ref('tags/'+snap.key+'/tags').push({
+                        tag_title,
+                        tag_code,
+                        description,
+                        count: 0
+                    })
+                    .then(ref => {
+                        //Success!!!
+                        res.status(OK).send();
+
+                        // Increment global expertise count
+                        database.ref('globals').transaction(globalNode => {
+                            if (globalNode) {
+                                globalNode.expertise++;
+                            }
+
+                            return globalNode;
+                        });
+
+                        util.retrieveAccessToken(id, token => {
+                            if (token) {
+                                let options = {
+                                    method: 'POST',
+                                    uri: payload.response_url,
+                                    headers: {
+                                        'Content-Type': 'application/json; charset=utf-8',
+                                    },
+                                    body: {
+                                        'response_type': 'ephemeral',
+                                        'replace_original': true,
+                                        'text': '*Expertise tag was successfully created* :raised_hands:',
+                                        'attachments': [
+                                            {
+                                                'fallback': 'Confirmation of successful tag addition',
+                                                'callback_id': 'create_new_tag_success',
+                                                'text': 'Tag has been created successfully',
+                                                'color': '#00D68F',
+                                                'attachment_type': 'default',
+                                            },
+                                            {
+                                                'fallback': 'Interactive menu to add a workspace tag or create a new one',
+                                                'callback_id': 'add_tag',
+                                                'text': 'Select a tag to add or create a new one! *(max. ' + MAX_TAGS + ')*',
+                                                'color': '#3AA3E3',
+                                                'attachment_type': 'default',
+                                                'actions': [
+                                                    {
+                                                        'name': 'team_tags_menu_button',
+                                                        'text': 'Pick a tag...',
+                                                        'type': 'select',
+                                                        'data_source': 'external',
+                                                        'min_query_length': 1,
+                                                        'selected_options': [
+                                                            {
+                                                                'text': tag_title,
+                                                                'value': tag_title
+                                                            }
+                                                        ]
+
+                                                    },
+                                                    {
+                                                        'name': 'add_tag_confirm_button',
+                                                        'text': 'Add',
+                                                        'type': 'button',
+                                                        'value': tag_title,
+                                                        'style': 'primary'
+                                                    },
+                                                    {
+                                                        'name': 'create_tag_button',
+                                                        'text': 'Create New',
+                                                        'type': 'button',
+                                                        'value': 'create'
+                                                    },
+                                                    {
+                                                        'name': 'cancel_add_button',
+                                                        'text': 'Cancel',
+                                                        'type': 'button',
+                                                        'value': 'cancel'
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    json: true
+                                }
+
+                                util.makeRequestWithOptions(options);
+                            }
+                        });
+                        return;
+                    }).catch(err => {
+                        if (err) console.log(err);
+                        res.status(OK).send();
+                        util.retrieveAccessToken(id, token => {
+                            if (token) {
+                                this.failedToCreateTag(token, payload, 'Tag has failed to be created');
+                            }
+                        });
+                        return;
+                    });
+                }).catch(err => {
+                    if (err) console.log(err);
+                    res.status(OK).send();
+                    util.retrieveAccessToken(id, token => {
+                        if (token) {
+                            this.failedToCreateTag(token, payload, 'Tag has failed to be created');
+                        }
+                    });
+                    return;
                 });
             }
-            return;
-        }).catch(err => {
+        })
+        .catch(err => {
             if (err) console.log(err);
             res.status(OK).send();
             util.retrieveAccessToken(id, token => {
