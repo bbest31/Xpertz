@@ -52,6 +52,9 @@ module.exports = {
       });
   },
 
+  /**
+   * @todo alter for new schema
+   */
   feedbackSubmission: function(payload, res) {
       const feedbackText = payload.submission.feedback;
       const teamID = payload.team.id;

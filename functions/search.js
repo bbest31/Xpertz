@@ -13,10 +13,19 @@ const QUERYLIMIT = 15;
 
 module.exports = {
 
+    /**
+     * 
+     * @param {*} req 
+     * @param {*} res 
+     */
     searchCommand: function (req, res) {
         this.sendSearchInitialTagMessage(res);
     },
 
+    /**
+     * 
+     * @param {*} res 
+     */
     sendSearchInitialTagMessage: function (res) {
         res.contentType('json').status(OK).send({
             'response_type': 'ephemeral',
@@ -48,6 +57,12 @@ module.exports = {
         });
     },
 
+    /**
+     * 
+     * @param {*} payload 
+     * @param {*} res
+     * @todo alter for new schema 
+     */
     searchTagAction: function (payload, res) {
         var teamID = payload.team.id;
         var enterpriseID = payload.team.enterprise_id;
@@ -124,6 +139,16 @@ module.exports = {
         }
     },
 
+    /**
+     * 
+     * @param {*} teamID 
+     * @param {*} tag 
+     * @param {*} enterpriseID 
+     * @param {*} nextBookmark 
+     * @param {*} prevBookmark 
+     * @param {*} res
+     * @todo alter for new schema 
+     */
     performSearchAction: function (teamID, tag, enterpriseID, nextBookmark, prevBookmark, res) {
         
         var id = '';

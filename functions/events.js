@@ -9,7 +9,7 @@ const OK = 200;
 
 module.exports = {
     /**
-     * Initiates an onboarding message from the bot to a new user to encourage them to user Xpertz.
+     * Initiates an onboarding message from the bot to a new user to encourage them to use Xpertz.
      * @param {*} user 
      * @param {*} res 
      */
@@ -38,6 +38,7 @@ module.exports = {
      * stats for a Slack team. This includes the user count for their tags within the workspace.
      * @param {*} user 
      * @param {*} res 
+     * @todo delete
      */
     userChange: function (user, res) {
         var deleted = user.deleted;
@@ -150,6 +151,7 @@ module.exports = {
      * given by the team upgrading to a Slack Enterprise Grid. 
      * @param {*} teamID 
      * @param {*} enterpriseID 
+     * @todo alter for new schema
      */
     enterpriseMigration: function (teamID, enterpriseID) {
 
@@ -304,7 +306,8 @@ module.exports = {
 
     /**
      * This function removes the database indexes of the corresponding teamID that uninstalled Xpertz.
-     * @param {*} teamID 
+     * @param {*} teamID
+     * @todo alter for new schema 
      */
     appUninstalled: function (teamID) {
 

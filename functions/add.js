@@ -63,6 +63,7 @@ module.exports = {
      * @param {*} enterpiseID 
      * @param {*} req 
      * @param {*} res 
+     * @todo alter for new schema
      */
     checkAndFireAddCommandIsAvailable: function (teamID, userID, enterpriseID, req, res) {
 
@@ -175,7 +176,8 @@ module.exports = {
 
     /**
      * This function takes in the HTTP repsonse and sends the initial message for the add tag workflow.
-     * @param {*} res 
+     * @param {*} res
+     * @todo alter for new schema
      */
     sendAddOrCreateTagMessage: function (text, teamID, res) {
         if (text !== null) {
@@ -597,6 +599,7 @@ module.exports = {
         }
 
     },
+    
     /**
      * Gives the initial add expertise tag workflow after the add tag dialog has been cancelled.
      * @param {*} payload 
@@ -780,7 +783,8 @@ module.exports = {
      * @param {*} enterpriseID 
      * @param {*} username 
      * @param {*} payload 
-     * @param {*} res 
+     * @param {*} res
+     * @todo alter for new schema
      */
     addTagConfirm: function (teamID, userID, enterpriseID, username, payload, res) {
         var tagToAddConfirm = payload.actions[0]['value'];
@@ -1313,7 +1317,8 @@ module.exports = {
     /**
      * This function updates the user index in the database. It will add a new team to their teams list if necessary or initialize their index.
      * @param {*} teamID 
-     * @param {*} userID 
+     * @param {*} userID
+     * @todo alter for new schema
      */
     updateEmailIndex: function (teamID, userID) {
         database.ref('installations').orderByChild('team').equalTo(teamID).once('value')
@@ -1405,7 +1410,8 @@ module.exports = {
      * @param {*} ref 
      * @param {*} payload 
      * @param {*} id 
-     * @param {*} res 
+     * @param {*} res
+     * @todo alter for new schema
      */
     createNewTagFromDialog: function (tag_title, description, tag_code, payload, id, res) {
         // ref = 'tags/' + id + '/';

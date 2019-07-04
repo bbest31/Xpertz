@@ -12,10 +12,19 @@ const OK = 200;
 
 module.exports = {
 
+    /**
+     * 
+     * @param {*} req 
+     * @param {*} res 
+     */
   removeCommand: function (req, res) {
     this.sendRemoveTagMessage(res);
   },
 
+  /**
+   * 
+   * @param {*} res 
+   */
   sendRemoveTagMessage: function (res) {
       res.contentType('json').status(OK).send({
           'response_type': 'ephemeral',
@@ -47,6 +56,12 @@ module.exports = {
       });
   },
 
+  /**
+   * 
+   * @param {*} payload 
+   * @param {*} res
+   * @todo alter for new schema 
+   */
   removeTagAction: function(payload, res) {
     const teamID = payload.team.id;
     const enterpriseID = payload.team.enterprise_id;

@@ -9,6 +9,12 @@ const OK = 200;
 
 module.exports = {
 
+    /**
+     * 
+     * @param {*} req 
+     * @param {*} res
+     * @todo alter for new schema 
+     */
     profileCommand: function (req, res) {
         var userName = req.body.user_name;
         var userID = req.body.user_id;

@@ -9,11 +9,22 @@ const OK = 200;
 
 module.exports = {
 
+    /**
+     * 
+     * @param {*} req 
+     * @param {*} res 
+     * @param {*} id 
+     */
     tagsCommand: function (req, res, id) {
         this.sendTagListMessage(res,id);
     },
 
 
+    /**
+     * 
+     * @param {*} payload 
+     * @param {*} res 
+     */
     tagsSelectAction: function (payload, res) {
         const teamID = payload.team.id;
         const selectedTag = payload.actions[0].selected_options[0].value;
@@ -25,6 +36,7 @@ module.exports = {
      * Tag List message from /tags which provide menu button to look up in-use tags of workspace.
      * If a selectedTagCode is provided we populate the selected attribute of the menu button and show
      * the tag details to the user.
+     * @todo alter for new schema
      */
     sendTagListMessage: function (response, teamID, enterpriseID, selectedTag) {
 
@@ -50,6 +62,9 @@ module.exports = {
 
     },
 
+    /**
+     * @todo alter for new schema
+     */
     tagListResponse: function (response, id, selectedTag) {
 
         if (selectedTag === undefined) {
@@ -177,6 +192,13 @@ module.exports = {
         }
     },
 
+    /**
+     * 
+     * @param {*} response 
+     * @param {*} id 
+     * @param {*} selectedTag
+     * @todo alter for new schema 
+     */
     tagListNoTagsResponse: function (response, id, selectedTag) {
         if (selectedTag === undefined) {
             // No selected tag
@@ -335,6 +357,14 @@ module.exports = {
         }
     },
 
+    /**
+     * 
+     * @param {*} teamID 
+     * @param {*} enterpriseID 
+     * @param {*} queryText 
+     * @param {*} res
+     * @todo alter for new schema 
+     */
     tagsListMenu: function (teamID, enterpriseID, queryText, res) {
         var id = '';
         if (enterpriseID) {
@@ -387,6 +417,14 @@ module.exports = {
             });
     },
 
+    /**
+     * 
+     * @param {*} teamID 
+     * @param {*} userID 
+     * @param {*} enterpriseID 
+     * @param {*} res
+     * @todo alter for new schema 
+     */
     userTagsMenu: function (teamID, userID, enterpriseID, res) {
         var id = '';
         if (enterpriseID) {

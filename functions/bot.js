@@ -12,7 +12,8 @@ module.exports = {
      * Onboarding msg direct messaged to a user that joins the workspace triggered by the team_join event type
      * @param {Object} user 
      * @param {String} teamId 
-     * @param {Object} res 
+     * @param {Object} res
+     * @todo alter for new schema
      */
     onboardMsg: function (user, teamId, res) {
 
@@ -59,7 +60,8 @@ module.exports = {
      * This method DMs the installing user upon app installation with an initial onboarding message.
      * @param {*} user 
      * @param {*} teamId 
-     * @param {*} res 
+     * @param {*} res
+     * @todo alter for new schema
      */
     onboardInstallerMsg: function (userId, teamId) {
         var token = undefined;
@@ -103,7 +105,8 @@ module.exports = {
      *  Sends a DM to the user by the bot notifying them one of their skills ranked up.
      * @param {*} userId 
      * @param {*} tagName 
-     * @param {*} teamId 
+     * @param {*} teamId
+     * @todo alter for new schema
      */
     tagRankUp: function (userId, tagName, teamId) {
         database.ref('installations').orderByChild('team').equalTo(teamId).once('value')

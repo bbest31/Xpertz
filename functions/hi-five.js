@@ -13,6 +13,9 @@ const OK = 200;
 
 module.exports = {
 
+    /**
+     * 
+     */
     hiFiveCommand: function (req, res) {
         var text = req.body.text;
 
@@ -80,6 +83,7 @@ module.exports = {
      * @param {Express.Response} res
      * @param {string} userName
      * @param {string} userID
+     * @todo alter for new schema
      */
     sendHiFiveMessage: function (res, userName, userID, teamID, enterpriseID) {
         var id = '';
@@ -185,6 +189,9 @@ module.exports = {
         });
     },
 
+    /**
+     * @todo alter for new schema
+     */
     sendHiFiveSelectedTagMessage: function (res, selectedOption, teamID, enterpriseID) {
         var userID = selectedOption.substring(selectedOption.lastIndexOf('|') + 1);
         var userName = selectedOption.substring(selectedOption.indexOf('|') + 1, selectedOption.lastIndexOf('|'));
@@ -287,6 +294,12 @@ module.exports = {
         });
     },
 
+    /**
+     * 
+     * @param {*} payload 
+     * @param {*} res
+     * @todo alter for new schema 
+     */
     hiFiveAction: function (payload, res) {
         const teamID = payload.team.id;
         const enterpriseID = payload.team.enterprise_id;

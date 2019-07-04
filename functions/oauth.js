@@ -90,6 +90,12 @@ module.exports = {
             });
     },
 
+    /**
+     * 
+     * @param {*} slackResponse 
+     * @param {*} response
+     * @todo alter for new schema 
+     */
     saveWorkspaceAsANewInstallation: function (slackResponse, response) {
 
         database.ref('installations').orderByChild('team').equalTo(slackResponse.team_id).once('value')

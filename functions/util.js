@@ -48,6 +48,7 @@ module.exports = {
     /**
      * Returns the team document of the requesting workspace by querying the installations document in the database.
      * @param {string} teamID
+     * @todo alter for new schema
      */
     retrieveTeamDoc: function (teamID, res) {
         database.ref('installations').orderByChild('team').equalTo(teamId).once('value')
@@ -69,6 +70,7 @@ module.exports = {
     /**
      * Returns the team document of the requesting workspace by querying the installations document in the database.
      * @param {string} teamID
+     * @todo alter for new schema
      */
     retrieveAccessToken: function (teamID, res) {
         database.ref('installations').orderByChild('team').equalTo(teamID).once('value')
@@ -135,6 +137,12 @@ module.exports = {
         }
     },
 
+    /**
+     * @todo alter for new schema
+     * @param {*} teamID 
+     * @param {*} response 
+     * @param {*} callback 
+     */
     validateTeamAccess: function (teamID, response, callback) {
         database.ref('installations').orderByChild('team').equalTo(teamID).once('value').then(snapshot => {
             if (!snapshot.val() && Object.values(snapshot.val()).length > 0) {
@@ -243,6 +251,7 @@ module.exports = {
 
     /**
      * Alters a key string such that Firebase will accept its format by replacing characters it does not support in keys.
+     * @param {string} key - the key for a key-value pair in firebase db.
      */
     groomKeyToFirebase: function (key) {
         var newKey = key;
@@ -258,6 +267,7 @@ module.exports = {
 
     /**
      * Computes the original form of the key that was mutated in order to conform to Firebase key syntax rules.
+     * @param {string} key - the key for a key-value pair in firebase db.
      */
     groomKeyFromFirebase: function (key) {
         var newKey = key;
@@ -292,6 +302,10 @@ module.exports = {
         });
     },
 
+    /**
+     * Check to see if the the team id or enterprise id is being provided.
+     * @param {Request} req 
+     */
     checkForCorrectID: function (req) {
         if (req.body.enterprise_id) {
             return req.body.enterprise_id;
