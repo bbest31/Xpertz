@@ -51,19 +51,19 @@ module.exports = {
      */
     retrieveTeamDoc: function (teamID, res) {
         database.ref('installations').orderByChild('team').equalTo(teamId).once('value')
-        .then(snapshot => {
-            if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
-                // Existing document with that team id
-                res(true);
-            } else {
+            .then(snapshot => {
+                if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
+                    // Existing document with that team id
+                    res(true);
+                } else {
+                    res(false);
+                }
+                return;
+            }).catch(err => {
+                console.log('Error getting document', err);
                 res(false);
-            }
-            return;
-        }).catch(err => {
-            console.log('Error getting document', err);
-            res(false);
-            return;
-        });
+                return;
+            });
     },
 
     /**
@@ -72,19 +72,19 @@ module.exports = {
      */
     retrieveAccessToken: function (teamID, res) {
         database.ref('installations').orderByChild('team').equalTo(teamID).once('value')
-        .then(snapshot => {
-            if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
-                // Existing document with that team id
-                res(Object.values(snapshot.val())[0].token);
-            } else {
+            .then(snapshot => {
+                if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
+                    // Existing document with that team id
+                    res(Object.values(snapshot.val())[0].token);
+                } else {
+                    res(false);
+                }
+                return;
+            }).catch(err => {
+                if (err) console.log(err);
                 res(false);
-            }
-            return;
-        }).catch(err => {
-            if (err) console.log(err);
-            res(false);
-            return;
-        });
+                return;
+            });
     },
 
     /**
@@ -105,8 +105,8 @@ module.exports = {
             // The request timestamp is more than five minutes from local time.
             // It could be a replay attack, so let's ignore it.
             // convert current time from milliseconds to seconds
-            const time = Math.floor(new Date().getTime()/1000);
-            
+            const time = Math.floor(new Date().getTime() / 1000);
+
             if (Math.abs(time - requestTimestamp) > 60 * 5) {
                 console.log("More than 5 minutes has passed");
                 res.send(UNAUTHORIZED);
@@ -285,19 +285,85 @@ module.exports = {
         }
     },
 
-    heartbeatResponse: function(res) {
+    heartbeatResponse: function (res) {
         console.log('Heartbeat function execution.');
         res.contentType('json').status(OK).send({
             'text': 'Received Heartbeat'
         });
     },
 
-    checkForCorrectID: function(req){
-        if(req.body.enterprise_id){
+    checkForCorrectID: function (req) {
+        if (req.body.enterprise_id) {
             return req.body.enterprise_id;
         } else {
             return req.body.team_id;
         }
     },
+
+    updateGlobals: function (res) {
+
+        // Update the global user count
+        database.ref('users').once('value').then((snapshot) => {
+            if (snapshot.val()) {
+                const userCount = snapshot.numChildren();
+                let updates = {};
+                updates['/user_count'] = userCount;
+                database.ref('globals').update(updates);
+            }
+            return;
+        }).catch(err => {
+            if (err) console.log(err);
+            return;
+        });
+
+        // Update the global enterprise org count
+        database.ref('organizations').orderByChild('plan').equalTo('enterprise').once('value').then((snapshot) => {
+            if (snapshot.val()) {
+                const orgCount = snapshot.numChildren();
+                let updates = {};
+                updates['/enterprise_org_count'] = orgCount;
+                database.ref('globals').update(updates);
+            }
+            return;
+        }).catch(err => {
+            if (err) console.log(err);
+            return;
+        });
+
+
+        // Update the global business org count
+        database.ref('organizations').orderByChild('plan').equalTo('business').once('value').then((snapshot) => {
+            if (snapshot.val()) {
+                const orgCount = snapshot.numChildren();
+                let updates = {};
+                updates['/business_org_count'] = orgCount;
+                database.ref('globals').update(updates);
+            }
+            return;
+        }).catch(err => {
+            if (err) console.log(err);
+            return;
+        });
+
+        // Update the global free org count
+        database.ref('organizations').orderByChild('plan').equalTo('free').once('value').then((snapshot) => {
+            if (snapshot.val()) {
+                const orgCount = snapshot.numChildren();
+                let updates = {};
+                updates['/free_org_count'] = orgCount;
+                database.ref('globals').update(updates);
+            }
+            return;
+        }).catch(err => {
+            if (err) console.log(err);
+            return;
+        });
+
+
+        res.contentType('json').status(OK).send();
+        return;
+    },
+
+
 
 };
