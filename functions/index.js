@@ -464,7 +464,9 @@ exports.transferdb = functions.https.onRequest((req, res) => {
 
 });
 
-
+/**
+ * Updates the global counts in the database.
+ */
 exports.globals_dev = functions.https.onRequest((req, res) => {
     if (req.body.passcode === PASSCODE) {
         util.updateGlobals(res);

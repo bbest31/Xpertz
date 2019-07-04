@@ -300,6 +300,31 @@ module.exports = {
         }
     },
 
+    /**
+     * Checks to see if the slack user has made an Xpertz account yet under their organization.
+     * @param {string} userId - the slack guid for the user
+     */
+    slackUserExists: function (userId) {
+        let exists = false;
+        database.ref('organizations/users/').orderByChild('third_party_info/slack_id').equalTo(userId).once('value').then(snapshot => {
+            if (snapshot.val() && Object.keys(snapshot.val()).length > 0) {
+                exists = true;
+            } else {
+                return;
+            }
+            return;
+        }).catch(err => {
+            console.log('slackUserExists -', err);
+            return;
+        });
+
+        return exists;
+    },
+
+    /**
+     * Updates the global user and org counts in the db.
+     * @param {*} res 
+     */
     updateGlobals: function (res) {
 
         // Update the global user count
