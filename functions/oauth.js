@@ -35,18 +35,13 @@ module.exports = {
         //Check if this is the GET request
         if (req.method !== "GET") {
             console.error(`Got unsupported ${req.method} request. Expected GET.`);
-            // res.contentType('json').status(WRONG_REQUEST_TYPE).send({
-            //     "Status": "Failure - Only GET requests are accepted"
-            // });
             res.redirect('http://xpertzsoftware.com?integration=failure');
             return;
         }
 
         //Check if we have code in the request query
         if (!req.query && !req.query.code) {
-            // res.contentType('json').status(UNAUTHORIZED).send({
-            //     "Status": "Failure - Missing query attribute 'code'"
-            // });
+            // Missing query attribute
             res.redirect('http://xpertzsoftware.com?integration=failure');
             return;
         }
@@ -71,20 +66,13 @@ module.exports = {
                 if (!slackResponse.ok) {
                     console.error("The request was not ok: " + JSON.stringify(slackResponse));
                     res.redirect('http://xpertzsoftware.com?integration=failure');
-                    // res.contentType('json').status(UNAUTHORIZED).send({
-                    //     "Status": "Failure - No response from Slack API"
-                    // });
                     return;
                 }
-                this.saveWorkspaceAsANewInstallation(slackResponse, res);
+                this.linkWorkspaceToOrg(slackResponse, res);
                 return;
             })
             .catch(err => {
                 if (err) console.log(err);
-                //Handle the error
-                // res.contentType('json').status(UNAUTHORIZED).send({
-                //     "Status": "Failure - request to Slack API has failed"
-                // });
                 res.redirect('http://xpertzsoftware.com?integration=failure');
                 return;
             });
@@ -94,78 +82,59 @@ module.exports = {
      * 
      * @param {*} slackResponse 
      * @param {*} response
-     * @todo alter for new schema 
+     * @todo Figure out how we can identify which org the install request is coming from.
      */
-    saveWorkspaceAsANewInstallation: function (slackResponse, response) {
-
-        database.ref('installations').orderByChild('team').equalTo(slackResponse.team_id).once('value')
-        .then(snapshot => {
+    linkWorkspaceToOrg: function (slackResponse, response) {
+        let org_id = '1';
+        database.ref('organizations/' + org_id).once('value').then(snapshot => {
             if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
-                console.log("Existing team!");
-                response.redirect('http://xpertzsoftware.com?integration=alreadyinstalled');
-            } else {
-                database.ref('installations/').push({
-                    'token': slackResponse.access_token,
-                    'bot_token': slackResponse.bot.bot_access_token,
-                    'team': slackResponse.team_id,
-                    'name': 'unknown',
-                    'enterprise': 'none',
-                    'access': {
-                        'startedTrial': Date.now(),
-                        'tier': 0
-                    }
-                }).then(ref => {
-                    // Success!!!
-                    response.redirect('http://xpertzsoftware.com?integration=success');
-                    // Increment installation count
-                    database.ref('globals').transaction(globalNode => {
-                        if(globalNode){
-                            globalNode.teams++;
-                        }
-                        return globalNode;
-                    });
-                    // DM the primary owner with an onboarding message.
-                    bot.onboardInstallerMsg(slackResponse.user_id, slackResponse.team_id);
-                    // Get the workspace name and enterprise name to store.
-                    request.get('https://slack.com/api/team.info?token=' + slackResponse.bot.bot_access_token, (err, res, body) => {
-                        if (err) {
-                            return console.log(err);
-                        } else {
+                // This team exists so we add slack info to the account
+                let updates = {
+                    slack_bot_token: slackResponse.bot.bot_access_token,
+                    slack_team_id: slackResponse.team_id,
+                    slack_enterprise_id: null,
+                    slack_token: slackResponse.access_token,
 
-                            var payload = JSON.parse(body);
-                            console.log(payload)
-                            if (payload.ok) {
-                                database.ref('installations').orderByChild('team').equalTo(slackResponse.team_id).transaction(teamNode => {
-                                    teamNode.name = payload.team.name;
-                                    if (payload.enterprise_name) {
-                                        teamNode.enterprise = payload.enterprise_name;
-                                    }
-                                    return teamNode;
-                                });
-                            } else {
-                                console.log(payload.error);
-                            }
-                        }
-                    });
-                    return;
-                }).catch(err => {
-                    if (err) console.log(err);
-                    // response.contentType('json').status(UNAUTHORIZED).send({
-                    //     "Failure": "Failed to save data in the DB"
-                    // });
-                    response.redirect('http://xpertzsoftware.com?integration=failure');
+                };
+                database.ref('organizations/' + org_id).update(updates).catch(err => {
+                    console.log("Unabled to add slack credentials to existing org: ", err);
                     return;
                 });
+                // Alter redirect back to dashboard.
+                response.redirect('http://xpertzsoftware.com?integration=alreadyinstalled');
+
+                // DM the primary owner with an onboarding message.
+                bot.onboardInstallerMsg(slackResponse.user_id, slackResponse.team_id);
+
+                // Get the workspace name and enterprise name to store.
+                request.get('https://slack.com/api/team.info?token=' + slackResponse.bot.bot_access_token, (err, res, body) => {
+                    if (err) {
+                        return console.log("Could not retrieve workspace enterprise id: ", err);
+                    } else {
+                        var payload = JSON.parse(body);
+                        //console.log(payload);
+                        if (payload.ok) {
+                            database.ref('organizations/' + org_id).transaction(teamNode => {
+                                //Check for enterprise id
+                                if (payload.enterprise_id) {
+                                    teamNode.slack_enterprise_id = payload.enterprise_id;
+                                }
+                                return teamNode;
+                            });
+                        } else {
+                            console.log("https://slack.com/api/team.info: ", payload.error);
+                        }
+                    }
+                });
+                return;
+            } else {
+                // This request did not come from an existing organization.
+
+                return;
             }
-        })
-        .catch(err => {
-            if (err) console.log(err);
-            response.redirect('http://xpertzsoftware.com?integration=failure');
-            // response.contentType('json').status(UNAUTHORIZED).send({
-            //     "Failure": "Failed to check if this team is already connected"
-            // });
-            return;
+
+        }).catch(err => {
+            console.log('linkWorkspaceToOrg Error:', err);
         });
     }
-
-};
+}
