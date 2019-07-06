@@ -12,7 +12,6 @@ const search = require('./search');
 const tags = require('./tags');
 const util = require('./util');
 const events = require('./events');
-const feedback = require('./feedback');
 const bot = require('./bot');
 const presetTags = require('./preset_tags');
 
@@ -326,108 +325,108 @@ exports.oauth_redirect_dev = functions.https.onRequest((req, res) => {
 });
 
 
-exports.transferdb = functions.https.onRequest((req, res) => {
+// exports.transferdb = functions.https.onRequest((req, res) => {
 
 
-    var installationsRef = 'installations/';
-    database.ref(installationsRef).once('value')
-        .then(snapshot => {
+//     var installationsRef = 'installations/';
+//     database.ref(installationsRef).once('value')
+//         .then(snapshot => {
 
-            snapshot.forEach(function (data) {
-                database.ref(installationsRef).push(data.val());
-                database.ref(installationsRef + '/' + data.key).remove();
-            });
-
-
-
-            res.contentType('json').status(OK).send({ 'success': true });
-            return;
-        })
-        .catch({});
-
-
-    var tagsRef = 'tags/';
-    database.ref(tagsRef).once('value')
-        .then(snapshot => {
-
-            snapshot.forEach(function (data) {
-                var newRef = database.ref(tagsRef).push({ "team": data.key });
-                database.ref(tagsRef + '/' + data.key).remove();
-
-                var tags = data.val()["tags"];
-                console.log(JSON.stringify(tags));
-                for (const [key, tag] of Object.entries(tags)) {
-                    database.ref(tagsRef + '/' + newRef.key + '/tags').push(tag);
-                }
-            });
-
-            res.contentType('json').status(OK).send({ 'success': true });
-            return;
-        })
-        .catch({});
-
-
-    var usersRef = 'users/';
-    database.ref(usersRef).once('value')
-        .then(snapshot => {
-
-            snapshot.forEach(function (data) {
-                var newData = data.val();
-                newData["email"] = data.key;
-                database.ref(usersRef).push(newData);
-                database.ref(usersRef + '/' + data.key).remove();
-            });
+//             snapshot.forEach(function (data) {
+//                 database.ref(installationsRef).push(data.val());
+//                 database.ref(installationsRef + '/' + data.key).remove();
+//             });
 
 
 
-            res.contentType('json').status(OK).send({ 'success': true });
-            return;
-        })
-        .catch({});
+//             res.contentType('json').status(OK).send({ 'success': true });
+//             return;
+//         })
+//         .catch({});
+
+
+//     var tagsRef = 'tags/';
+//     database.ref(tagsRef).once('value')
+//         .then(snapshot => {
+
+//             snapshot.forEach(function (data) {
+//                 var newRef = database.ref(tagsRef).push({ "team": data.key });
+//                 database.ref(tagsRef + '/' + data.key).remove();
+
+//                 var tags = data.val()["tags"];
+//                 console.log(JSON.stringify(tags));
+//                 for (const [key, tag] of Object.entries(tags)) {
+//                     database.ref(tagsRef + '/' + newRef.key + '/tags').push(tag);
+//                 }
+//             });
+
+//             res.contentType('json').status(OK).send({ 'success': true });
+//             return;
+//         })
+//         .catch({});
+
+
+//     var usersRef = 'users/';
+//     database.ref(usersRef).once('value')
+//         .then(snapshot => {
+
+//             snapshot.forEach(function (data) {
+//                 var newData = data.val();
+//                 newData["email"] = data.key;
+//                 database.ref(usersRef).push(newData);
+//                 database.ref(usersRef + '/' + data.key).remove();
+//             });
 
 
 
-    var workspacesRef = 'workspaces/';
-    database.ref(workspacesRef).once('value')
-        .then(snapshot => {
-
-            snapshot.forEach(function (data) {
-                var newTeamRef = database.ref(workspacesRef).push({ "team": data.key });
-                database.ref(workspacesRef + '/' + data.key).remove();
-
-                var tags = data.val()["tags"];
-                console.log(JSON.stringify(tags));
-                for (const [keyTag, tag] of Object.entries(tags)) {
-                    var newTagRef = database.ref(workspacesRef + '/' + newTeamRef.key + '/tags').push({ "tag": keyTag });
-
-                    var users = tag["users"];
-                    for (const [keyUser, user] of Object.entries(users)) {
-                        database.ref(workspacesRef + '/' + newTeamRef.key + '/tags/' + newTagRef.key + '/users').push(user);
-                    }
-                }
-
-                var users = data.val()["users"];
-                for (const [keyUser, user] of Object.entries(users)) {
-                    var newUserRef = database.ref(workspacesRef + '/' + newTeamRef.key + '/users').push({ "user_id": keyUser, "active": user["active"] });
-
-                    var tags = user["tags"];
-                    for (const [keyTag, tag] of Object.entries(tags)) {
-                        database.ref(workspacesRef + '/' + newTeamRef.key + '/users/' + newUserRef.key + '/tags').push(tag);
-                    }
-                }
-            });
-
-            res.contentType('json').status(OK).send({ 'success': true });
-            return;
-        })
-        .catch({});
+//             res.contentType('json').status(OK).send({ 'success': true });
+//             return;
+//         })
+//         .catch({});
 
 
 
+//     var workspacesRef = 'workspaces/';
+//     database.ref(workspacesRef).once('value')
+//         .then(snapshot => {
+
+//             snapshot.forEach(function (data) {
+//                 var newTeamRef = database.ref(workspacesRef).push({ "team": data.key });
+//                 database.ref(workspacesRef + '/' + data.key).remove();
+
+//                 var tags = data.val()["tags"];
+//                 console.log(JSON.stringify(tags));
+//                 for (const [keyTag, tag] of Object.entries(tags)) {
+//                     var newTagRef = database.ref(workspacesRef + '/' + newTeamRef.key + '/tags').push({ "tag": keyTag });
+
+//                     var users = tag["users"];
+//                     for (const [keyUser, user] of Object.entries(users)) {
+//                         database.ref(workspacesRef + '/' + newTeamRef.key + '/tags/' + newTagRef.key + '/users').push(user);
+//                     }
+//                 }
+
+//                 var users = data.val()["users"];
+//                 for (const [keyUser, user] of Object.entries(users)) {
+//                     var newUserRef = database.ref(workspacesRef + '/' + newTeamRef.key + '/users').push({ "user_id": keyUser, "active": user["active"] });
+
+//                     var tags = user["tags"];
+//                     for (const [keyTag, tag] of Object.entries(tags)) {
+//                         database.ref(workspacesRef + '/' + newTeamRef.key + '/users/' + newUserRef.key + '/tags').push(tag);
+//                     }
+//                 }
+//             });
+
+//             res.contentType('json').status(OK).send({ 'success': true });
+//             return;
+//         })
+//         .catch({});
 
 
 
-});
+
+
+
+// });
 
 /**
  * Updates the global counts in the database.

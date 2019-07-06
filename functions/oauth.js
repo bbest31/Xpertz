@@ -72,7 +72,7 @@ module.exports = {
                 return;
             })
             .catch(err => {
-                if (err) console.log(err);
+                if (err) console.error(err);
                 res.redirect('http://xpertzsoftware.com?integration=failure');
                 return;
             });
@@ -97,7 +97,7 @@ module.exports = {
 
                 };
                 database.ref('organizations/' + org_id).update(updates).catch(err => {
-                    console.log("Unabled to add slack credentials to existing org: ", err);
+                    console.error("linkWorkspaceToOrg|Unabled to add slack credentials to existing org: ", err);
                     return;
                 });
                 // Alter redirect back to dashboard.
@@ -134,7 +134,7 @@ module.exports = {
             }
 
         }).catch(err => {
-            console.log('linkWorkspaceToOrg Error:', err);
+            console.error('linkWorkspaceToOrg Error:', err);
         });
     }
 }

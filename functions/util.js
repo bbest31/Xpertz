@@ -318,12 +318,20 @@ module.exports = {
      * Checks to see if the slack user has made an Xpertz account yet under their organization.
      * @param {string} userId - the slack guid for the user
      */
-    slackUserExists: function (userId, callback) {
-        database.ref('organizations/users').orderByChild('third_party_info/slack_id').equalTo(userId).once('value').then(snapshot => {
+    slackUserExists: function (userId, orgIdJSON, callback) {
+        database.ref('organizations').orderByChild(orgIdJSON['id_type']).equalTo(orgIdJSON['id']).once('value').then(snapshot => {
             if (snapshot.val() && Object.keys(snapshot.val()).length > 0) {
-                callback(true);
+                let users = snapshot.child('users');
+                Object.values(users).forEach(user => {
+                    if (user.third_party.slack_id === userId) {
+                        callback(true);
+                        return;
+                    }
+                });
+                callback(false);
                 return;
             } else {
+                console.warn("slackUserExists: UNAUTHORIZED ACCESS ATTEMPT!");
                 callback(false);
                 return;
             }
@@ -332,6 +340,27 @@ module.exports = {
             callback(false);
             return;
         });
+    },
+
+    /**
+     * 
+     * @param {*} orgIdJSON 
+     * @param {*} callback 
+     */
+    xpertzOrgExists: function (orgIdJSON, callback) {
+        database.ref('organizations').orderByChild(orgIdJSON['id_type']).equalTo(orgIdJSON['id']).once('value').then(snapshot => {
+            if (snapshot.val() && Object.keys(snapshot.val()).length > 0) {
+                // This slack workspace is associated with an xpertz organization
+                callback(true);
+                return;
+            }
+            console.warn('xpertzOrgExists: UNAUTHORIZED ACCESS ATTEMPT!');
+            callback(false);
+            return;
+        }).catch(err => {
+            console.error("xpertzOrgExists: ", err);
+        });
+
     },
 
     /**
