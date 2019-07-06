@@ -347,10 +347,6 @@ module.exports = {
                                         database.ref('workspaces/'+workspaceId+'/users/'+userId+'/tags/'+tagId).transaction(tagNode => {
                                             if (tagNode) {
                                                 tagNode.hi_five_count++;
-                                                // Call async function to send rank up DM if appropriate
-                                                if (util.rankUpCheck(tagNode.hi_five_count)) {
-                                                    bot.tagRankUp(colleagueID, util.groomKeyFromFirebase(childSnapshot.key), teamID);
-                                                }
                                             }
                                             return tagNode;
                                         });

@@ -12,7 +12,6 @@ const search = require('./search');
 const tags = require('./tags');
 const util = require('./util');
 const events = require('./events');
-const oauth = require('./oauth');
 const feedback = require('./feedback');
 const bot = require('./bot');
 const presetTags = require('./preset_tags');
@@ -58,35 +57,22 @@ exports.events_dev = functions.https.onRequest((req, res) => {
 
     // Get the JSON payload object
     let body = req.body;
-    // console.log(body);
     // Event API verification hook (used once).
     if (body.type === 'url_verification') {
         var challenge = body.challenge;
         res.contentType('json').status(OK).send({
             'challenge': challenge
         });
-        // New user joined team.
     } else {
         //Grab the attributes we want
         var type = body.event.type;
         console.log(type);
         if (util.validateRequest(req, res)) {
-            if (type === 'team_join') {
-                let user = body.event.user;
-                events.teamJoin(user, res);
-            } else if (type === 'user_change') {
-                // User changed information
-                let user = body.event.user;
-                events.userChange(user, res);
-            } else if (type === 'grid_migration_finished') {
+            if (type === 'grid_migration_finished') {
                 // Workspace migrated to enterprise grid
-                let teamID = body.team_id;
-                let enterpriseID = body.event.enterprise_id;
-                events.enterpriseMigration(teamID, enterpriseID);
-            } else if (type === 'app_uninstalled') {
-                // App uninstalled 
-                let teamID = body.team_id;
-                events.appUninstalled(teamID);
+                let teamId = body.team_id;
+                let enterpriseId = body.event.enterprise_id;
+                events.enterpriseMigration(teamId, enterpriseId);
             } else {
                 res.status(OK).send();
             }
@@ -121,9 +107,6 @@ exports.actions_dev = functions.https.onRequest((req, res) => {
                 if (callbackID === 'add_new_tag_dialog') {
                     visitor.event('Dialog Actions', 'Add new tag dialog submission').send();
                     add.addNewTagDialog(payload, res);
-                } else if (callbackID === 'feedback_tag_dialog') {
-                    visitor.event('Dialog Actions', 'Feedback dialog submission').send();
-                    feedback.feedbackSubmission(payload, res);
                 }
             } else if (type === 'dialog_cancellation') {
                 visitor.event('Dialog Actions', 'Add new tag dialog cancellation').send();
@@ -158,9 +141,6 @@ exports.actions_dev = functions.https.onRequest((req, res) => {
                 } else if (callbackID === 'tags_list') {
                     visitor.event('Actions', 'Tags List action').send();
                     tags.tagsSelectAction(payload, res);
-                } else if (callbackID === 'feedback_action') {
-                    visitor.event('Actions', 'Feedback action').send();
-                    feedback.feedbackCommand(teamID, triggerID, res);
                 } else if (callbackID === 'preset_tags') {
                     bot.presetTagActions(payload, res);
                 }
@@ -332,22 +312,6 @@ exports.commands_dev = functions.https.onRequest((req, res) => {
                 { 'text': 'Validate the help of your teammates by giving them high-fives with:\n`/xpertz-hi5` _@username_ ' },
                 { 'text': 'View all tags used in this workspace or enterprise grid:\n`/xpertz-tagslist`' },
                 { 'text': 'Search for experts by tag:\n`/xpertz-search`' },
-                {
-                    'fallback': 'Button to leave a feedback',
-                    'callback_id': 'feedback_action',
-                    'text': '*We’d love your feedback* :raised_hands:',
-                    'color': '#3AA3E3',
-                    'attachment_type': 'default',
-                    'actions': [
-                        {
-                            'name': 'leave_feedback_button',
-                            'text': 'Feedback',
-                            'type': 'button',
-                            'value': 'feedback',
-                            'style': 'primary'
-                        }
-                    ]
-                }
             ]
         });
     }
@@ -356,6 +320,7 @@ exports.commands_dev = functions.https.onRequest((req, res) => {
 
 //Function to handle oauth redirect
 exports.oauth_redirect_dev = functions.https.onRequest((req, res) => {
+    const oauth = require('./oauth');
     visitor.event('Oauth', 'Add app to Slack').send();
     oauth.oauthRedirect(req, res);
 });

@@ -47,11 +47,10 @@ module.exports = {
 
     /**
      * Returns the team document of the requesting workspace by querying the installations document in the database.
-     * @param {string} teamID
-     * @todo alter for new schema
+     * @param {string} teamId
      */
-    retrieveTeamDoc: function (teamID, res) {
-        database.ref('installations').orderByChild('team').equalTo(teamId).once('value')
+    retrieveTeamData: function (teamId, res) {
+        database.ref('organizations').orderByChild('slack_team_id').equalTo(teamId).once('value')
             .then(snapshot => {
                 if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
                     // Existing document with that team id
@@ -61,29 +60,28 @@ module.exports = {
                 }
                 return;
             }).catch(err => {
-                console.log('Error getting document', err);
+                console.error('retrieveTeamData: ', err);
                 res(false);
                 return;
             });
     },
 
     /**
-     * Returns the team document of the requesting workspace by querying the installations document in the database.
-     * @param {string} teamID
-     * @todo alter for new schema
+     * Returns the team node of the requesting workspace by querying the organizations node in the database.
+     * @param {string} teamId
      */
-    retrieveAccessToken: function (teamID, res) {
-        database.ref('installations').orderByChild('team').equalTo(teamID).once('value')
+    retrieveAccessToken: function (teamId, res) {
+        database.ref('organizations').orderByChild('slack_team_id').equalTo(teamId).once('value')
             .then(snapshot => {
                 if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
-                    // Existing document with that team id
+                    // Existing org with that team id
                     res(Object.values(snapshot.val())[0].token);
                 } else {
                     res(false);
                 }
                 return;
             }).catch(err => {
-                if (err) console.log(err);
+                console.err("retrieveAccessToken: ", err);
                 res(false);
                 return;
             });
@@ -138,62 +136,44 @@ module.exports = {
     },
 
     /**
-     * @todo alter for new schema
-     * @param {*} teamID 
+     * Ensure the Slack team that is sending a request has access to use our slack bot.
+     * @param {string} teamId 
      * @param {*} response 
      * @param {*} callback 
      */
-    validateTeamAccess: function (teamID, response, callback) {
-        database.ref('installations').orderByChild('team').equalTo(teamID).once('value').then(snapshot => {
+    validateTeamAccess: function (teamId, response, callback) {
+        database.ref('organizations').orderByChild('slack_team_id').equalTo(teamId).once('value').then(snapshot => {
             if (!snapshot.val() && Object.values(snapshot.val()).length > 0) {
                 //No team with that id found
-                response.contentType('json').status(OK).send({
-                    'response_type': 'ephemeral',
-                    'replace_original': true,
-                    'text': 'Request has failed. If this keeps happening, please, contact us at xpertz.software@gmail.com'
-                });
+                console.warn("validateTeamAccess: Unauthorized attempt to access!: ", teamId);
+                response.contentType('json').status(UNAUTHORIZED).send();
+                callback(false);
+                return;
             } else {
-                var installation = Object.values(snapshot.val())[0];
-                //If tier is trial and date it has been more than 30 days after trial started, then team doesn't have access anymore {}
-                if (installation.access.tier === 0) {
-                    var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                    var diffDays = Math.round(Math.abs((installation.access.startedTrial - Date.now()) / (oneDay)));
-                    // console.log(diffDays);
-                    if (diffDays < TRIAL_DAYS) {
-                        callback(true);
-                        return;
-                    } else {
-                        response.contentType('json').status(OK).send({
-                            'response_type': 'ephemeral',
-                            'replace_original': true,
-                            'text': '*Looks like your trial period has ended. Consult your manager/supervisor about upgrading to keep using Xpertz or contact us at xpertz.software@gmail.com*'
-                        });
-                    }
-                } else {
-                    callback(true);
-                    return;
-                }
+                callback(true);
+                return;
             }
-            return;
+
         }).catch(err => {
-            console.log('Error getting team doc', err);
+            console.error('validateTeamAccess', err);
             response.contentType('json').status(OK).send({
                 'response_type': 'ephemeral',
                 'replace_original': true,
                 'text': 'Request has failed. If this keeps happening, please, contact us at xpertz.software@gmail.com'
             });
+            callback(false);
             return;
         });
     },
 
     /**
      * 
-     * @param {*} userID 
-     * @param {*} teamID 
+     * @param {*} userId 
+     * @param {*} teamId 
      * @param {*} token 
      */
-    startDirectChat: function (userID, teamID, token) {
-        this.retrieveAccessToken(teamID, token => {
+    startDirectChat: function (userId, teamId, token) {
+        this.retrieveAccessToken(teamId, token => {
             if (token) {
                 let options = {
                     method: 'POST',
@@ -306,7 +286,7 @@ module.exports = {
      * Check to see if the the team id or enterprise id is being provided.
      * @param {Request} req 
      */
-    checkForCorrectID: function (req) {
+    correctIdFromRequest: function (req) {
         if (req.body.enterprise_id) {
             return req.body.enterprise_id;
         } else {
@@ -315,24 +295,43 @@ module.exports = {
     },
 
     /**
+     * Returns the correct team id type to be using within a payload and as well the proper query param to use.
+     * @param {*} payload 
+     */
+    correctIdFromPayload: function (payload) {
+        let values = {};
+        if (payload.team.enterprise_id) {
+            values = {
+                id_type: "slack_enterprise_id",
+                id: payload.team.enterprise_id
+            };
+        } else {
+            values = {
+                id_type: "slack_team_id",
+                id: payload.team.team_id
+            };
+        }
+        return values;
+    },
+
+    /**
      * Checks to see if the slack user has made an Xpertz account yet under their organization.
      * @param {string} userId - the slack guid for the user
      */
-    slackUserExists: function (userId) {
-        let exists = false;
-        database.ref('organizations/users/').orderByChild('third_party_info/slack_id').equalTo(userId).once('value').then(snapshot => {
+    slackUserExists: function (userId, callback) {
+        database.ref('organizations/users').orderByChild('third_party_info/slack_id').equalTo(userId).once('value').then(snapshot => {
             if (snapshot.val() && Object.keys(snapshot.val()).length > 0) {
-                exists = true;
+                callback(true);
+                return;
             } else {
+                callback(false);
                 return;
             }
-            return;
         }).catch(err => {
-            console.log('slackUserExists -', err);
+            console.error('slackUserExists: ', err);
+            callback(false);
             return;
         });
-
-        return exists;
     },
 
     /**
