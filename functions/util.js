@@ -70,8 +70,8 @@ module.exports = {
      * Returns the team node of the requesting workspace by querying the organizations node in the database.
      * @param {string} teamId
      */
-    retrieveAccessToken: function (teamId, res) {
-        database.ref('organizations').orderByChild('slack_team_id').equalTo(teamId).once('value')
+    retrieveAccessToken: function (idJSON, res) {
+        database.ref('organizations').orderByChild(idJSON['id_type']).equalTo(idJSON['id']).once('value')
             .then(snapshot => {
                 if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
                     // Existing org with that team id
@@ -137,12 +137,12 @@ module.exports = {
 
     /**
      * Ensure the Slack team that is sending a request has access to use our slack bot.
-     * @param {string} teamId 
+     * @param {string} idJSON - {id_type : slack_team_id or slack_enterprise_id, id : <id>} 
      * @param {*} response 
      * @param {*} callback 
      */
-    validateTeamAccess: function (teamId, response, callback) {
-        database.ref('organizations').orderByChild('slack_team_id').equalTo(teamId).once('value').then(snapshot => {
+    validateTeamAccess: function (idJSON, response, callback) {
+        database.ref('organizations').orderByChild(idJSON['id_type']).equalTo(idJSON['id']).once('value').then(snapshot => {
             if (!snapshot.val() && Object.values(snapshot.val()).length > 0) {
                 //No team with that id found
                 console.warn("validateTeamAccess: Unauthorized attempt to access!: ", teamId);
@@ -287,10 +287,19 @@ module.exports = {
      * @param {Request} req 
      */
     correctIdFromRequest: function (req) {
+        let values = {};
         if (req.body.enterprise_id) {
-            return req.body.enterprise_id;
+            values = {
+                id_type: "slack_enterprise_id",
+                id: req.body.enterprise_id
+            }
+            return values;
         } else {
-            return req.body.team_id;
+            values = {
+                id_type: "slack_team_id",
+                id: req.body.team_id
+            }
+            return values;
         }
     },
 

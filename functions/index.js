@@ -91,19 +91,19 @@ exports.actions_dev = functions.https.onRequest((req, res) => {
         const payload = JSON.parse(req.body.payload);
         //Grab the attributes we want
         const type = payload.type;
-        const callbackID = payload.callback_id;
+        const callbackId = payload.callback_id;
         const responseURL = payload.response_url;
         const triggerID = payload.trigger_id;
-        const teamID = payload.team.id;
-        const userID = payload.user.id;
-        const enterpriseID = payload.team.enterprise_id;
+        const userId = payload.user.id;
+        const idJSON = util.correctIdFromPayload(payload);
+        
 
 
         // Validations
         if (util.validateRequest(req, res)) {
 
             if (type === 'dialog_submission') {
-                if (callbackID === 'add_new_tag_dialog') {
+                if (callbackId === 'add_new_tag_dialog') {
                     visitor.event('Dialog Actions', 'Add new tag dialog submission').send();
                     add.addNewTagDialog(payload, res);
                 }
@@ -115,32 +115,32 @@ exports.actions_dev = functions.https.onRequest((req, res) => {
                 if (new String(payload.actions[0]['value']).valueOf() === new String('cancel').valueOf()) {
                     res.status(OK).send();
                     util.cancelButtonIsPressed(responseURL);
-                } else if (callbackID === 'add_tag') {
+                } else if (callbackId === 'add_tag') {
                     add.addTagAction(payload, res);
-                } else if (callbackID === 'add_more_tags') {
+                } else if (callbackId === 'add_more_tags') {
                     visitor.event('Actions', 'Add More Tags action').send();
                     switch (payload.actions[0]['name']) {
                         case 'add_more_tags_button':
-                            add.checkAndFireAddCommandIsAvailable(teamID, userID, enterpriseID, req, res);
+                            add.checkAndFireAddCommandIsAvailable(idJSON, userId, req, res);
                             break;
                     }
-                } else if (callbackID === 'remove_tag') {
+                } else if (callbackId === 'remove_tag') {
                     remove.removeTagAction(payload, res);
-                } else if (callbackID === 'remove_more_tags') {
+                } else if (callbackId === 'remove_more_tags') {
                     visitor.event('Actions', 'Remove More Tags action').send();
                     switch (payload.actions[0]['name']) {
                         case 'remove_more_tags_button':
                             remove.sendRemoveTagMessage(res);
                             break;
                     }
-                } else if (callbackID === 'h5') {
+                } else if (callbackId === 'h5') {
                     hiFive.hiFiveAction(payload, res);
-                } else if (callbackID === 'search_tag') {
+                } else if (callbackId === 'search_tag') {
                     search.searchTagAction(payload, res);
-                } else if (callbackID === 'tags_list') {
+                } else if (callbackId === 'tags_list') {
                     visitor.event('Actions', 'Tags List action').send();
                     tags.tagsSelectAction(payload, res);
-                } else if (callbackID === 'preset_tags') {
+                } else if (callbackId === 'preset_tags') {
                     bot.presetTagActions(payload, res);
                 }
             }
@@ -193,10 +193,10 @@ exports.addTag_dev = functions.https.onRequest((req, res) => {
     if (req.body.heartbeat) {
         util.heartbeatResponse(res);
     } else if (util.validateRequest(req, res)) {
-        var id = util.checkForCorrectID(req)
+        let id = util.correctIdFromRequest(req);
         util.validateTeamAccess(id, res, hasAccess => {
             visitor.event('Slash command', 'Add command').send();
-            add.addCommand(req, res);
+            add.addCommand(id, req, res);
         });
     }
 });
@@ -324,7 +324,17 @@ exports.oauth_redirect_dev = functions.https.onRequest((req, res) => {
     oauth.oauthRedirect(req, res);
 });
 
-
+exports.test_dev = functions.https.onRequest((req, res) => {
+    if(req.body.secret === '2465203142') {
+        database.ref('organizations/1/users').orderByChild('owner').equalTo(true).limitToFirst(1).once('value').then(snapshot => {
+            return res.contentType('json').status(OK).send(snapshot.toJSON());
+        }).catch(err => {
+            if(err){
+                res.status(OK).send(err);
+            }
+        });
+    }
+});
 // exports.transferdb = functions.https.onRequest((req, res) => {
 
 
