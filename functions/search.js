@@ -61,11 +61,11 @@ module.exports = {
      * 
      * @param {*} payload 
      * @param {*} res
-     * @todo alter for new schema 
      */
     searchTagAction: function (payload, res) {
-        var teamID = payload.team.id;
+        var teamId = payload.team.id;
         var enterpriseID = payload.team.enterprise_id;
+        var idJSON = util.correctIdFromPayload(payload);
 
         switch (payload.actions[0]['name']) {
             case 'search_tag_menu_button':
@@ -116,7 +116,7 @@ module.exports = {
             case 'search_tag_confirm_button':
                 visitor.event('Actions', 'Search Team Tags Menu Selection action').send();
                 var selectedSearchTag = payload.actions[0]['value'];
-                this.performSearchAction(teamID, selectedSearchTag, enterpriseID, null, null, res);
+                this.performSearchAction(idJSON, selectedSearchTag, null, null, res);
                 break;
             case 'start_again_search_button':
                 visitor.event('Actions', 'Start Search Again action').send();
@@ -131,9 +131,9 @@ module.exports = {
                 this.searchNextAction(payload, res);
                 break;
             case 'search_tag_direct_message_button':
-                var userID = payload.actions[0]['value'];
+                var userId = payload.actions[0]['value'];
                 var token = payload.token;
-                util.startDirectChat(userID, teamID, token);
+                util.startDirectChat(userId, teamId, token);
                 res.status(OK).send();
                 break;
         }
@@ -141,153 +141,137 @@ module.exports = {
 
     /**
      * 
-     * @param {*} teamID 
-     * @param {*} tag 
-     * @param {*} enterpriseID 
+     * @param {*} idJSON 
+     * @param {*} tag  
      * @param {*} nextBookmark 
      * @param {*} prevBookmark 
      * @param {*} res
-     * @todo alter for new schema 
      */
-    // performSearchAction: function (teamID, tag, enterpriseID, nextBookmark, prevBookmark, res) {
-        
-    //     var id = '';
-    //     if (enterpriseID) {
-    //         id = enterpriseID;
-    //     } else {
-    //         id = teamID;
-    //     }
-    //     database.ref('workspaces').orderByChild('team').equalTo(id).once('value')
-    //     .then(snapshot => {
-    //         if (snapshot.val() && Object.keys(snapshot.val())[0]) {
-    //             var workspaceId = Object.keys(snapshot.val())[0];
-    //             return database.ref('workspaces/'+workspaceId+'/tags/').orderByChild('tag').equalTo(tag).once('value')
-    //             .then(tagSnapshot => {
-    //                 if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
-    //                     var tagId = Object.keys(tagSnapshot.val())[0];
-    //                     var ref = database.ref('workspaces/'+workspaceId+'/tags/'+tagId+'/users/').orderByKey();
-    //                     if (nextBookmark) {
-    //                         ref = ref.startAt(nextBookmark).limitToFirst(QUERYLIMIT + 1);
-    //                     } else if (prevBookmark) {
-    //                         ref = ref.endAt(prevBookmark).limitToLast(QUERYLIMIT + 2);
-    //                     } else {
-    //                         ref = ref.limitToFirst(QUERYLIMIT + 1);
-    //                     }
-    //                     ref.once('value').then(userSnapshot => {
-    //                         if (userSnapshot.val() && Object.values(userSnapshot.val()).length > 0) {
+    performSearchAction: function (idJSON, tag, nextBookmark, prevBookmark, res) {
 
-    //                             var options = {
-    //                                 options: []
-    //                             };
-    //                             var nextNewBookmark = null;
-    //                             var previousNewBookmark = null;
-    //                             var isTherePrevPage = false;
-    //                             var count = 0;
-    //                             userSnapshot.forEach(childSnapshot => {
-    //                                 if (prevBookmark && count === 0 && userSnapshot.numChildren() === QUERYLIMIT + 2) {
-    //                                     isTherePrevPage = true;
-    //                                 } else if (count < QUERYLIMIT) {
-    //                                     var highFiveCount = childSnapshot.val().hi_five_count;
-    //                                     var color = '#E0E0E0';
-    //                                     var rankEmoji = '';
+    //     database.ref('organizations').orderByChild(idJSON['id_type']).equalTo(idJSON['id']).once('value')
+    //         .then(snapshot => {
+    //             if (snapshot.val() && Object.keys(snapshot.val())[0]) {
+    //                 var orgId = Object.keys(snapshot.val())[0];
+    //                 return database.ref('organizations/' + orgId + '/tags/').orderByChild('name').equalTo(tag).once('value')
+    //                     .then(tagSnapshot => {
+    //                         if (tagSnapshot.val() && Object.keys(tagSnapshot.val())[0]) {
+    //                             var tagId = Object.keys(tagSnapshot.val())[0];
+    //                             var ref = database.ref('organizations/' + orgId + '/users/' + tagId + '/users/').orderByKey();
+    //                             if (nextBookmark) {
+    //                                 ref = ref.startAt(nextBookmark).limitToFirst(QUERYLIMIT + 1);
+    //                             } else if (prevBookmark) {
+    //                                 ref = ref.endAt(prevBookmark).limitToLast(QUERYLIMIT + 2);
+    //                             } else {
+    //                                 ref = ref.limitToFirst(QUERYLIMIT + 1);
+    //                             }
+    //                             ref.once('value').then(userSnapshot => {
+    //                                 if (userSnapshot.val() && Object.values(userSnapshot.val()).length > 0) {
 
-    //                                     if (highFiveCount >= 5 && highFiveCount < 15) {
-    //                                         color = '#F2994A';
-    //                                     } else if (highFiveCount >= 15 && highFiveCount < 30) {
-    //                                         color = '#6989A7';
-    //                                     } else if (highFiveCount >= 30) {
-    //                                         color = '#F2C94C';
-    //                                         if (highFiveCount >= 50 && highFiveCount < 75) {
-    //                                             rankEmoji = ':medal:';
-    //                                         } else if (highFiveCount >= 75 && highFiveCount < 100) {
-    //                                             rankEmoji = ':sports_medal:';
-    //                                         } else if (highFiveCount >= 100 && highFiveCount < 150) {
-    //                                             rankEmoji = ':trophy:';
-    //                                         } else if (highFiveCount >= 150 & highFiveCount < 250) {
-    //                                             rankEmoji = ':gem:';
-    //                                         } else if (highFiveCount >= 250) {
-    //                                             rankEmoji = ':crown:';
+    //                                     var options = {
+    //                                         options: []
+    //                                     };
+    //                                     var nextNewBookmark = null;
+    //                                     var previousNewBookmark = null;
+    //                                     var isTherePrevPage = false;
+    //                                     var count = 0;
+    //                                     userSnapshot.forEach(childSnapshot => {
+    //                                         if (prevBookmark && count === 0 && userSnapshot.numChildren() === QUERYLIMIT + 2) {
+    //                                             isTherePrevPage = true;
+    //                                         } else if (count < QUERYLIMIT) {
+    //                                             var highFiveCount = childSnapshot.val().hi_five_count;
+    //                                             var color = '#E0E0E0';
+    //                                             var rankEmoji = '';
+
+    //                                             if (highFiveCount >= 5 && highFiveCount < 15) {
+    //                                                 color = '#F2994A';
+    //                                             } else if (highFiveCount >= 15 && highFiveCount < 30) {
+    //                                                 color = '#6989A7';
+    //                                             } else if (highFiveCount >= 30) {
+    //                                                 color = '#F2C94C';
+    //                                                 if (highFiveCount >= 50 && highFiveCount < 75) {
+    //                                                     rankEmoji = ':medal:';
+    //                                                 } else if (highFiveCount >= 75 && highFiveCount < 100) {
+    //                                                     rankEmoji = ':sports_medal:';
+    //                                                 } else if (highFiveCount >= 100 && highFiveCount < 150) {
+    //                                                     rankEmoji = ':trophy:';
+    //                                                 } else if (highFiveCount >= 150 & highFiveCount < 250) {
+    //                                                     rankEmoji = ':gem:';
+    //                                                 } else if (highFiveCount >= 250) {
+    //                                                     rankEmoji = ':crown:';
+    //                                                 }
+    //                                             }
+
+    //                                             options.options.push({
+    //                                                 'fallback': childSnapshot.val().username,
+    //                                                 'callback_id': 'search_tag',
+    //                                                 'color': color,
+    //                                                 'title': '<@' + childSnapshot.val().user_id + '> ' + rankEmoji,
+                                                   
+    //                                             });
+
+    //                                             if (isTherePrevPage && count === 1) {
+    //                                                 previousNewBookmark = childSnapshot.key;
+    //                                             }
+    //                                         } else {
+    //                                             nextNewBookmark = childSnapshot.key;
     //                                         }
-    //                                     }
 
-    //                                     options.options.push({
-    //                                         'fallback': childSnapshot.val().username,
-    //                                         'callback_id': 'search_tag',
-    //                                         'color': color,
-    //                                         'title': '<@' + childSnapshot.val().user_id + '> ' + rankEmoji,
-    //                                         // 'actions': [
-    //                                         //     {
-    //                                         //         'name': 'search_tag_direct_message_button',
-    //                                         //         'text': 'Message',
-    //                                         //         'type': 'button',
-    //                                         //         'value': childSnapshot.key,
-    //                                         //         'style': 'primary'
-    //                                         //     }
-    //                                         // ]
+    //                                         count++;
     //                                     });
 
-    //                                     if (isTherePrevPage && count === 1) {
-    //                                         previousNewBookmark = childSnapshot.key;
+    //                                     if (userSnapshot.numChildren() === 0) {
+    //                                         // If the query was empty
+    //                                         return this.sendSearchEmptyMessage(res);
+    //                                     } else {
+    //                                         if (nextBookmark) {
+    //                                             previousNewBookmark = nextBookmark;
+    //                                         }
+    //                                         options.options.splice(0, 0, {
+    //                                             'fallback': 'Interactive menu to search for people with specific tags',
+    //                                             'callback_id': 'search_tag',
+    //                                             'color': '#E8E8E8',
+    //                                             'attachment_type': 'default',
+    //                                             'text': '*_Results for ' + tag + ' ..._*',
+    //                                             'actions': [
+    //                                                 {
+    //                                                     'name': 'start_again_search_button',
+    //                                                     'text': 'Start Again',
+    //                                                     'type': 'button',
+    //                                                     'value': 'start_again'
+    //                                                 },
+    //                                                 {
+    //                                                     'name': 'cancel_search_button',
+    //                                                     'text': 'Cancel',
+    //                                                     'type': 'button',
+    //                                                     'value': 'cancel'
+    //                                                 }
+    //                                             ]
+    //                                         });
+    //                                         return this.sendSearchMessage(options.options, tag, nextNewBookmark, previousNewBookmark, res);
     //                                     }
     //                                 } else {
-    //                                     nextNewBookmark = childSnapshot.key;
+    //                                     // If the query was empty
+    //                                     return this.sendSearchEmptyMessage(res);
     //                                 }
 
-    //                                 count++;
     //                             });
-
-    //                             if (userSnapshot.numChildren() === 0) {
-    //                                 // If the query was empty
-    //                                 return this.sendSearchEmptyMessage(res);
-    //                             } else {
-    //                                 if (nextBookmark) {
-    //                                     previousNewBookmark = nextBookmark;
-    //                                 }
-    //                                 options.options.splice(0, 0, {
-    //                                     'fallback': 'Interactive menu to search for people with specific tags',
-    //                                     'callback_id': 'search_tag',
-    //                                     'color': '#E8E8E8',
-    //                                     'attachment_type': 'default',
-    //                                     'text': '*_Results for ' + tag + ' ..._*',
-    //                                     'actions': [
-    //                                         {
-    //                                             'name': 'start_again_search_button',
-    //                                             'text': 'Start Again',
-    //                                             'type': 'button',
-    //                                             'value': 'start_again'
-    //                                         },
-    //                                         {
-    //                                             'name': 'cancel_search_button',
-    //                                             'text': 'Cancel',
-    //                                             'type': 'button',
-    //                                             'value': 'cancel'
-    //                                         }
-    //                                     ]
-    //                                 });
-    //                                 return this.sendSearchMessage(options.options, tag, nextNewBookmark, previousNewBookmark, res);
-    //                             }
     //                         } else {
     //                             // If the query was empty
     //                             return this.sendSearchEmptyMessage(res);
     //                         }
-                            
+    //                         return;
     //                     });
-    //                 } else {
-    //                     // If the query was empty
-    //                     return this.sendSearchEmptyMessage(res);
-    //                 }
-    //                 return;
-    //             });
-    //         } else {
-    //             // If the query was empty
-    //             return this.sendSearchEmptyMessage(res);
-    //         }
-    //     })
-    //     .catch(err => {
-    //         if (err) console.log(err);
-    //         return;
-    //     });
-    // },
+    //             } else {
+    //                 // If the query was empty
+    //                 return this.sendSearchEmptyMessage(res);
+    //             }
+    //         })
+    //         .catch(err => {
+    //             if (err) console.log(err);
+    //             return;
+    //         });
+    },
 
     /**
      * Sends the message indicating that the workspace has no tags currently in use.
@@ -406,23 +390,23 @@ module.exports = {
     },
 
     searchNextAction: function (payload, res) {
-        const teamID = payload.team.id;
-        const enterpriseID = payload.team.enterprise_id;
+        const teamId = payload.team.id;
+        const enterpriseId = payload.team.enterprise_id;
         const value = payload.actions[0]['value'];
         const bookmark = value.substring(0, value.indexOf('|'));
         const tag = value.substring(value.indexOf('|') + 1);
 
-        this.performSearchAction(teamID, tag, enterpriseID, bookmark, null, res);
+        this.performSearchAction(teamId, tag, enterpriseId, bookmark, null, res);
     },
 
     searchPreviousAction: function (payload, res) {
-        const teamID = payload.team.id;
-        const enterpriseID = payload.team.enterprise_id;
+        const teamId = payload.team.id;
+        const enterpriseId = payload.team.enterprise_id;
         const value = payload.actions[0]['value'];
         const bookmark = value.substring(0, value.indexOf('|'));
         const tag = value.substring(value.indexOf('|') + 1);
 
-        this.performSearchAction(teamID, tag, enterpriseID, null, bookmark, res);
+        this.performSearchAction(teamId, tag, enterpriseId, null, bookmark, res);
     },
 };
 

@@ -18,7 +18,7 @@ module.exports = {
         database.ref('organizations').orderByChild('slack_team_id').equalTo(teamId).once('value')
             .then(snapshot => {
                 if (snapshot.val() && Object.values(snapshot.val()).length > 0) {
-                    token = Object.values(snapshot.val())[0].bot_token;
+                    token = Object.values(snapshot.val())[0].slack_bot_token;
                     //Get DM id
                     request.get('https://slack.com/api/conversations.open?token=' + token + '&users=' + userId, (err, res, body) => {
                         if (err) {
